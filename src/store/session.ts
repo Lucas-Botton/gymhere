@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Role, UserProfile } from '../types';
+import { signOutSupabase } from '../lib/auth';
 
 interface PendingAction {
   kind: string;
@@ -29,6 +30,7 @@ interface SessionState {
   logout: () => void;
   becomeCoach: () => void;
   backToMember: () => void;
+  syncFromSupabase: (user: { id: string; email?: string | null } | null) => void;
 }
 
 export const useSession = create<SessionState>()(
@@ -75,10 +77,38 @@ export const useSession = create<SessionState>()(
         });
         if (pending) setTimeout(() => pending.resume(), 60);
       },
-      logout: () => set({ loggedIn: false, user: null, isCoach: false, role: null }),
+      logout: () => {
+        signOutSupabase().catch(() => {});
+        set({ loggedIn: false, user: null, isCoach: false, role: null });
+      },
 
       becomeCoach: () => set({ isCoach: true, role: 'coach', loggedIn: true }),
       backToMember: () => set({ role: 'member' }),
+
+      // Appelé au démarrage quand un projet Supabase est branché, pour resynchroniser
+      // la session locale avec la session Supabase réelle (voir app/_layout.tsx).
+      syncFromSupabase: (supaUser) => {
+        if (!supaUser) {
+          set({ loggedIn: false, user: null });
+          return;
+        }
+        const existing = get().user;
+        const pending = get().pendingAction;
+        set({
+          loggedIn: true,
+          authOpen: false,
+          pendingAction: null,
+          user: {
+            id: supaUser.id,
+            name: existing?.name ?? supaUser.email?.split('@')[0] ?? 'Toi',
+            email: supaUser.email ?? existing?.email ?? '',
+            city: get().city,
+            roles: existing?.roles ?? ['member'],
+            createdAt: existing?.createdAt ?? new Date().toISOString(),
+          },
+        });
+        if (pending) setTimeout(() => pending.resume(), 60);
+      },
     }),
     {
       name: 'gymhere-session',

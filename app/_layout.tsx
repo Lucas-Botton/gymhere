@@ -15,6 +15,8 @@ import {
 import AuthSheet from '../src/components/booking/AuthSheet';
 import BookingSheet from '../src/components/booking/BookingSheet';
 import Toast from '../src/components/ui/Toast';
+import { supabase, isSupabaseConfigured } from '../src/lib/supabase';
+import { useSession } from '../src/store/session';
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
 
@@ -34,6 +36,16 @@ export default function RootLayout() {
   useEffect(() => {
     onLayout();
   }, [onLayout]);
+
+  // Quand un vrai projet Supabase est branché (voir README), on garde la session
+  // locale synchronisée avec la session Supabase (connexion / déconnexion / refresh).
+  useEffect(() => {
+    if (!isSupabaseConfigured || !supabase) return;
+    const sync = useSession.getState().syncFromSupabase;
+    supabase.auth.getSession().then(({ data }) => sync(data.session?.user ?? null));
+    const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => sync(session?.user ?? null));
+    return () => sub.subscription.unsubscribe();
+  }, []);
 
   if (!fontsLoaded) return null;
 
