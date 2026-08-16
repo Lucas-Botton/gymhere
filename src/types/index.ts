@@ -1,0 +1,207 @@
+// Data model, mirroring HANDOFF.md section 9 and the Supabase schema in supabase/schema.sql
+
+export type Role = 'member' | 'coach';
+
+export type BookingKind = 'essai' | 'inscription' | 'contact' | 'appel' | 'formule';
+export type BookingMode = 'slot' | 'request';
+export type BookingStatus = 'en_attente' | 'confirme' | 'accepte' | 'refuse';
+export type TargetType = 'gym' | 'coach';
+export type ServiceKey = 'Présentiel salle' | 'Visio' | 'Téléphone';
+export type FormuleMode = 'Présentiel' | 'Visio' | 'En ligne';
+
+export interface EquipmentItem {
+  name: string;
+  brand: string;
+  qty: number;
+}
+
+export interface EquipmentGroup {
+  group: string;
+  items: EquipmentItem[];
+}
+
+export interface GymService {
+  name: string;
+  icon: string;
+  tint: string;
+  color: string;
+}
+
+export interface GymFormula {
+  name: string;
+  sub: string;
+  price: string;
+  highlight: boolean;
+}
+
+export interface GymReview {
+  authorName: string;
+  authorInitial: string;
+  stars: number;
+  text: string;
+}
+
+export interface Gym {
+  id: string;
+  name: string;
+  certified: boolean;
+  sponsored: boolean;
+  rating: number;
+  reviews: number;
+  distanceKm: number;
+  priceFrom: number;
+  photo: string; // gradient css-like string, used by GradientBlock
+  tags: string[];
+  address: string;
+  quartier: string;
+  lat: number;
+  lng: number;
+  hours: string;
+  hoursColor: string;
+  hoursSub: string;
+  services: GymService[];
+  formulas: GymFormula[];
+  groups: EquipmentGroup[];
+  coachIds: string[];
+  reviewList: GymReview[];
+  gallery: string[];
+}
+
+export interface CoachCredential {
+  label: string;
+  verified: boolean;
+}
+
+export interface CoachOffer {
+  name: string;
+  mode: FormuleMode;
+  duration: string;
+  price: string;
+  per: string;
+  desc: string;
+  highlight: boolean;
+}
+
+export interface CoachSocials {
+  instagram?: string;
+  tiktok?: string;
+  youtube?: string;
+  linkedin?: string;
+}
+
+export type WeekDay = 'Lun' | 'Mar' | 'Mer' | 'Jeu' | 'Ven' | 'Sam' | 'Dim';
+export interface TimeRange {
+  from: string;
+  to: string;
+}
+export type Availability = Record<ServiceKey, Partial<Record<WeekDay, TimeRange[]>>>;
+
+export interface Coach {
+  id: string;
+  name: string;
+  rating: number;
+  reviews: number;
+  zone: string;
+  photo: string;
+  specs: string[];
+  bio: string;
+  modalities: string[];
+  diplomas: CoachCredential[];
+  certifs: CoachCredential[];
+  offers: CoachOffer[];
+  gymIds: string[];
+  socials: CoachSocials;
+  gallery: string[];
+  availability: Availability;
+  published: boolean;
+  completion: number;
+}
+
+export interface Booking {
+  id: string;
+  userId: string;
+  targetType: TargetType;
+  targetId: string;
+  targetName: string;
+  kind: BookingKind;
+  mode: BookingMode;
+  date: string | null;
+  slot: string | null;
+  message: string;
+  status: BookingStatus;
+  createdAt: string;
+}
+
+export interface Review {
+  id: string;
+  userId: string;
+  targetType: TargetType;
+  targetId: string;
+  bookingId: string;
+  stars: number;
+  criteria: Record<string, number>;
+  tags: string[];
+  comment: string;
+  createdAt: string;
+}
+
+export interface AppNotification {
+  id: string;
+  kind: 'system' | 'reco' | 'booking' | 'message';
+  icon: string;
+  accent: string;
+  title: string;
+  body: string;
+  createdAt: string;
+  read: boolean;
+}
+
+export interface ChatMessage {
+  from: 'me' | 'them';
+  text: string;
+  time: string;
+}
+
+export interface ChatThread {
+  id: string;
+  name: string;
+  avatarBg: string;
+  role: string;
+  messages: ChatMessage[];
+}
+
+export interface UserProfile {
+  id: string;
+  name: string;
+  email: string;
+  phone?: string;
+  avatarUrl?: string;
+  city: string;
+  roles: Role[];
+  createdAt: string;
+}
+
+export interface Goal {
+  key: string;
+  label: string;
+  emoji: string;
+  gymIds: string[];
+  specs: string[];
+}
+
+// Fiche coach en cours d'édition côté "Espace coach" (avant publication/paiement)
+export interface CoachDraft {
+  name: string;
+  photo: string;
+  bio: string;
+  specs: string[];
+  modalities: string[];
+  diplomas: CoachCredential[];
+  certifs: CoachCredential[];
+  offers: CoachOffer[];
+  gymIds: string[];
+  socials: CoachSocials;
+  galleryCount: number;
+  availability: Availability;
+  published: boolean;
+}
