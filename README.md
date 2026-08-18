@@ -3,10 +3,11 @@
 App mobile (iOS + Android, un seul code) construite avec **React Native (Expo)**, en suivant
 le cahier des charges `HANDOFF.md` et la maquette `Jimmy.dc.html`.
 
-> Note technique : le projet tourne sur **Expo SDK 56** (et non la toute dernière 57) car,
-> au moment de l'écriture, l'app Expo Go compatible SDK 57 n'était pas encore validée par
-> Apple sur l'App Store. On pourra remonter en SDK 57 dès qu'Expo Go sera à jour ; ça ne
-> change rien au fonctionnement de l'app.
+> Note technique : le projet tourne sur **Expo SDK 54** (et non la toute dernière 57) car,
+> au moment de l'écriture, c'est la seule version qu'Expo Go arrive à installer depuis
+> l'App Store (Apple n'a pas encore validé les mises à jour d'Expo Go pour les SDK 55, 56
+> et 57). On pourra remonter en SDK plus récent dès qu'Expo Go sera à jour sur l'App Store ;
+> ça ne change rien au fonctionnement de l'app.
 
 ## Voir l'app sur ton téléphone (aucune installation compliquée)
 
