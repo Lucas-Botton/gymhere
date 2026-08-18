@@ -109,7 +109,7 @@ export default function Profile() {
               tint="#EEF0FF"
               iconColor={colors.blue}
               icon={<IconBell size={15} color={colors.blue} />}
-              onPress={() => router.push({ pathname: '/notifications', params: { from: 'profile' } })}
+              onPress={() => router.push('/notifications')}
             />
             <Row label="Réglages" tint={colors.bgTint} iconColor={colors.textMuted} icon="⚙" onPress={() => router.push('/settings')} />
           </View>

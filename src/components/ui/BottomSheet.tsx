@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Modal, View, Pressable, Animated, StyleSheet, Dimensions, Keyboard, Platform, EmitterSubscription } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors, radius, shadow } from '../../theme';
@@ -22,8 +22,16 @@ export default function BottomSheet({
   const translateY = useRef(new Animated.Value(SCREEN_H)).current;
   const backdrop = useRef(new Animated.Value(0)).current;
   const keyboardOffset = useRef(new Animated.Value(0)).current;
-  const [keyboardHeight, setKeyboardHeight] = useState(0);
   const insets = useSafeAreaInsets();
+
+  // Never let the keyboard push the sheet's TOP past this — otherwise a tall
+  // sheet (maxHeightRatio close to 1) gets shoved clean off the top of the
+  // screen and its header/content vanish, leaving only whatever's pinned
+  // below (e.g. a footer). The sheet's natural top (worst case, content
+  // fills maxHeight) is SCREEN_H * (1 - maxHeightRatio); we only allow
+  // shifting up to just above the safe-area inset.
+  const naturalTop = SCREEN_H * (1 - maxHeightRatio);
+  const maxShift = Math.max(0, naturalTop - insets.top - 12);
 
   useEffect(() => {
     if (visible) {
@@ -35,40 +43,32 @@ export default function BottomSheet({
       translateY.setValue(SCREEN_H);
       backdrop.setValue(0);
       keyboardOffset.setValue(0);
-      setKeyboardHeight(0);
     }
   }, [visible]);
 
   // KeyboardAvoidingView is unreliable inside a transparent RN <Modal> on iOS,
-  // so track keyboard height manually and shift the sheet up ourselves. The
-  // sheet's maxHeight must shrink by the same amount the sheet is translated
-  // up, otherwise a tall sheet gets pushed off the TOP of the screen (its
-  // header/first fields end up above the visible area) instead of just
-  // clearing the keyboard at the bottom.
+  // so track keyboard height manually and shift the sheet up ourselves,
+  // capped by maxShift (see above).
   useEffect(() => {
     if (!visible) return;
     let subShow: EmitterSubscription;
     let subHide: EmitterSubscription;
     if (Platform.OS === 'ios') {
       subShow = Keyboard.addListener('keyboardWillShow', (e) => {
-        setKeyboardHeight(e.endCoordinates.height);
         Animated.timing(keyboardOffset, {
-          toValue: -e.endCoordinates.height,
+          toValue: -Math.min(e.endCoordinates.height, maxShift),
           duration: e.duration || 250,
           useNativeDriver: true,
         }).start();
       });
       subHide = Keyboard.addListener('keyboardWillHide', (e) => {
-        setKeyboardHeight(0);
         Animated.timing(keyboardOffset, { toValue: 0, duration: e.duration || 250, useNativeDriver: true }).start();
       });
     } else {
       subShow = Keyboard.addListener('keyboardDidShow', (e) => {
-        setKeyboardHeight(e.endCoordinates.height);
-        Animated.timing(keyboardOffset, { toValue: -e.endCoordinates.height, duration: 150, useNativeDriver: true }).start();
+        Animated.timing(keyboardOffset, { toValue: -Math.min(e.endCoordinates.height, maxShift), duration: 150, useNativeDriver: true }).start();
       });
       subHide = Keyboard.addListener('keyboardDidHide', () => {
-        setKeyboardHeight(0);
         Animated.timing(keyboardOffset, { toValue: 0, duration: 150, useNativeDriver: true }).start();
       });
     }
@@ -96,10 +96,7 @@ export default function BottomSheet({
           style={[
             styles.sheet,
             shadow.sheet,
-            {
-              maxHeight: Math.max(280, SCREEN_H * maxHeightRatio - keyboardHeight),
-              transform: [{ translateY }, { translateY: keyboardOffset }],
-            },
+            { maxHeight: SCREEN_H * maxHeightRatio, transform: [{ translateY }, { translateY: keyboardOffset }] },
           ]}
         >
           <View style={styles.grabber} />

@@ -39,7 +39,7 @@ export function GymCardFeatured({ gym }: { gym: Gym }) {
   return (
     <Tap
       onPress={() => router.push(`/gym/${gym.id}`)}
-      style={[styles.featuredOuter, shadow.card]}
+      style={[styles.featuredOuter, gym.sponsored ? styles.featuredGlowPink : shadow.card]}
     >
       <View style={styles.featuredWrap}>
         <GradientBlock kind={gym.photo as GradientKey} style={styles.featuredPhoto}>
@@ -108,6 +108,13 @@ export function GymCardCompact({ gym }: { gym: Gym }) {
 
 const styles = StyleSheet.create({
   featuredOuter: { width: 250, marginRight: spacing.md, borderRadius: radius.xl, backgroundColor: '#fff' },
+  featuredGlowPink: {
+    shadowColor: colors.pink,
+    shadowOpacity: 0.4,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 6 },
+    elevation: 6,
+  },
   featuredWrap: { borderRadius: radius.xl, backgroundColor: '#fff', overflow: 'hidden' },
   featuredPhoto: { height: 130, padding: spacing.sm, alignItems: 'flex-end' },
   featuredBody: { padding: spacing.md },

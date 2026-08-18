@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { View, StyleSheet, FlatList } from 'react-native';
-import { router, useLocalSearchParams } from 'expo-router';
+import { router } from 'expo-router';
 import Text from '../src/components/ui/Text';
 import ScreenHeader from '../src/components/ui/ScreenHeader';
 import { colors, radius, spacing } from '../src/theme';
@@ -16,7 +16,6 @@ function timeAgo(iso: string) {
 }
 
 export default function Notifications() {
-  const { from } = useLocalSearchParams<{ from?: string }>();
   const notifications = useApp((s) => s.notifications);
   const markAllRead = useApp((s) => s.markAllNotificationsRead);
 
@@ -24,10 +23,7 @@ export default function Notifications() {
     markAllRead();
   }, []);
 
-  const goBack = () => {
-    if (from === 'profile') router.replace('/(member)/profile');
-    else router.replace('/(member)/explore');
-  };
+  const goBack = () => router.back();
 
   return (
     <View style={{ flex: 1, backgroundColor: '#fff' }}>

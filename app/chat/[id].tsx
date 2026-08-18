@@ -9,7 +9,7 @@ import { useApp } from '../../src/store/app';
 import { findCoach } from '../../src/data/seed';
 
 export default function Chat() {
-  const { id, back } = useLocalSearchParams<{ id: string; back?: string }>();
+  const { id } = useLocalSearchParams<{ id: string }>();
   const coach = findCoach(id);
   const ensureThread = useApp((s) => s.ensureThread);
   const sendMessage = useApp((s) => s.sendMessage);
@@ -30,10 +30,7 @@ export default function Chat() {
 
   if (!coach) return null;
 
-  const goBack = () => {
-    if (back === 'profile') router.replace('/(member)/profile');
-    else router.replace('/requests');
-  };
+  const goBack = () => router.back();
 
   const send = () => {
     if (!text.trim() || !id) return;

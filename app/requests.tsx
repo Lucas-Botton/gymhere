@@ -54,7 +54,7 @@ export default function Requests() {
                   <Pressable
                     onPress={() => {
                       const coach = findCoach(item.targetId);
-                      if (coach) router.push({ pathname: '/chat/[id]', params: { id: coach.id, back: 'requests' } });
+                      if (coach) router.push({ pathname: '/chat/[id]', params: { id: coach.id } });
                     }}
                     style={styles.actionBtn}
                   >

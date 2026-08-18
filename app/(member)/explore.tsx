@@ -56,7 +56,7 @@ export default function Explore() {
               </Text>
             </Glass>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-              <Pressable onPress={() => router.push({ pathname: '/notifications', params: { from: 'explore' } })} hitSlop={8}>
+              <Pressable onPress={() => router.push('/notifications')} hitSlop={8}>
                 <Glass variant="light" style={styles.iconBtn}>
                   <IconBell size={19} color="#fff" />
                 </Glass>

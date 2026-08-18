@@ -41,7 +41,7 @@ export function gymEquipHit(g: Gym, needle: string): boolean {
 }
 
 export interface FiltersInput {
-  equipQuery: string;
+  equipItems: string[];
   muscles: string[];
   brands: string[];
   services: string[];
@@ -58,12 +58,11 @@ export function gymDistanceKm(g: Gym, coords: { lat: number; lng: number } | nul
 }
 
 export function gymPassesFilters(g: Gym, f: FiltersInput, coords: { lat: number; lng: number } | null = null): boolean {
-  const eq = f.equipQuery.trim();
   return (
     g.rating >= f.minRating &&
     g.priceFrom <= f.priceMax &&
     gymDistanceKm(g, coords) <= f.distance &&
-    (eq.length === 0 || gymEquipHit(g, eq)) &&
+    (f.equipItems.length === 0 || f.equipItems.every((eq) => gymEquipHit(g, eq))) &&
     (f.muscles.length === 0 || f.muscles.every((m) => gymMuscleGroups(g).includes(m))) &&
     (f.brands.length === 0 || f.brands.some((b) => gymBrands(g).includes(b))) &&
     (f.services.length === 0 || f.services.every((s) => gymServiceNames(g).includes(s)))
@@ -71,7 +70,7 @@ export function gymPassesFilters(g: Gym, f: FiltersInput, coords: { lat: number;
 }
 
 export function activeFilterCount(f: FiltersInput): number {
-  return f.brands.length + f.services.length + f.muscles.length + (f.minRating > 0 ? 1 : 0) + (f.equipQuery.trim().length > 0 ? 1 : 0);
+  return f.brands.length + f.services.length + f.muscles.length + f.equipItems.length + (f.minRating > 0 ? 1 : 0);
 }
 
 export interface SearchResult {

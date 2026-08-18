@@ -59,7 +59,7 @@ const seedInbox: InboxEntry[] = [
 ];
 
 interface Filters {
-  equipQuery: string;
+  equipItems: string[];
   muscles: string[];
   brands: string[];
   services: string[];
@@ -69,7 +69,7 @@ interface Filters {
 }
 
 const defaultFilters: Filters = {
-  equipQuery: '',
+  equipItems: [],
   muscles: [],
   brands: [],
   services: [],

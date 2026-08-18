@@ -18,12 +18,24 @@ export default function FiltersSheet({ visible, onClose }: { visible: boolean; o
   const resetFilters = useApp((s) => s.resetFilters);
 
   const [local, setLocal] = useState(stored);
+  const [equipDraft, setEquipDraft] = useState('');
   useEffect(() => {
-    if (visible) setLocal(stored);
+    if (visible) {
+      setLocal(stored);
+      setEquipDraft('');
+    }
   }, [visible]);
 
-  const toggle = (key: 'brands' | 'services', value: string) => {
+  const toggle = (key: 'brands' | 'services' | 'equipItems', value: string) => {
     setLocal((s) => ({ ...s, [key]: s[key].includes(value) ? s[key].filter((x) => x !== value) : [...s[key], value] }));
+  };
+
+  const addEquipDraft = () => {
+    const v = equipDraft.trim();
+    if (v && !local.equipItems.includes(v)) {
+      setLocal((s) => ({ ...s, equipItems: [...s.equipItems, v] }));
+    }
+    setEquipDraft('');
   };
 
   const coords = useLocationStore((s) => s.coords);
@@ -42,16 +54,30 @@ export default function FiltersSheet({ visible, onClose }: { visible: boolean; o
     <BottomSheet visible={visible} onClose={onClose} title="Filtres">
       <ScrollView style={{ flex: 1, paddingHorizontal: spacing.xl }} contentContainerStyle={{ paddingBottom: spacing.lg }}>
         <Section label="Matériel spécifique">
-          <TextInput
-            value={local.equipQuery}
-            onChangeText={(v) => setLocal((s) => ({ ...s, equipQuery: v }))}
-            placeholder="Hack squat, Eleiko, rameur..."
-            placeholderTextColor={colors.textLight}
-            style={styles.input}
-          />
+          <Text weight="semibold" color={colors.textMuted} style={{ fontSize: 12, marginBottom: spacing.sm, marginTop: -4 }}>
+            Sélectionne plusieurs machines, ou tape la tienne.
+          </Text>
+          <View style={styles.equipInputRow}>
+            <TextInput
+              value={equipDraft}
+              onChangeText={setEquipDraft}
+              onSubmitEditing={addEquipDraft}
+              returnKeyType="done"
+              placeholder="Hack squat, Eleiko, rameur..."
+              placeholderTextColor={colors.textLight}
+              style={[styles.input, { flex: 1, marginBottom: 0 }]}
+            />
+            {equipDraft.trim().length > 0 ? (
+              <Pressable onPress={addEquipDraft} style={styles.addBtn}>
+                <Text weight="black" color="#fff" style={{ fontSize: 13 }}>
+                  Ajouter
+                </Text>
+              </Pressable>
+            ) : null}
+          </View>
           <View style={styles.wrapRow}>
-            {POPULAR_EQUIPMENT.slice(0, 6).map((e) => (
-              <Chip key={e} label={e} active={local.equipQuery === e} onPress={() => setLocal((s) => ({ ...s, equipQuery: e }))} />
+            {[...new Set([...POPULAR_EQUIPMENT.slice(0, 6), ...local.equipItems])].map((e) => (
+              <Chip key={e} label={e} active={local.equipItems.includes(e)} onPress={() => toggle('equipItems', e)} />
             ))}
           </View>
         </Section>
@@ -143,6 +169,8 @@ const styles = StyleSheet.create({
     marginBottom: spacing.sm,
   },
   wrapRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  equipInputRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: spacing.sm },
+  addBtn: { height: 46, paddingHorizontal: 14, borderRadius: 12, backgroundColor: colors.pink, alignItems: 'center', justifyContent: 'center' },
   footer: {
     flexDirection: 'row',
     alignItems: 'center',

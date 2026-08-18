@@ -35,7 +35,7 @@ export default function CoachChat() {
 
   return (
     <KeyboardAvoidingView style={{ flex: 1, backgroundColor: '#fff' }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-      <ScreenHeader title={name ?? 'Conversation'} onBack={() => router.replace('/(coach)/demandes')} />
+      <ScreenHeader title={name ?? 'Conversation'} onBack={() => router.back()} />
       <FlatList
         ref={listRef}
         data={thread?.messages ?? []}
