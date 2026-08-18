@@ -31,7 +31,7 @@ export default function FormulasSheet({ visible, onClose }: { visible: boolean; 
 
   return (
     <BottomSheet visible={visible} onClose={onClose} title="Mes formules">
-      <ScrollView style={{ paddingHorizontal: spacing.xl }} contentContainerStyle={{ paddingBottom: spacing.xl }}>
+      <ScrollView style={{ flex: 1, paddingHorizontal: spacing.xl }} contentContainerStyle={{ paddingBottom: spacing.xl }}>
         {offers.map((o, i) => (
           <View key={i} style={styles.item}>
             <View style={{ flex: 1 }}>

@@ -24,7 +24,7 @@ export default function AvailabilitySheet({ visible, onClose }: { visible: boole
 
   return (
     <BottomSheet visible={visible} onClose={onClose} title="Mes disponibilités">
-      <ScrollView style={{ paddingHorizontal: spacing.xl }} contentContainerStyle={{ paddingBottom: spacing.xl }}>
+      <ScrollView style={{ flex: 1, paddingHorizontal: spacing.xl }} contentContainerStyle={{ paddingBottom: spacing.xl }}>
         <View style={{ flexDirection: 'row', gap: 8, marginBottom: spacing.lg }}>
           {SERVICES.map((s) => (
             <Chip key={s} label={s} active={service === s} onPress={() => setService(s)} />

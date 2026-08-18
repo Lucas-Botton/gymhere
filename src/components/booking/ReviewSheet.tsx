@@ -65,7 +65,7 @@ export default function ReviewSheet({ booking, onClose }: { booking: Booking | n
           <Button label="Fermer" onPress={onClose} style={{ marginTop: spacing.xl, alignSelf: 'stretch', marginHorizontal: spacing.xl }} />
         </View>
       ) : (
-        <ScrollView style={{ paddingHorizontal: spacing.xl }} contentContainerStyle={{ paddingBottom: spacing.xl }}>
+        <ScrollView style={{ flex: 1, paddingHorizontal: spacing.xl }} contentContainerStyle={{ paddingBottom: spacing.xl }}>
           <View style={{ alignItems: 'center', marginBottom: spacing.lg }}>
             <View style={{ flexDirection: 'row', gap: 6 }}>
               {[1, 2, 3, 4, 5].map((n) => (

@@ -1,5 +1,6 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import { View, StyleSheet, Pressable, ScrollView, TextInput } from 'react-native';
+import { router } from 'expo-router';
 import BottomSheet from '../ui/BottomSheet';
 import Text from '../ui/Text';
 import Button from '../ui/Button';
@@ -67,6 +68,11 @@ export default function BookingSheet() {
     if (done) showToast('Enregistré dans "Mes demandes"');
   };
 
+  const goToRequests = () => {
+    sheet.close();
+    router.push('/requests');
+  };
+
   return (
     <BottomSheet visible={sheet.open} onClose={close} title={done ? undefined : sheet.sub || cfg.label}>
       {done ? (
@@ -82,10 +88,10 @@ export default function BookingSheet() {
           <Text weight="semibold" color={colors.textMuted} style={{ fontSize: 14, textAlign: 'center', marginTop: 6, paddingHorizontal: 10 }}>
             {cfg.doneSub}
           </Text>
-          <Button label="Voir mes demandes" onPress={close} style={{ marginTop: spacing.xl, alignSelf: 'stretch', marginHorizontal: spacing.xl }} />
+          <Button label="Voir mes demandes" onPress={goToRequests} style={{ marginTop: spacing.xl, alignSelf: 'stretch', marginHorizontal: spacing.xl }} />
         </View>
       ) : (
-        <ScrollView style={{ paddingHorizontal: spacing.xl }} contentContainerStyle={{ paddingBottom: spacing.xl }}>
+        <ScrollView style={{ flex: 1, paddingHorizontal: spacing.xl }} contentContainerStyle={{ paddingBottom: spacing.xl }}>
           <Text weight="bold" color={colors.textMuted} style={{ fontSize: 13, marginBottom: spacing.md }}>
             {sheet.targetName}
             {sheet.serviceKey ? ` · dispos réelles du coach` : ''}

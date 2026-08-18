@@ -37,7 +37,7 @@ export default function PresentationSheet({ visible, onClose }: { visible: boole
 
   return (
     <BottomSheet visible={visible} onClose={onClose} title="Ma présentation">
-      <ScrollView style={{ paddingHorizontal: spacing.xl }} contentContainerStyle={{ paddingBottom: spacing.xl }}>
+      <ScrollView style={{ flex: 1, paddingHorizontal: spacing.xl }} contentContainerStyle={{ paddingBottom: spacing.xl }}>
         <Text weight="extrabold" style={{ fontSize: 12.5, marginBottom: spacing.sm }}>
           Photo de profil
         </Text>

@@ -3,6 +3,7 @@ import { View, StyleSheet, FlatList, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import Text from '../src/components/ui/Text';
+import Button from '../src/components/ui/Button';
 import ScreenHeader from '../src/components/ui/ScreenHeader';
 import { StatusPill } from '../src/components/ui/primitives';
 import ReviewSheet from '../src/components/booking/ReviewSheet';
@@ -80,6 +81,7 @@ export default function Requests() {
             <Text weight="semibold" color={colors.textMuted} style={{ fontSize: 13, textAlign: 'center', marginTop: 4 }}>
               Réserve une séance d’essai ou contacte un coach pour la voir apparaître ici.
             </Text>
+            <Button label="Explorer les salles" onPress={() => router.push('/(member)/explore')} style={{ marginTop: spacing.xl }} />
           </View>
         }
       />

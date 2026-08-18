@@ -30,7 +30,7 @@ export default function CredentialsSheet({
 
   return (
     <BottomSheet visible={visible} onClose={onClose} title={title}>
-      <ScrollView style={{ paddingHorizontal: spacing.xl }} contentContainerStyle={{ paddingBottom: spacing.xl }}>
+      <ScrollView style={{ flex: 1, paddingHorizontal: spacing.xl }} contentContainerStyle={{ paddingBottom: spacing.xl }}>
         <Text weight="semibold" color={colors.textMuted} style={{ fontSize: 12.5, marginBottom: spacing.md }}>
           Ajoute librement ce que tu as obtenu. Chaque entrée passe en vérification par l’équipe gymhere.
         </Text>

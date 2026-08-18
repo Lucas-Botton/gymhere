@@ -38,7 +38,7 @@ export default function FiltersSheet({ visible, onClose }: { visible: boolean; o
 
   return (
     <BottomSheet visible={visible} onClose={onClose} title="Filtres">
-      <ScrollView style={{ paddingHorizontal: spacing.xl }} contentContainerStyle={{ paddingBottom: spacing.md }}>
+      <ScrollView style={{ flex: 1, paddingHorizontal: spacing.xl }} contentContainerStyle={{ paddingBottom: spacing.lg }}>
         <Section label="Matériel spécifique">
           <TextInput
             value={local.equipQuery}

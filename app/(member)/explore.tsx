@@ -92,6 +92,15 @@ export default function Explore() {
         </Pressable>
       </View>
 
+      <View style={{ paddingHorizontal: spacing.lg, paddingBottom: spacing.sm }}>
+        <Pressable onPress={() => router.push('/compare')} style={styles.compareBtn}>
+          <Text style={{ fontSize: 15 }}>⇄</Text>
+          <Text weight="extrabold" color={colors.violet} style={{ fontSize: 13.5 }}>
+            Comparer les salles côte à côte
+          </Text>
+        </Pressable>
+      </View>
+
       {mapView ? (
         <GymMap gyms={filtered} />
       ) : (
@@ -177,6 +186,17 @@ const styles = StyleSheet.create({
   cityPill: { backgroundColor: 'rgba(255,255,255,0.22)', paddingHorizontal: 12, paddingVertical: 7, borderRadius: radius.pill },
   iconBtn: { width: 36, height: 36, borderRadius: 18, backgroundColor: 'rgba(255,255,255,0.22)', alignItems: 'center', justifyContent: 'center' },
   dot: { position: 'absolute', top: 7, right: 8, width: 8, height: 8, borderRadius: 4, backgroundColor: '#FFD84D', borderWidth: 1.5, borderColor: '#fff' },
+  compareBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 9,
+    borderWidth: 1.5,
+    borderColor: '#EEE1EE',
+    backgroundColor: colors.bgTint2,
+    borderRadius: radius.lg,
+    paddingVertical: 13,
+  },
   searchBar: {
     flexDirection: 'row',
     alignItems: 'center',

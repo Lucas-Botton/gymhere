@@ -67,7 +67,9 @@ export default function BottomSheet({
               </Pressable>
             </View>
           ) : null}
-          <SafeAreaView edges={['bottom']}>{children}</SafeAreaView>
+          <SafeAreaView edges={['bottom']} style={{ flexShrink: 1 }}>
+            {children}
+          </SafeAreaView>
         </Animated.View>
       </View>
     </Modal>

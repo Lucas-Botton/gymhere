@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, Pressable, ScrollView, TextInput } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import Text from '../../src/components/ui/Text';
 import Button from '../../src/components/ui/Button';
@@ -8,7 +9,7 @@ import GradientBlock from '../../src/components/ui/GradientBlock';
 import { Avatar } from '../../src/components/ui/primitives';
 import BottomSheet from '../../src/components/ui/BottomSheet';
 import { IconBell } from '../../src/components/ui/icons';
-import { colors, radius, shadow, spacing } from '../../src/theme';
+import { colors, radius, spacing } from '../../src/theme';
 import { useSession } from '../../src/store/session';
 import { useApp } from '../../src/store/app';
 
@@ -25,65 +26,93 @@ export default function Profile() {
 
   return (
     <View style={{ flex: 1, backgroundColor: '#fff' }}>
-      <GradientBlock kind="brand" style={styles.header}>
-        <SafeAreaView edges={['top']}>
-          <View style={{ alignItems: 'center', marginTop: spacing.md }}>
-            <Avatar size={72} gradient="blueMint" initial={(user?.name ?? 'A')[0]} />
-            <Text weight="black" color="#fff" style={{ fontSize: 19, marginTop: spacing.sm }}>
-              {user?.name ?? 'Alex'}
-            </Text>
-            <Text weight="semibold" color="rgba(255,255,255,0.85)" style={{ fontSize: 12.5, marginTop: 2 }}>
-              {city} · membre depuis {memberSince}
-            </Text>
-          </View>
-        </SafeAreaView>
-      </GradientBlock>
+      <ScrollView contentContainerStyle={{ paddingBottom: spacing.xxl }}>
+        <GradientBlock kind="brand" style={styles.header}>
+          <SafeAreaView edges={['top']}>
+            <View style={styles.headerRow}>
+              <View style={styles.avatarWrap}>
+                <Avatar size={66} gradient="blueMint" initial={(user?.name ?? 'A')[0]} />
+                <View style={styles.editBadge}>
+                  <Text style={{ fontSize: 11 }}>✎</Text>
+                </View>
+              </View>
+              <View>
+                <Text weight="black" color="#fff" style={{ fontSize: 20 }}>
+                  {user?.name ?? 'Alex'}
+                </Text>
+                <Text weight="bold" color="rgba(255,255,255,0.85)" style={{ fontSize: 12.5, marginTop: 2 }}>
+                  {city} · membre depuis {memberSince}
+                </Text>
+              </View>
+            </View>
+          </SafeAreaView>
+        </GradientBlock>
 
-      <ScrollView contentContainerStyle={{ padding: spacing.lg, paddingBottom: spacing.xxl }}>
-        <Pressable
-          onPress={() => {
-            becomeCoach();
-            router.replace('/(coach)/ma-fiche');
-          }}
-          style={styles.coachCard}
-        >
-          <Text style={{ fontSize: 26 }}>🏋️</Text>
-          <View style={{ flex: 1, marginLeft: spacing.md }}>
-            <Text weight="black" color="#fff" style={{ fontSize: 14.5 }}>
-              Passer en mode coach
-            </Text>
-            <Text weight="semibold" color="rgba(255,255,255,0.75)" style={{ fontSize: 11.5, marginTop: 2 }}>
-              Publie ta fiche pro et reçois des demandes.
-            </Text>
-          </View>
-          <Text weight="black" color="#fff" style={{ fontSize: 18 }}>
-            →
-          </Text>
-        </Pressable>
+        <View style={{ paddingHorizontal: spacing.lg, paddingTop: spacing.lg }}>
+          <Pressable
+            onPress={() => {
+              becomeCoach();
+              router.replace('/(coach)/ma-fiche');
+            }}
+          >
+            <LinearGradient colors={['#1A1024', '#3A2150', '#5A2E66']} locations={[0, 0.65, 1]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.coachCard}>
+              <View style={styles.coachIconBox}>
+                <Text style={{ fontSize: 18 }}>⚡</Text>
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text weight="black" color="#fff" style={{ fontSize: 14.5 }}>
+                  Passer en mode coach
+                </Text>
+                <Text weight="bold" color="rgba(255,255,255,0.7)" style={{ fontSize: 12, marginTop: 1 }}>
+                  Gère ta fiche pro & tes demandes
+                </Text>
+              </View>
+              <Text weight="black" color="rgba(255,255,255,0.6)" style={{ fontSize: 18 }}>
+                ›
+              </Text>
+            </LinearGradient>
+          </Pressable>
 
-        <View style={styles.countersRow}>
-          <Pressable onPress={() => router.push('/requests')} style={[styles.counterCard, shadow.soft]}>
-            <Text weight="black" style={{ fontSize: 20 }}>
-              {bookings.length}
-            </Text>
-            <Text weight="bold" color={colors.textMuted} style={{ fontSize: 11.5 }}>
-              Demandes
-            </Text>
-          </Pressable>
-          <Pressable onPress={() => router.push('/(member)/favorites')} style={[styles.counterCard, shadow.soft]}>
-            <Text weight="black" style={{ fontSize: 20 }}>
-              {favGyms.length + favCoaches.length}
-            </Text>
-            <Text weight="bold" color={colors.textMuted} style={{ fontSize: 11.5 }}>
-              Favoris
-            </Text>
-          </Pressable>
+          <View style={styles.countersRow}>
+            <Pressable onPress={() => router.push('/requests')} style={styles.counterCard}>
+              <Text weight="black" color={colors.pink} style={{ fontSize: 22 }}>
+                {bookings.length}
+              </Text>
+              <Text weight="extrabold" color={colors.textMuted} style={{ fontSize: 11.5, marginTop: 2 }}>
+                Demande(s)
+              </Text>
+            </Pressable>
+            <Pressable onPress={() => router.push('/(member)/favorites')} style={styles.counterCard}>
+              <Text weight="black" color={colors.violet} style={{ fontSize: 22 }}>
+                {favGyms.length + favCoaches.length}
+              </Text>
+              <Text weight="extrabold" color={colors.textMuted} style={{ fontSize: 11.5, marginTop: 2 }}>
+                Favori(s)
+              </Text>
+            </Pressable>
+          </View>
+
+          <View style={{ gap: spacing.sm, marginTop: spacing.md }}>
+            <Row
+              label="Mes demandes"
+              badge={bookings.length}
+              tint={colors.equipBg}
+              iconColor={colors.pink}
+              icon="▤"
+              onPress={() => router.push('/requests')}
+            />
+            <Row label="Modifier mon profil" tint={colors.bgTint2} iconColor={colors.violet} icon="✎" onPress={() => setEditOpen(true)} />
+            <Row
+              label="Notifications"
+              badge={unread}
+              tint="#EEF0FF"
+              iconColor={colors.blue}
+              icon={<IconBell size={15} color={colors.blue} />}
+              onPress={() => router.push({ pathname: '/notifications', params: { from: 'profile' } })}
+            />
+            <Row label="Réglages" tint={colors.bgTint} iconColor={colors.textMuted} icon="⚙" onPress={() => router.push('/settings')} />
+          </View>
         </View>
-
-        <Row label="Mes demandes" badge={bookings.length} onPress={() => router.push('/requests')} />
-        <Row label="Modifier mon profil" onPress={() => setEditOpen(true)} />
-        <Row label="Notifications" badge={unread} onPress={() => router.push({ pathname: '/notifications', params: { from: 'profile' } })} icon={<IconBell size={17} color={colors.textMuted} />} />
-        <Row label="Réglages" onPress={() => router.push('/settings')} last />
       </ScrollView>
 
       <BottomSheet visible={editOpen} onClose={() => setEditOpen(false)} title="Modifier mon profil">
@@ -99,11 +128,33 @@ export default function Profile() {
   );
 }
 
-function Row({ label, onPress, badge, icon, last }: { label: string; onPress: () => void; badge?: number; icon?: React.ReactNode; last?: boolean }) {
+function Row({
+  label,
+  onPress,
+  badge,
+  icon,
+  tint,
+  iconColor,
+}: {
+  label: string;
+  onPress: () => void;
+  badge?: number;
+  icon: React.ReactNode;
+  tint: string;
+  iconColor: string;
+}) {
   return (
-    <Pressable onPress={onPress} style={[styles.row, last && { borderBottomWidth: 0 }]}>
-      {icon}
-      <Text weight="extrabold" style={{ fontSize: 14, flex: 1, marginLeft: icon ? spacing.sm : 0 }}>
+    <Pressable onPress={onPress} style={styles.row}>
+      <View style={[styles.rowIcon, { backgroundColor: tint }]}>
+        {typeof icon === 'string' ? (
+          <Text weight="black" color={iconColor} style={{ fontSize: 14 }}>
+            {icon}
+          </Text>
+        ) : (
+          icon
+        )}
+      </View>
+      <Text weight="extrabold" style={{ fontSize: 14.5, flex: 1 }}>
         {label}
       </Text>
       {badge ? (
@@ -121,19 +172,48 @@ function Row({ label, onPress, badge, icon, last }: { label: string; onPress: ()
 }
 
 const styles = StyleSheet.create({
-  header: { paddingBottom: spacing.xl, borderBottomLeftRadius: radius.xxl, borderBottomRightRadius: radius.xxl },
+  header: { paddingBottom: spacing.xl },
+  headerRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, paddingHorizontal: spacing.lg, marginTop: spacing.sm },
+  avatarWrap: { position: 'relative' },
+  editBadge: {
+    position: 'absolute',
+    right: -2,
+    bottom: -2,
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    backgroundColor: '#fff',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   coachCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: colors.ink,
+    gap: spacing.md,
     borderRadius: radius.xl,
-    padding: spacing.lg,
-    marginTop: -spacing.xxl,
-    marginBottom: spacing.lg,
+    padding: spacing.md,
   },
-  countersRow: { flexDirection: 'row', gap: spacing.md, marginBottom: spacing.lg },
-  counterCard: { flex: 1, backgroundColor: '#fff', borderRadius: radius.lg, padding: spacing.md, alignItems: 'center' },
-  row: { flexDirection: 'row', alignItems: 'center', paddingVertical: 15, borderBottomWidth: 1, borderBottomColor: colors.border },
+  coachIconBox: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    backgroundColor: 'rgba(139,92,255,0.35)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  countersRow: { flexDirection: 'row', gap: spacing.sm, marginTop: spacing.md },
+  counterCard: { flex: 1, backgroundColor: '#fff', borderWidth: 1, borderColor: colors.border, borderRadius: radius.lg, padding: spacing.md, alignItems: 'center' },
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+    backgroundColor: colors.bgTint,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.lg,
+    padding: spacing.md,
+  },
+  rowIcon: { width: 32, height: 32, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
   badge: { backgroundColor: colors.pink, minWidth: 20, height: 20, borderRadius: 10, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 5 },
   input: {
     height: 46,
