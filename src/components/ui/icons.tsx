@@ -144,7 +144,14 @@ export function IconBell({ size = 24, color = '#000' }: IconProps) {
 export function IconMap({ size = 24, color = '#000' }: IconProps) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
-      <Path d="M9 4 3 6.5v13L9 17m0-13 6 2.5m-6-2.5v13m6-10.5 6-2.5v13L15 17m0-13v13" stroke={color} strokeWidth={sw} strokeLinejoin="round" />
+      <Path
+        d="M3 6.2v13.6a.6.6 0 0 0 .82.56L9 18.3l5.7 2 5.48-2.06a.6.6 0 0 0 .39-.56V4.1a.6.6 0 0 0-.82-.56L15 5.6 9.3 3.6 3.82 5.66A.6.6 0 0 0 3 6.2Z"
+        stroke={color}
+        strokeWidth={2.1}
+        strokeLinejoin="round"
+        strokeLinecap="round"
+      />
+      <Path d="M9 3.7v14.6M15 5.5v14.6" stroke={color} strokeWidth={2.1} strokeLinecap="round" />
     </Svg>
   );
 }

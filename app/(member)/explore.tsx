@@ -88,21 +88,21 @@ export default function Explore() {
             </Text>
           </Tap>
           <Tap onPress={() => setMapView(true)} style={[styles.segmentBtn, mapView && styles.segmentBtnActive]}>
-            <IconMap size={15} color={mapView ? colors.pink : colors.textMuted} />
+            <IconMap size={16} color={mapView ? colors.pink : colors.textMuted} />
             <Text weight="extrabold" color={mapView ? colors.pink : colors.textMuted} style={{ fontSize: 12.5 }}>
               Carte
             </Text>
           </Tap>
         </View>
-        <Tap onPress={() => setFiltersOpen(true)} style={styles.pillBtn}>
+        <Pressable onPress={() => setFiltersOpen(true)} style={styles.pillBtn} hitSlop={4}>
           <IconFilter size={15} color={colors.ink} />
-          <Text weight="extrabold" style={{ fontSize: 12.5 }}>
+          <Text weight="extrabold" color={colors.ink} numberOfLines={1} style={{ fontSize: 12.5 }}>
             Filtres{filterCount > 0 ? ` · ${filterCount}` : ''}
           </Text>
-        </Tap>
-        <Tap onPress={() => setGoalOpen(true)} style={[styles.pillBtn, goal && styles.pillBtnActive]}>
-          <Text style={{ fontSize: 14 }}>{activeGoal?.emoji ?? '🎯'}</Text>
-        </Tap>
+        </Pressable>
+        <Pressable onPress={() => setGoalOpen(true)} style={[styles.pillBtn, styles.pillBtnGoal, goal && styles.pillBtnActive]} hitSlop={4}>
+          <Text style={{ fontSize: 16 }}>{activeGoal?.emoji ?? '🎯'}</Text>
+        </Pressable>
       </View>
 
       <View style={{ paddingHorizontal: spacing.lg, paddingBottom: spacing.sm }}>
@@ -237,13 +237,17 @@ const styles = StyleSheet.create({
   pillBtn: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
+    flexShrink: 0,
     gap: 6,
     height: 40,
     paddingHorizontal: spacing.md,
     borderRadius: radius.pill,
     borderWidth: 1.5,
     borderColor: colors.border,
+    backgroundColor: '#fff',
   },
+  pillBtnGoal: { width: 40, paddingHorizontal: 0 },
   pillBtnActive: { backgroundColor: colors.bgTint2, borderColor: '#EEDCF0' },
   listContent: { paddingHorizontal: spacing.lg, paddingBottom: spacing.xxl },
   goalBanner: {

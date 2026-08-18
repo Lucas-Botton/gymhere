@@ -48,9 +48,6 @@ export default function Splash() {
 
   return (
     <View style={styles.wrap}>
-      <View style={styles.blobTop} pointerEvents="none" />
-      <View style={styles.blobBottom} pointerEvents="none" />
-
       <Animated.View style={[styles.iconWrap, { opacity, transform: [{ translateY: rise }] }]}>
         <LinearGradient
           colors={[colors.coral, colors.pink, colors.violetDeep, colors.brandBlue, colors.mintDeep]}
@@ -84,8 +81,6 @@ export default function Splash() {
 
 const styles = StyleSheet.create({
   wrap: { flex: 1, backgroundColor: '#14101a', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
-  blobTop: { position: 'absolute', top: '-30%', left: '-15%', width: '130%', height: '70%', borderRadius: 999, backgroundColor: 'rgba(245,57,127,0.28)' },
-  blobBottom: { position: 'absolute', bottom: '-30%', left: '-15%', width: '130%', height: '70%', borderRadius: 999, backgroundColor: 'rgba(79,110,247,0.22)' },
   iconWrap: {
     shadowColor: colors.pink,
     shadowOpacity: 0.55,

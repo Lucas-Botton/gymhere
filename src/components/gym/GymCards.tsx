@@ -39,7 +39,7 @@ export function GymCardFeatured({ gym }: { gym: Gym }) {
   return (
     <Tap
       onPress={() => router.push(`/gym/${gym.id}`)}
-      style={[styles.featuredOuter, gym.sponsored ? shadow.glowPink : shadow.card]}
+      style={[styles.featuredOuter, shadow.card]}
     >
       <View style={styles.featuredWrap}>
         <GradientBlock kind={gym.photo as GradientKey} style={styles.featuredPhoto}>

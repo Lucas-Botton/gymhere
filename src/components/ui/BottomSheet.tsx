@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Modal, View, Pressable, Animated, StyleSheet, Dimensions, Keyboard, Platform, EmitterSubscription } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors, radius, shadow } from '../../theme';
@@ -22,6 +22,7 @@ export default function BottomSheet({
   const translateY = useRef(new Animated.Value(SCREEN_H)).current;
   const backdrop = useRef(new Animated.Value(0)).current;
   const keyboardOffset = useRef(new Animated.Value(0)).current;
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
   const insets = useSafeAreaInsets();
 
   useEffect(() => {
@@ -34,17 +35,23 @@ export default function BottomSheet({
       translateY.setValue(SCREEN_H);
       backdrop.setValue(0);
       keyboardOffset.setValue(0);
+      setKeyboardHeight(0);
     }
   }, [visible]);
 
   // KeyboardAvoidingView is unreliable inside a transparent RN <Modal> on iOS,
-  // so track keyboard height manually and shift the sheet up ourselves.
+  // so track keyboard height manually and shift the sheet up ourselves. The
+  // sheet's maxHeight must shrink by the same amount the sheet is translated
+  // up, otherwise a tall sheet gets pushed off the TOP of the screen (its
+  // header/first fields end up above the visible area) instead of just
+  // clearing the keyboard at the bottom.
   useEffect(() => {
     if (!visible) return;
     let subShow: EmitterSubscription;
     let subHide: EmitterSubscription;
     if (Platform.OS === 'ios') {
       subShow = Keyboard.addListener('keyboardWillShow', (e) => {
+        setKeyboardHeight(e.endCoordinates.height);
         Animated.timing(keyboardOffset, {
           toValue: -e.endCoordinates.height,
           duration: e.duration || 250,
@@ -52,13 +59,16 @@ export default function BottomSheet({
         }).start();
       });
       subHide = Keyboard.addListener('keyboardWillHide', (e) => {
+        setKeyboardHeight(0);
         Animated.timing(keyboardOffset, { toValue: 0, duration: e.duration || 250, useNativeDriver: true }).start();
       });
     } else {
       subShow = Keyboard.addListener('keyboardDidShow', (e) => {
+        setKeyboardHeight(e.endCoordinates.height);
         Animated.timing(keyboardOffset, { toValue: -e.endCoordinates.height, duration: 150, useNativeDriver: true }).start();
       });
       subHide = Keyboard.addListener('keyboardDidHide', () => {
+        setKeyboardHeight(0);
         Animated.timing(keyboardOffset, { toValue: 0, duration: 150, useNativeDriver: true }).start();
       });
     }
@@ -86,7 +96,10 @@ export default function BottomSheet({
           style={[
             styles.sheet,
             shadow.sheet,
-            { maxHeight: SCREEN_H * maxHeightRatio, transform: [{ translateY }, { translateY: keyboardOffset }] },
+            {
+              maxHeight: Math.max(280, SCREEN_H * maxHeightRatio - keyboardHeight),
+              transform: [{ translateY }, { translateY: keyboardOffset }],
+            },
           ]}
         >
           <View style={styles.grabber} />
