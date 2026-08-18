@@ -2,10 +2,12 @@ import React, { useEffect, useRef, useState } from 'react';
 import { View, StyleSheet, Pressable, Animated, Easing, TextInput, KeyboardAvoidingView, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
+import MapView, { Marker, PROVIDER_DEFAULT } from 'react-native-maps';
 import Text from '../src/components/ui/Text';
 import { Wordmark } from '../src/components/ui/Logo';
 import GradientBlock from '../src/components/ui/GradientBlock';
 import BottomSheet from '../src/components/ui/BottomSheet';
+import { GYMS, ME_LOCATION } from '../src/data/seed';
 import { IconLocationPin, IconChevronDown, IconBack, IconChevronRight } from '../src/components/ui/icons';
 import { colors, radius, spacing } from '../src/theme';
 import { useSession } from '../src/store/session';
@@ -117,12 +119,27 @@ export default function Onboarding() {
             </View>
 
             <View style={styles.mapCard}>
-              <GradientBlock kind="blueMint" style={StyleSheet.absoluteFill} start={{ x: 0.1, y: 0 }} end={{ x: 0.9, y: 1 }}>
-                <View style={styles.mapDot1} />
-                <View style={styles.mapDot2} />
-                <View style={styles.mapDot3} />
-              </GradientBlock>
-              <View style={styles.mapOverlay} />
+              <MapView
+                provider={PROVIDER_DEFAULT}
+                style={StyleSheet.absoluteFill}
+                pointerEvents="none"
+                initialRegion={{ latitude: ME_LOCATION.lat, longitude: ME_LOCATION.lng, latitudeDelta: 0.09, longitudeDelta: 0.09 }}
+                scrollEnabled={false}
+                zoomEnabled={false}
+                rotateEnabled={false}
+                pitchEnabled={false}
+              >
+                {GYMS.map((g) => (
+                  <Marker key={g.id} coordinate={{ latitude: g.lat, longitude: g.lng }} anchor={{ x: 0.5, y: 0.5 }}>
+                    <View style={[styles.previewPin, g.sponsored && styles.previewPinSponsored]}>
+                      <Text weight="black" color={g.sponsored ? '#fff' : colors.ink} style={{ fontSize: 11 }}>
+                        {g.priceFrom}€
+                      </Text>
+                    </View>
+                  </Marker>
+                ))}
+              </MapView>
+              <View style={styles.mapOverlay} pointerEvents="none" />
               <View style={styles.mapBadge}>
                 <PulseDot />
                 <Text weight="extrabold" color="#fff" style={{ fontSize: 11.5 }}>
@@ -287,9 +304,17 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(255,255,255,0.18)',
   },
   mapOverlay: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(20,16,26,0.18)' },
-  mapDot1: { position: 'absolute', left: '30%', top: '35%', width: 10, height: 10, borderRadius: 5, backgroundColor: '#fff' },
-  mapDot2: { position: 'absolute', left: '60%', top: '55%', width: 8, height: 8, borderRadius: 4, backgroundColor: '#fff', opacity: 0.8 },
-  mapDot3: { position: 'absolute', left: '45%', top: '70%', width: 8, height: 8, borderRadius: 4, backgroundColor: '#fff', opacity: 0.8 },
+  previewPin: {
+    height: 26,
+    paddingHorizontal: 10,
+    borderRadius: 13,
+    backgroundColor: '#fff',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1.5,
+    borderColor: 'rgba(20,16,26,0.08)',
+  },
+  previewPinSponsored: { backgroundColor: colors.pink, borderColor: colors.pink },
   mapBadge: {
     position: 'absolute',
     left: 14,
