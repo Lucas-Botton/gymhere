@@ -37,42 +37,48 @@ function HeartButton({ id, small }: { id: string; small?: boolean }) {
 export function GymCardFeatured({ gym }: { gym: Gym }) {
   const distanceKm = useGymDistanceKm(gym);
   return (
-    <Tap
-      onPress={() => router.push(`/gym/${gym.id}`)}
-      style={[styles.featuredOuter, gym.sponsored ? styles.featuredGlowPink : shadow.card]}
-    >
-      <View style={styles.featuredWrap}>
-        <GradientBlock kind={gym.photo as GradientKey} style={styles.featuredPhoto}>
-          <HeartButton id={gym.id} />
-          {gym.sponsored ? (
-            <Glass variant="dark" style={styles.sponsoredTag}>
-              <Text weight="black" color="#fff" style={{ fontSize: 10.5 }}>
-                MIS EN AVANT
+    <View style={styles.featuredSlot}>
+      {gym.sponsored ? (
+        <>
+          <View pointerEvents="none" style={[styles.glowLayer, { top: -16, left: -16, right: -16, bottom: -16, borderRadius: radius.xl + 16, opacity: 0.07 }]} />
+          <View pointerEvents="none" style={[styles.glowLayer, { top: -9, left: -9, right: -9, bottom: -9, borderRadius: radius.xl + 9, opacity: 0.13 }]} />
+          <View pointerEvents="none" style={[styles.glowLayer, { top: -4, left: -4, right: -4, bottom: -4, borderRadius: radius.xl + 4, opacity: 0.2 }]} />
+        </>
+      ) : null}
+      <Tap onPress={() => router.push(`/gym/${gym.id}`)} style={[styles.featuredOuter, !gym.sponsored && shadow.card]}>
+        <View style={styles.featuredWrap}>
+          <GradientBlock kind={gym.photo as GradientKey} style={styles.featuredPhoto}>
+            <HeartButton id={gym.id} />
+            {gym.sponsored ? (
+              <Glass variant="dark" style={styles.sponsoredTag}>
+                <Text weight="black" color="#fff" style={{ fontSize: 10.5 }}>
+                  MIS EN AVANT
+                </Text>
+              </Glass>
+            ) : null}
+          </GradientBlock>
+          <View style={styles.featuredBody}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
+              <Text weight="black" style={{ fontSize: 16.5, flexShrink: 1 }} numberOfLines={1}>
+                {gym.name}
               </Text>
-            </Glass>
-          ) : null}
-        </GradientBlock>
-        <View style={styles.featuredBody}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
-            <Text weight="black" style={{ fontSize: 16.5, flexShrink: 1 }} numberOfLines={1}>
-              {gym.name}
+              {gym.certified ? <CertifiedBadge /> : null}
+            </View>
+            <Text weight="bold" color={colors.textMuted} style={{ fontSize: 12.5, marginTop: 3 }}>
+              <StarRating rating={gym.rating} size={11} /> {gym.rating} · {gym.reviews} avis · {distanceLabel(distanceKm)}
             </Text>
-            {gym.certified ? <CertifiedBadge /> : null}
+            <View style={styles.tagsRow}>
+              {gym.tags.slice(0, 3).map((t) => (
+                <Tag key={t} label={t} />
+              ))}
+            </View>
+            <Text weight="bold" color={colors.textMuted} style={{ fontSize: 12.5, marginTop: spacing.sm }}>
+              dès <Text weight="black" color={colors.ink} style={{ fontSize: 16 }}>{gym.priceFrom}€</Text>/mois
+            </Text>
           </View>
-          <Text weight="bold" color={colors.textMuted} style={{ fontSize: 12.5, marginTop: 3 }}>
-            <StarRating rating={gym.rating} size={11} /> {gym.rating} · {gym.reviews} avis · {distanceLabel(distanceKm)}
-          </Text>
-          <View style={styles.tagsRow}>
-            {gym.tags.slice(0, 3).map((t) => (
-              <Tag key={t} label={t} />
-            ))}
-          </View>
-          <Text weight="bold" color={colors.textMuted} style={{ fontSize: 12.5, marginTop: spacing.sm }}>
-            dès <Text weight="black" color={colors.ink} style={{ fontSize: 16 }}>{gym.priceFrom}€</Text>/mois
-          </Text>
         </View>
-      </View>
-    </Tap>
+      </Tap>
+    </View>
   );
 }
 
@@ -107,14 +113,9 @@ export function GymCardCompact({ gym }: { gym: Gym }) {
 }
 
 const styles = StyleSheet.create({
-  featuredOuter: { width: 250, marginRight: spacing.md, borderRadius: radius.xl, backgroundColor: '#fff' },
-  featuredGlowPink: {
-    shadowColor: colors.pink,
-    shadowOpacity: 0.4,
-    shadowRadius: 10,
-    shadowOffset: { width: 0, height: 6 },
-    elevation: 6,
-  },
+  featuredSlot: { width: 250, marginRight: spacing.md },
+  featuredOuter: { borderRadius: radius.xl, backgroundColor: '#fff' },
+  glowLayer: { position: 'absolute', backgroundColor: colors.pink },
   featuredWrap: { borderRadius: radius.xl, backgroundColor: '#fff', overflow: 'hidden' },
   featuredPhoto: { height: 130, padding: spacing.sm, alignItems: 'flex-end' },
   featuredBody: { padding: spacing.md },
