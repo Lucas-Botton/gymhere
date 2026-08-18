@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { Modal, View, Pressable, Animated, StyleSheet, Dimensions, Keyboard, Platform, EmitterSubscription } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors, radius, shadow } from '../../theme';
 import Text from './Text';
 
@@ -22,6 +22,7 @@ export default function BottomSheet({
   const translateY = useRef(new Animated.Value(SCREEN_H)).current;
   const backdrop = useRef(new Animated.Value(0)).current;
   const keyboardOffset = useRef(new Animated.Value(0)).current;
+  const insets = useSafeAreaInsets();
 
   useEffect(() => {
     if (visible) {
@@ -101,9 +102,9 @@ export default function BottomSheet({
               </Pressable>
             </View>
           ) : null}
-          <SafeAreaView edges={['bottom']} style={{ flexShrink: 1 }}>
+          <View style={{ flexShrink: 1, paddingBottom: insets.bottom }}>
             {children}
-          </SafeAreaView>
+          </View>
         </Animated.View>
       </View>
     </Modal>

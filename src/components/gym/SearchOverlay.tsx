@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { View, StyleSheet, TextInput, Pressable, ScrollView, Modal } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import Text from '../ui/Text';
 import GradientBlock from '../ui/GradientBlock';
@@ -13,6 +13,7 @@ import { searchGyms, POPULAR_EQUIPMENT, POPULAR_ZONES } from '../../lib/filters'
 export default function SearchOverlay({ visible, onClose }: { visible: boolean; onClose: () => void }) {
   const [query, setQuery] = useState('');
   const results = useMemo(() => searchGyms(query, GYMS), [query]);
+  const insets = useSafeAreaInsets();
 
   const go = (id: string, group: string | null) => {
     onClose();
@@ -21,7 +22,7 @@ export default function SearchOverlay({ visible, onClose }: { visible: boolean; 
 
   return (
     <Modal visible={visible} animationType="slide" onRequestClose={onClose}>
-      <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }}>
+      <View style={{ flex: 1, backgroundColor: '#fff', paddingTop: insets.top, paddingBottom: insets.bottom }}>
         <View style={styles.searchRow}>
           <View style={styles.inputWrap}>
             <IconExplore size={17} color={colors.textMuted} />
@@ -95,7 +96,7 @@ export default function SearchOverlay({ visible, onClose }: { visible: boolean; 
             })
           )}
         </ScrollView>
-      </SafeAreaView>
+      </View>
     </Modal>
   );
 }
