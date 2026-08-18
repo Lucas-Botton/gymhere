@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { Modal, View, Pressable, Animated, StyleSheet, Dimensions, KeyboardAvoidingView, Platform } from 'react-native';
+import { Modal, View, Pressable, Animated, StyleSheet, Dimensions, Keyboard, Platform, EmitterSubscription } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors, radius, shadow } from '../../theme';
 import Text from './Text';
@@ -21,6 +21,7 @@ export default function BottomSheet({
 }) {
   const translateY = useRef(new Animated.Value(SCREEN_H)).current;
   const backdrop = useRef(new Animated.Value(0)).current;
+  const keyboardOffset = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     if (visible) {
@@ -31,10 +32,43 @@ export default function BottomSheet({
     } else {
       translateY.setValue(SCREEN_H);
       backdrop.setValue(0);
+      keyboardOffset.setValue(0);
     }
   }, [visible]);
 
+  // KeyboardAvoidingView is unreliable inside a transparent RN <Modal> on iOS,
+  // so track keyboard height manually and shift the sheet up ourselves.
+  useEffect(() => {
+    if (!visible) return;
+    let subShow: EmitterSubscription;
+    let subHide: EmitterSubscription;
+    if (Platform.OS === 'ios') {
+      subShow = Keyboard.addListener('keyboardWillShow', (e) => {
+        Animated.timing(keyboardOffset, {
+          toValue: -e.endCoordinates.height,
+          duration: e.duration || 250,
+          useNativeDriver: true,
+        }).start();
+      });
+      subHide = Keyboard.addListener('keyboardWillHide', (e) => {
+        Animated.timing(keyboardOffset, { toValue: 0, duration: e.duration || 250, useNativeDriver: true }).start();
+      });
+    } else {
+      subShow = Keyboard.addListener('keyboardDidShow', (e) => {
+        Animated.timing(keyboardOffset, { toValue: -e.endCoordinates.height, duration: 150, useNativeDriver: true }).start();
+      });
+      subHide = Keyboard.addListener('keyboardDidHide', () => {
+        Animated.timing(keyboardOffset, { toValue: 0, duration: 150, useNativeDriver: true }).start();
+      });
+    }
+    return () => {
+      subShow.remove();
+      subHide.remove();
+    };
+  }, [visible]);
+
   const handleClose = () => {
+    Keyboard.dismiss();
     Animated.parallel([
       Animated.timing(translateY, { toValue: SCREEN_H, duration: 220, useNativeDriver: true }),
       Animated.timing(backdrop, { toValue: 0, duration: 200, useNativeDriver: true }),
@@ -43,7 +77,7 @@ export default function BottomSheet({
 
   return (
     <Modal visible={visible} transparent animationType="none" onRequestClose={handleClose} statusBarTranslucent>
-      <KeyboardAvoidingView style={StyleSheet.absoluteFill} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+      <View style={StyleSheet.absoluteFill}>
         <Animated.View style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(20,16,26,0.5)', opacity: backdrop }]}>
           <Pressable style={StyleSheet.absoluteFill} onPress={handleClose} />
         </Animated.View>
@@ -51,7 +85,7 @@ export default function BottomSheet({
           style={[
             styles.sheet,
             shadow.sheet,
-            { maxHeight: SCREEN_H * maxHeightRatio, transform: [{ translateY }] },
+            { maxHeight: SCREEN_H * maxHeightRatio, transform: [{ translateY }, { translateY: keyboardOffset }] },
           ]}
         >
           <View style={styles.grabber} />
@@ -71,7 +105,7 @@ export default function BottomSheet({
             {children}
           </SafeAreaView>
         </Animated.View>
-      </KeyboardAvoidingView>
+      </View>
     </Modal>
   );
 }
