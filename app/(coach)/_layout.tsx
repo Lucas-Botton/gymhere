@@ -21,23 +21,23 @@ export default function CoachTabsLayout() {
     >
       <Tabs.Screen
         name="ma-fiche"
-        options={{ title: 'Ma fiche', tabBarIcon: ({ color }) => <IconCard color={color} size={23} /> }}
+        options={{ title: 'Ma fiche', tabBarIcon: ({ color }) => <IconCard color={color as string} size={23} /> }}
       />
       <Tabs.Screen
         name="demandes"
         options={{
           title: 'Demandes',
-          tabBarIcon: ({ color }) => <IconInbox color={color} size={23} />,
+          tabBarIcon: ({ color }) => <IconInbox color={color as string} size={23} />,
           tabBarBadge: newRequests > 0 ? newRequests : undefined,
         }}
       />
       <Tabs.Screen
         name="avis"
-        options={{ title: 'Avis', tabBarIcon: ({ color }) => <IconStar color={color} size={22} /> }}
+        options={{ title: 'Avis', tabBarIcon: ({ color }) => <IconStar color={color as string} size={22} /> }}
       />
       <Tabs.Screen
         name="switch-back"
-        options={{ title: 'M’entraîner', tabBarIcon: ({ color }) => <IconBack color={color} size={22} /> }}
+        options={{ title: 'M’entraîner', tabBarIcon: ({ color }) => <IconBack color={color as string} size={22} /> }}
         listeners={{
           tabPress: (e) => {
             e.preventDefault();

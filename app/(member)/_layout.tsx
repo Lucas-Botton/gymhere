@@ -18,20 +18,20 @@ export default function MemberTabsLayout() {
         name="explore"
         options={{
           title: 'Explorer',
-          tabBarIcon: ({ color }) => <IconExplore color={color} size={23} />,
+          tabBarIcon: ({ color }) => <IconExplore color={color as string} size={23} />,
         }}
       />
       <Tabs.Screen
         name="coaches"
-        options={{ title: 'Coachs', tabBarIcon: ({ color }) => <IconCoach color={color} size={23} /> }}
+        options={{ title: 'Coachs', tabBarIcon: ({ color }) => <IconCoach color={color as string} size={23} /> }}
       />
       <Tabs.Screen
         name="favorites"
-        options={{ title: 'Favoris', tabBarIcon: ({ color }) => <IconHeart color={color} size={22} /> }}
+        options={{ title: 'Favoris', tabBarIcon: ({ color }) => <IconHeart color={color as string} size={22} /> }}
       />
       <Tabs.Screen
         name="profile"
-        options={{ title: 'Profil', tabBarIcon: ({ color }) => <IconProfile color={color} size={23} /> }}
+        options={{ title: 'Profil', tabBarIcon: ({ color }) => <IconProfile color={color as string} size={23} /> }}
       />
     </Tabs>
   );
