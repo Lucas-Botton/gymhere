@@ -5,6 +5,7 @@ import { router } from 'expo-router';
 import Text from '../../src/components/ui/Text';
 import Tap from '../../src/components/ui/Tap';
 import GradientBlock from '../../src/components/ui/GradientBlock';
+import Glass from '../../src/components/ui/Glass';
 import { Avatar } from '../../src/components/ui/primitives';
 import { IconBell, IconExplore, IconFilter, IconList, IconMap } from '../../src/components/ui/icons';
 import { GymCardFeatured, GymCardCompact } from '../../src/components/gym/GymCards';
@@ -49,14 +50,16 @@ export default function Explore() {
       <GradientBlock kind="brand" style={styles.header}>
         <SafeAreaView edges={['top']}>
           <View style={styles.headerTopRow}>
-            <View style={styles.cityPill}>
+            <Glass variant="light" style={styles.cityPill}>
               <Text weight="extrabold" color="#fff" style={{ fontSize: 12.5 }}>
                 📍 {city}
               </Text>
-            </View>
+            </Glass>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-              <Pressable onPress={() => router.push({ pathname: '/notifications', params: { from: 'explore' } })} style={styles.iconBtn} hitSlop={8}>
-                <IconBell size={19} color="#fff" />
+              <Pressable onPress={() => router.push({ pathname: '/notifications', params: { from: 'explore' } })} hitSlop={8}>
+                <Glass variant="light" style={styles.iconBtn}>
+                  <IconBell size={19} color="#fff" />
+                </Glass>
                 {unread > 0 ? <View style={styles.dot} /> : null}
               </Pressable>
               <Pressable onPress={() => router.push('/(member)/profile')}>
@@ -203,8 +206,8 @@ export default function Explore() {
 const styles = StyleSheet.create({
   header: { paddingHorizontal: spacing.lg, paddingBottom: spacing.xl, borderBottomLeftRadius: radius.xxl, borderBottomRightRadius: radius.xxl },
   headerTopRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: spacing.sm },
-  cityPill: { backgroundColor: 'rgba(255,255,255,0.22)', paddingHorizontal: 12, paddingVertical: 7, borderRadius: radius.pill },
-  iconBtn: { width: 36, height: 36, borderRadius: 18, backgroundColor: 'rgba(255,255,255,0.22)', alignItems: 'center', justifyContent: 'center' },
+  cityPill: { flexDirection: 'row', paddingHorizontal: 12, paddingVertical: 7, borderRadius: radius.pill },
+  iconBtn: { width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center' },
   dot: { position: 'absolute', top: 7, right: 8, width: 8, height: 8, borderRadius: 4, backgroundColor: '#FFD84D', borderWidth: 1.5, borderColor: '#fff' },
   compareBtn: {
     flexDirection: 'row',

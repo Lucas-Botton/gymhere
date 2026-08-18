@@ -1,9 +1,9 @@
 import React from 'react';
-import { StyleSheet, ActivityIndicator, ViewStyle, StyleProp } from 'react-native';
+import { ActivityIndicator, ViewStyle, StyleProp } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import Tap from './Tap';
 import Text from './Text';
-import { colors, radius, spacing } from '../../theme';
+import { colors, radius, shadow, spacing } from '../../theme';
 
 type Variant = 'primary' | 'dark' | 'outline' | 'ghost';
 type Size = 'md' | 'lg' | 'sm';
@@ -59,7 +59,7 @@ export default function Button({
   if (variant === 'primary') {
     return (
       <Tap onPress={onPress} disabled={disabled || loading} style={style}>
-        <LinearGradient colors={[colors.pink, colors.violet]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={[base, styles.primaryShadow]}>
+        <LinearGradient colors={[colors.pink, colors.violet]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={[base, shadow.glowPink]}>
           {content}
         </LinearGradient>
       </Tap>
@@ -85,13 +85,3 @@ export default function Button({
     </Tap>
   );
 }
-
-const styles = StyleSheet.create({
-  primaryShadow: {
-    shadowColor: colors.pink,
-    shadowOpacity: 0.4,
-    shadowRadius: 16,
-    shadowOffset: { width: 0, height: 8 },
-    elevation: 6,
-  },
-});

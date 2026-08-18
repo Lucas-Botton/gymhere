@@ -6,10 +6,11 @@ import MapView, { Marker, PROVIDER_DEFAULT } from 'react-native-maps';
 import Text from '../src/components/ui/Text';
 import { Wordmark } from '../src/components/ui/Logo';
 import GradientBlock from '../src/components/ui/GradientBlock';
+import Glass from '../src/components/ui/Glass';
 import BottomSheet from '../src/components/ui/BottomSheet';
 import { GYMS, ME_LOCATION } from '../src/data/seed';
 import { IconLocationPin, IconChevronDown, IconBack, IconChevronRight } from '../src/components/ui/icons';
-import { colors, radius, spacing } from '../src/theme';
+import { colors, radius, shadow, spacing } from '../src/theme';
 import { useSession } from '../src/store/session';
 import { useLocationStore } from '../src/store/location';
 
@@ -111,12 +112,14 @@ export default function Onboarding() {
           <View style={{ flex: 1 }}>
             <View style={styles.topRow}>
               <Wordmark size={26} />
-              <Pressable onPress={() => setCityPicker(true)} style={styles.cityBadge}>
-                <IconLocationPin size={14} color="#fff" />
-                <Text weight="extrabold" color="#fff" style={{ fontSize: 13 }}>
-                  {city}
-                </Text>
-                <IconChevronDown size={13} color="#fff" />
+              <Pressable onPress={() => setCityPicker(true)}>
+                <Glass variant="light" style={styles.cityBadge}>
+                  <IconLocationPin size={14} color="#fff" />
+                  <Text weight="extrabold" color="#fff" style={{ fontSize: 13 }}>
+                    {city}
+                  </Text>
+                  <IconChevronDown size={13} color="#fff" />
+                </Glass>
               </Pressable>
             </View>
 
@@ -134,7 +137,7 @@ export default function Onboarding() {
               >
                 {GYMS.map((g) => (
                   <Marker key={g.id} coordinate={{ latitude: g.lat, longitude: g.lng }} anchor={{ x: 0.5, y: 0.5 }}>
-                    <View style={[styles.previewPin, g.sponsored && styles.previewPinSponsored]}>
+                    <View style={[styles.previewPin, shadow.card, g.sponsored && styles.previewPinSponsored]}>
                       <Text weight="black" color={g.sponsored ? '#fff' : colors.ink} style={{ fontSize: 11 }}>
                         {g.priceFrom}€
                       </Text>
@@ -143,12 +146,12 @@ export default function Onboarding() {
                 ))}
               </MapView>
               <View style={styles.mapOverlay} pointerEvents="none" />
-              <View style={styles.mapBadge}>
+              <Glass variant="dark" style={styles.mapBadge}>
                 <PulseDot />
                 <Text weight="extrabold" color="#fff" style={{ fontSize: 11.5 }}>
                   128 salles actives
                 </Text>
-              </View>
+              </Glass>
             </View>
 
             <Text weight="black" color="#fff" style={{ fontSize: 26, letterSpacing: -0.6, lineHeight: 30 }}>
@@ -293,7 +296,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    backgroundColor: 'rgba(255,255,255,0.18)',
     paddingHorizontal: 13,
     paddingVertical: 8,
     borderRadius: radius.pill,
@@ -325,7 +327,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 7,
-    backgroundColor: 'rgba(20,16,26,0.5)',
     paddingHorizontal: 12,
     paddingVertical: 7,
     borderRadius: radius.pill,

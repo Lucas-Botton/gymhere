@@ -3,6 +3,7 @@ import { View, StyleSheet } from 'react-native';
 import { router } from 'expo-router';
 import Text from '../ui/Text';
 import Tap from '../ui/Tap';
+import Glass from '../ui/Glass';
 import GradientBlock, { GradientKey } from '../ui/GradientBlock';
 import { CertifiedBadge, StarRating, Tag } from '../ui/primitives';
 import { IconHeart } from '../ui/icons';
@@ -15,6 +16,7 @@ import { useGymDistanceKm } from '../../lib/useGymDistance';
 function HeartButton({ id, small }: { id: string; small?: boolean }) {
   const isFav = useApp((s) => s.favGyms.includes(id));
   const toggle = useApp((s) => s.toggleFavGym);
+  const size = small ? 30 : 34;
   return (
     <Tap
       onPress={(e: any) => {
@@ -22,10 +24,12 @@ function HeartButton({ id, small }: { id: string; small?: boolean }) {
         toggle(id);
       }}
       scaleTo={0.75}
-      style={[styles.heartBtn, small && { width: 30, height: 30 }]}
+      style={{ width: size, height: size, borderRadius: size / 2 }}
       hitSlop={8}
     >
-      <IconHeart size={small ? 15 : 17} color={isFav ? colors.pink : '#fff'} filled={isFav} />
+      <Glass variant="dark" style={[styles.heartGlass, { width: size, height: size, borderRadius: size / 2 }]}>
+        <IconHeart size={small ? 15 : 17} color={isFav ? colors.pink : '#fff'} filled={isFav} />
+      </Glass>
     </Tap>
   );
 }
@@ -41,11 +45,11 @@ export function GymCardFeatured({ gym }: { gym: Gym }) {
         <GradientBlock kind={gym.photo as GradientKey} style={styles.featuredPhoto}>
           <HeartButton id={gym.id} />
           {gym.sponsored ? (
-            <View style={styles.sponsoredTag}>
+            <Glass variant="dark" style={styles.sponsoredTag}>
               <Text weight="black" color="#fff" style={{ fontSize: 10.5 }}>
                 MIS EN AVANT
               </Text>
-            </View>
+            </Glass>
           ) : null}
         </GradientBlock>
         <View style={styles.featuredBody}>
@@ -118,11 +122,7 @@ const styles = StyleSheet.create({
   },
   compactPhoto: { width: 68, height: 68, borderRadius: radius.md, alignItems: 'flex-end', padding: 4 },
   tagsRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 5, marginTop: 6 },
-  heartBtn: {
-    width: 34,
-    height: 34,
-    borderRadius: 17,
-    backgroundColor: 'rgba(20,16,26,0.35)',
+  heartGlass: {
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -130,7 +130,6 @@ const styles = StyleSheet.create({
     position: 'absolute',
     left: spacing.sm,
     bottom: spacing.sm,
-    backgroundColor: 'rgba(20,16,26,0.55)',
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: radius.pill,

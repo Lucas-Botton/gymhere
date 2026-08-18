@@ -6,6 +6,7 @@ import Text from '../../src/components/ui/Text';
 import Tap from '../../src/components/ui/Tap';
 import Button from '../../src/components/ui/Button';
 import GradientBlock from '../../src/components/ui/GradientBlock';
+import Glass from '../../src/components/ui/Glass';
 import { CertifiedBadge, StarRating, Avatar } from '../../src/components/ui/primitives';
 import { IconBack, IconHeart, IconShare } from '../../src/components/ui/icons';
 import EquipmentTabs from '../../src/components/gym/EquipmentTabs';
@@ -53,25 +54,31 @@ export default function GymDetail() {
       <ScrollView bounces={false}>
         <GradientBlock kind={gym.photo as any} style={styles.hero}>
           <SafeAreaView edges={['top']} style={styles.heroTop}>
-            <Tap onPress={() => router.back()} style={styles.roundBtn}>
-              <IconBack size={18} color="#fff" />
+            <Tap onPress={() => router.back()} style={styles.roundBtnWrap}>
+              <Glass variant="dark" style={styles.roundBtn}>
+                <IconBack size={18} color="#fff" />
+              </Glass>
             </Tap>
             <View style={{ flexDirection: 'row', gap: 8 }}>
-              <Tap onPress={() => setShareOpen(true)} style={styles.roundBtn}>
-                <IconShare size={16} color="#fff" />
+              <Tap onPress={() => setShareOpen(true)} style={styles.roundBtnWrap}>
+                <Glass variant="dark" style={styles.roundBtn}>
+                  <IconShare size={16} color="#fff" />
+                </Glass>
               </Tap>
-              <Tap onPress={() => toggleFav(gym.id)} scaleTo={0.8} style={styles.roundBtn}>
-                <IconHeart size={16} color="#fff" filled={isFav} />
+              <Tap onPress={() => toggleFav(gym.id)} scaleTo={0.8} style={styles.roundBtnWrap}>
+                <Glass variant="dark" style={styles.roundBtn}>
+                  <IconHeart size={16} color="#fff" filled={isFav} />
+                </Glass>
               </Tap>
             </View>
           </SafeAreaView>
           {gym.certified ? (
-            <View style={styles.certifiedTag}>
+            <Glass variant="dark" style={styles.certifiedTag}>
               <CertifiedBadge size={14} />
               <Text weight="extrabold" color="#fff" style={{ fontSize: 11.5 }}>
                 Certifié gymhere
               </Text>
-            </View>
+            </Glass>
           ) : null}
         </GradientBlock>
 
@@ -249,7 +256,8 @@ const styles = StyleSheet.create({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   hero: { height: 280, justifyContent: 'space-between' },
   heroTop: { flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: spacing.lg },
-  roundBtn: { width: 36, height: 36, borderRadius: 18, backgroundColor: 'rgba(20,16,26,0.4)', alignItems: 'center', justifyContent: 'center' },
+  roundBtnWrap: { width: 36, height: 36, borderRadius: 18 },
+  roundBtn: { width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center' },
   certifiedTag: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -257,7 +265,6 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
     marginLeft: spacing.lg,
     marginBottom: spacing.lg,
-    backgroundColor: 'rgba(20,16,26,0.4)',
     paddingHorizontal: 10,
     paddingVertical: 6,
     borderRadius: radius.pill,

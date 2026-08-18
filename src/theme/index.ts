@@ -54,6 +54,7 @@ export const radius = {
   lg: 18,
   xl: 20,
   xxl: 24,
+  sheet: 28,
   pill: 999,
 };
 
@@ -66,54 +67,58 @@ export const spacing = {
   xxl: 28,
 };
 
+// Recipes ported from the real mockup's CSS box-shadow values (Jimmy.dc.html /
+// gymmap.html), converted to RN's offset+radius+opacity model. The mockup
+// leans on tight, close, high-opacity shadows (negative CSS spread) rather
+// than soft diffuse ones — that's what reads as "premium" instead of "flat".
 export const shadow = {
   soft: {
     shadowColor: '#280A32',
-    shadowOpacity: 0.14,
-    shadowRadius: 16,
-    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.22,
+    shadowRadius: 9,
+    shadowOffset: { width: 0, height: 4 },
     elevation: 4,
   },
   card: {
     shadowColor: '#280A32',
-    shadowOpacity: 0.18,
-    shadowRadius: 20,
-    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.3,
+    shadowRadius: 11,
+    shadowOffset: { width: 0, height: 6 },
     elevation: 6,
   },
   sheet: {
     shadowColor: '#280A32',
-    shadowOpacity: 0.28,
-    shadowRadius: 44,
-    shadowOffset: { width: 0, height: -6 },
+    shadowOpacity: 0.4,
+    shadowRadius: 26,
+    shadowOffset: { width: 0, height: -8 },
     elevation: 12,
   },
   glowPink: {
     shadowColor: colors.pink,
-    shadowOpacity: 0.35,
-    shadowRadius: 20,
-    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.5,
+    shadowRadius: 16,
+    shadowOffset: { width: 0, height: 8 },
     elevation: 8,
   },
   glowViolet: {
     shadowColor: colors.violet,
-    shadowOpacity: 0.32,
-    shadowRadius: 20,
-    shadowOffset: { width: 0, height: 10 },
-    elevation: 8,
+    shadowOpacity: 0.42,
+    shadowRadius: 13,
+    shadowOffset: { width: 0, height: 6 },
+    elevation: 7,
   },
   glowMint: {
     shadowColor: colors.mintDeep,
-    shadowOpacity: 0.32,
-    shadowRadius: 18,
-    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.4,
+    shadowRadius: 14,
+    shadowOffset: { width: 0, height: 6 },
     elevation: 7,
   },
   glowBlue: {
     shadowColor: colors.blue,
-    shadowOpacity: 0.32,
-    shadowRadius: 18,
-    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.4,
+    shadowRadius: 14,
+    shadowOffset: { width: 0, height: 6 },
     elevation: 7,
   },
 } as const;

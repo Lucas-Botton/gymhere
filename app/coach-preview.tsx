@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import Text from '../src/components/ui/Text';
 import GradientBlock from '../src/components/ui/GradientBlock';
+import Glass from '../src/components/ui/Glass';
 import { Tag, VerifiedPill } from '../src/components/ui/primitives';
 import { IconBack } from '../src/components/ui/icons';
 import { colors, radius, spacing } from '../src/theme';
@@ -20,14 +21,16 @@ export default function CoachPreview() {
       <ScrollView bounces={false}>
         <GradientBlock kind={draft.photo as any} style={styles.hero}>
           <SafeAreaView edges={['top']} style={styles.heroTop}>
-            <Pressable onPress={() => router.replace('/(coach)/ma-fiche')} style={styles.roundBtn}>
-              <IconBack size={18} color="#fff" />
+            <Pressable onPress={() => router.replace('/(coach)/ma-fiche')}>
+              <Glass variant="dark" style={styles.roundBtn}>
+                <IconBack size={18} color="#fff" />
+              </Glass>
             </Pressable>
-            <View style={styles.previewTag}>
+            <Glass variant="dark" style={styles.previewTag}>
               <Text weight="black" color="#fff" style={{ fontSize: 10.5 }}>
                 APERÇU CLIENT
               </Text>
-            </View>
+            </Glass>
           </SafeAreaView>
         </GradientBlock>
 
@@ -98,8 +101,8 @@ function SectionTitle({ children }: { children: React.ReactNode }) {
 const styles = StyleSheet.create({
   hero: { height: 220 },
   heroTop: { flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: spacing.lg },
-  roundBtn: { width: 36, height: 36, borderRadius: 18, backgroundColor: 'rgba(20,16,26,0.4)', alignItems: 'center', justifyContent: 'center' },
-  previewTag: { backgroundColor: 'rgba(20,16,26,0.5)', paddingHorizontal: 10, paddingVertical: 7, borderRadius: radius.pill },
+  roundBtn: { width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center' },
+  previewTag: { paddingHorizontal: 10, paddingVertical: 7, borderRadius: radius.pill },
   body: { padding: spacing.lg },
   tagsRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 8 },
   offer: { borderWidth: 1.5, borderColor: colors.border, borderRadius: radius.lg, padding: spacing.md, marginBottom: spacing.sm },

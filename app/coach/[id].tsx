@@ -6,6 +6,7 @@ import Text from '../../src/components/ui/Text';
 import Tap from '../../src/components/ui/Tap';
 import Button from '../../src/components/ui/Button';
 import GradientBlock from '../../src/components/ui/GradientBlock';
+import Glass from '../../src/components/ui/Glass';
 import { Avatar, StarRating, Tag, VerifiedPill } from '../../src/components/ui/primitives';
 import { IconBack, IconHeart, IconShare } from '../../src/components/ui/icons';
 import ShareSheet from '../../src/components/ui/ShareSheet';
@@ -77,15 +78,21 @@ export default function CoachDetail() {
       <ScrollView bounces={false} contentContainerStyle={{ paddingBottom: 110 }}>
         <GradientBlock kind={coach.photo as any} style={styles.hero}>
           <SafeAreaView edges={['top']} style={styles.heroTop}>
-            <Tap onPress={() => router.back()} style={styles.roundBtn}>
-              <IconBack size={18} color="#fff" />
+            <Tap onPress={() => router.back()} style={styles.roundBtnWrap}>
+              <Glass variant="dark" style={styles.roundBtn}>
+                <IconBack size={18} color="#fff" />
+              </Glass>
             </Tap>
             <View style={{ flexDirection: 'row', gap: 8 }}>
-              <Tap onPress={() => setShareOpen(true)} style={styles.roundBtn}>
-                <IconShare size={16} color="#fff" />
+              <Tap onPress={() => setShareOpen(true)} style={styles.roundBtnWrap}>
+                <Glass variant="dark" style={styles.roundBtn}>
+                  <IconShare size={16} color="#fff" />
+                </Glass>
               </Tap>
-              <Tap onPress={() => toggleFav(coach.id)} scaleTo={0.8} style={styles.roundBtn}>
-                <IconHeart size={16} color="#fff" filled={isFav} />
+              <Tap onPress={() => toggleFav(coach.id)} scaleTo={0.8} style={styles.roundBtnWrap}>
+                <Glass variant="dark" style={styles.roundBtn}>
+                  <IconHeart size={16} color="#fff" filled={isFav} />
+                </Glass>
               </Tap>
             </View>
           </SafeAreaView>
@@ -266,7 +273,8 @@ const styles = StyleSheet.create({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   hero: { height: 260 },
   heroTop: { flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: spacing.lg },
-  roundBtn: { width: 36, height: 36, borderRadius: 18, backgroundColor: 'rgba(20,16,26,0.4)', alignItems: 'center', justifyContent: 'center' },
+  roundBtnWrap: { width: 36, height: 36, borderRadius: 18 },
+  roundBtn: { width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center' },
   body: { padding: spacing.lg },
   tagsRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 8 },
   modalitiesWrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
