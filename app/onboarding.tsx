@@ -137,7 +137,7 @@ export default function Onboarding() {
                   rotateEnabled={false}
                   pitchEnabled={false}
                 >
-                  {GYMS.map((g) => (
+                  {GYMS.slice(0, 8).map((g) => (
                     <Marker key={g.id} coordinate={{ latitude: g.lat, longitude: g.lng }} anchor={{ x: 0.5, y: 0.5 }}>
                       <View style={[styles.previewPin, shadow.card, g.sponsored && styles.previewPinSponsored]}>
                         <Text weight="black" color={g.sponsored ? '#fff' : colors.ink} style={{ fontSize: 11 }}>

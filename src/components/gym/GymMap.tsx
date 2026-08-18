@@ -1,6 +1,6 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { View, StyleSheet, Pressable, Platform, Animated, Easing } from 'react-native';
-import MapView, { Marker, PROVIDER_DEFAULT } from 'react-native-maps';
+import MapView, { Marker, PROVIDER_DEFAULT, Region } from 'react-native-maps';
 import { router } from 'expo-router';
 import Text from '../ui/Text';
 import GradientBlock from '../ui/GradientBlock';
@@ -13,6 +13,43 @@ import { distanceLabel, gymDistanceKm } from '../../lib/filters';
 import { useLocationStore } from '../../store/location';
 
 const MUTED_MAP_TYPE = Platform.OS === 'ios' ? 'mutedStandard' : 'standard';
+
+// Above this zoomed-out level we show one pin per quartier (with a count)
+// instead of one pin per gym — past ~40 real Lyon gyms, individual price
+// pins on a city-wide view turn into unreadable soup.
+const CLUSTER_DELTA_THRESHOLD = 0.045;
+
+interface QuartierCluster {
+  quartier: string;
+  count: number;
+  lat: number;
+  lng: number;
+  minPrice: number;
+  latSpan: number;
+  lngSpan: number;
+}
+
+function clusterByQuartier(gyms: Gym[]): QuartierCluster[] {
+  const byQuartier = new Map<string, Gym[]>();
+  gyms.forEach((g) => {
+    const list = byQuartier.get(g.quartier) ?? [];
+    list.push(g);
+    byQuartier.set(g.quartier, list);
+  });
+  return [...byQuartier.entries()].map(([quartier, list]) => {
+    const lats = list.map((g) => g.lat);
+    const lngs = list.map((g) => g.lng);
+    return {
+      quartier,
+      count: list.length,
+      lat: lats.reduce((a, b) => a + b, 0) / list.length,
+      lng: lngs.reduce((a, b) => a + b, 0) / list.length,
+      minPrice: Math.min(...list.map((g) => g.priceFrom)),
+      latSpan: Math.max(...lats) - Math.min(...lats),
+      lngSpan: Math.max(...lngs) - Math.min(...lngs),
+    };
+  });
+}
 
 function MeMarker() {
   const scale = useRef(new Animated.Value(1)).current;
@@ -37,15 +74,32 @@ function MeMarker() {
 
 export default function GymMap({ gyms }: { gyms: Gym[] }) {
   const [selected, setSelected] = useState<Gym | null>(null);
+  const [region, setRegion] = useState<Region | null>(null);
   const coords = useLocationStore((s) => s.coords);
   const mapRef = useRef<MapView>(null);
   const me = coords ?? ME_LOCATION;
+
+  const clusters = useMemo(() => clusterByQuartier(gyms), [gyms]);
+  const zoomedOut = !region || region.latitudeDelta > CLUSTER_DELTA_THRESHOLD;
 
   useEffect(() => {
     if (coords) {
       mapRef.current?.animateToRegion({ latitude: coords.lat, longitude: coords.lng, latitudeDelta: 0.07, longitudeDelta: 0.07 }, 600);
     }
   }, [coords?.lat, coords?.lng]);
+
+  const openCluster = (c: QuartierCluster) => {
+    setSelected(null);
+    mapRef.current?.animateToRegion(
+      {
+        latitude: c.lat,
+        longitude: c.lng,
+        latitudeDelta: Math.max(c.latSpan * 2.4, CLUSTER_DELTA_THRESHOLD * 0.55),
+        longitudeDelta: Math.max(c.lngSpan * 2.4, CLUSTER_DELTA_THRESHOLD * 0.55),
+      },
+      500
+    );
+  };
 
   return (
     <View style={{ flex: 1 }}>
@@ -55,6 +109,7 @@ export default function GymMap({ gyms }: { gyms: Gym[] }) {
         style={StyleSheet.absoluteFill}
         mapType={MUTED_MAP_TYPE as any}
         initialRegion={{ latitude: me.lat, longitude: me.lng, latitudeDelta: 0.07, longitudeDelta: 0.07 }}
+        onRegionChangeComplete={setRegion}
         showsUserLocation={!!coords}
       >
         {!coords ? (
@@ -62,32 +117,49 @@ export default function GymMap({ gyms }: { gyms: Gym[] }) {
             <MeMarker />
           </Marker>
         ) : null}
-        {gyms.map((g) => (
-          <Marker
-            key={g.id}
-            coordinate={{ latitude: g.lat, longitude: g.lng }}
-            anchor={{ x: 0.5, y: 1 }}
-            onPress={() => setSelected(g)}
-          >
-            <View style={styles.pinWrap}>
-              {g.sponsored ? (
-                <GradientBlock kind="pinkViolet" style={[styles.bubble, shadow.card, selected?.id === g.id && styles.bubbleSelected]}>
-                  <View style={styles.bubbleDot} />
-                  <Text weight="black" color="#fff" style={{ fontSize: 13 }}>
-                    {g.priceFrom}€
-                  </Text>
-                </GradientBlock>
-              ) : (
-                <View style={[styles.bubblePlain, shadow.card, selected?.id === g.id && styles.bubbleSelectedPlain]}>
-                  <Text weight="black" color={selected?.id === g.id ? '#fff' : colors.ink} style={{ fontSize: 13 }}>
-                    {g.priceFrom}€
-                  </Text>
+        {zoomedOut
+          ? clusters.map((c) => (
+              <Marker key={c.quartier} coordinate={{ latitude: c.lat, longitude: c.lng }} anchor={{ x: 0.5, y: 0.5 }} onPress={() => openCluster(c)}>
+                <View style={styles.clusterWrap}>
+                  <View style={[styles.clusterBubble, shadow.card]}>
+                    <View style={styles.clusterCountBadge}>
+                      <Text weight="black" color="#fff" style={{ fontSize: 10.5 }}>
+                        {c.count}
+                      </Text>
+                    </View>
+                    <Text weight="black" color="#fff" style={{ fontSize: 12.5 }} numberOfLines={1}>
+                      {c.quartier}
+                    </Text>
+                  </View>
                 </View>
-              )}
-              <View style={[styles.tail, (g.sponsored || selected?.id === g.id) && styles.tailAccent]} />
-            </View>
-          </Marker>
-        ))}
+              </Marker>
+            ))
+          : gyms.map((g) => (
+              <Marker
+                key={g.id}
+                coordinate={{ latitude: g.lat, longitude: g.lng }}
+                anchor={{ x: 0.5, y: 1 }}
+                onPress={() => setSelected(g)}
+              >
+                <View style={styles.pinWrap}>
+                  {g.sponsored ? (
+                    <GradientBlock kind="pinkViolet" style={[styles.bubble, shadow.card, selected?.id === g.id && styles.bubbleSelected]}>
+                      <View style={styles.bubbleDot} />
+                      <Text weight="black" color="#fff" style={{ fontSize: 13 }}>
+                        {g.priceFrom}€
+                      </Text>
+                    </GradientBlock>
+                  ) : (
+                    <View style={[styles.bubblePlain, shadow.card, selected?.id === g.id && styles.bubbleSelectedPlain]}>
+                      <Text weight="black" color={selected?.id === g.id ? '#fff' : colors.ink} style={{ fontSize: 13 }}>
+                        {g.priceFrom}€
+                      </Text>
+                    </View>
+                  )}
+                  <View style={[styles.tail, (g.sponsored || selected?.id === g.id) && styles.tailAccent]} />
+                </View>
+              </Marker>
+            ))}
       </MapView>
 
       {selected ? (
@@ -124,6 +196,26 @@ const styles = StyleSheet.create({
   meDot: { width: 18, height: 18, borderRadius: 9, backgroundColor: colors.blue, borderWidth: 3, borderColor: '#fff' },
   meRing: { position: 'absolute', width: 20, height: 20, borderRadius: 10, backgroundColor: 'rgba(79,110,247,0.45)' },
   pinWrap: { alignItems: 'center' },
+  clusterWrap: { alignItems: 'center' },
+  clusterBubble: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 7,
+    height: 34,
+    paddingLeft: 6,
+    paddingRight: 14,
+    borderRadius: 17,
+    backgroundColor: colors.ink,
+  },
+  clusterCountBadge: {
+    minWidth: 22,
+    height: 22,
+    paddingHorizontal: 4,
+    borderRadius: 11,
+    backgroundColor: colors.pink,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   bubble: {
     height: 32,
     paddingHorizontal: 14,
