@@ -8,6 +8,7 @@ export const colors = {
   violet: '#8B5CFF',
   violetDeep: '#A54BFF',
   blue: '#4F6EF7',
+  brandBlue: '#5B6CFF',
   mint: '#2FD4C0',
   mintDeep: '#28D8C4',
 
@@ -40,8 +41,10 @@ export const colors = {
 } as const;
 
 export const gradients = {
-  brand: [colors.coral, colors.pink, colors.violetDeep, colors.mintDeep] as const,
-  brandLocations: [0, 0.35, 0.7, 1] as const,
+  // Exact recipe from the mockup source (Jimmy.dc.html): 150deg,
+  // #FF4E7D 0% -> #F5397F 22% -> #A54BFF 48% -> #5B6CFF 74% -> #28D8C4 100%.
+  brand: [colors.coral, colors.pink, colors.violetDeep, colors.brandBlue, colors.mintDeep] as const,
+  brandLocations: [0, 0.22, 0.48, 0.74, 1] as const,
   pinkViolet: [colors.pink, colors.violet] as const,
   violetBlue: [colors.violet, colors.blue] as const,
   blueMint: [colors.blue, colors.mint] as const,

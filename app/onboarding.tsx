@@ -3,6 +3,7 @@ import { View, StyleSheet, Pressable, Animated, Easing, TextInput, KeyboardAvoid
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import MapView, { Marker, PROVIDER_DEFAULT } from 'react-native-maps';
+import { LinearGradient } from 'expo-linear-gradient';
 import Text from '../src/components/ui/Text';
 import { Wordmark } from '../src/components/ui/Logo';
 import GradientBlock from '../src/components/ui/GradientBlock';
@@ -40,8 +41,8 @@ function PulseDot() {
   }, []);
   return (
     <View style={{ width: 10, height: 10, alignItems: 'center', justifyContent: 'center' }}>
-      <Animated.View style={{ position: 'absolute', width: 10, height: 10, borderRadius: 5, backgroundColor: colors.mintDeep, transform: [{ scale }], opacity }} />
-      <View style={{ width: 7, height: 7, borderRadius: 3.5, backgroundColor: colors.mintDeep }} />
+      <Animated.View style={{ position: 'absolute', width: 10, height: 10, borderRadius: 5, backgroundColor: '#2FF0D6', transform: [{ scale }], opacity }} />
+      <View style={{ width: 7, height: 7, borderRadius: 3.5, backgroundColor: '#2FF0D6' }} />
     </View>
   );
 }
@@ -123,35 +124,42 @@ export default function Onboarding() {
               </Pressable>
             </View>
 
-            <View style={styles.mapCard}>
-              <MapView
-                provider={PROVIDER_DEFAULT}
-                style={StyleSheet.absoluteFill}
-                pointerEvents="none"
-                mapType={MUTED_MAP_TYPE as any}
-                initialRegion={{ latitude: ME_LOCATION.lat, longitude: ME_LOCATION.lng, latitudeDelta: 0.09, longitudeDelta: 0.09 }}
-                scrollEnabled={false}
-                zoomEnabled={false}
-                rotateEnabled={false}
-                pitchEnabled={false}
-              >
-                {GYMS.map((g) => (
-                  <Marker key={g.id} coordinate={{ latitude: g.lat, longitude: g.lng }} anchor={{ x: 0.5, y: 0.5 }}>
-                    <View style={[styles.previewPin, shadow.card, g.sponsored && styles.previewPinSponsored]}>
-                      <Text weight="black" color={g.sponsored ? '#fff' : colors.ink} style={{ fontSize: 11 }}>
-                        {g.priceFrom}€
-                      </Text>
-                    </View>
-                  </Marker>
-                ))}
-              </MapView>
-              <View style={styles.mapOverlay} pointerEvents="none" />
-              <Glass variant="dark" style={styles.mapBadge}>
-                <PulseDot />
-                <Text weight="extrabold" color="#fff" style={{ fontSize: 11.5 }}>
-                  128 salles actives
-                </Text>
-              </Glass>
+            <View style={styles.mapCardShadow}>
+              <View style={styles.mapCard}>
+                <MapView
+                  provider={PROVIDER_DEFAULT}
+                  style={StyleSheet.absoluteFill}
+                  pointerEvents="none"
+                  mapType={MUTED_MAP_TYPE as any}
+                  initialRegion={{ latitude: ME_LOCATION.lat, longitude: ME_LOCATION.lng, latitudeDelta: 0.09, longitudeDelta: 0.09 }}
+                  scrollEnabled={false}
+                  zoomEnabled={false}
+                  rotateEnabled={false}
+                  pitchEnabled={false}
+                >
+                  {GYMS.map((g) => (
+                    <Marker key={g.id} coordinate={{ latitude: g.lat, longitude: g.lng }} anchor={{ x: 0.5, y: 0.5 }}>
+                      <View style={[styles.previewPin, shadow.card, g.sponsored && styles.previewPinSponsored]}>
+                        <Text weight="black" color={g.sponsored ? '#fff' : colors.ink} style={{ fontSize: 11 }}>
+                          {g.priceFrom}€
+                        </Text>
+                      </View>
+                    </Marker>
+                  ))}
+                </MapView>
+                <LinearGradient
+                  colors={['rgba(20,16,26,0.05)', 'rgba(20,16,26,0)', 'rgba(20,16,26,0.35)']}
+                  locations={[0, 0.3, 1]}
+                  style={StyleSheet.absoluteFill}
+                  pointerEvents="none"
+                />
+                <Glass variant="dark" intensity={40} style={styles.mapBadge}>
+                  <PulseDot />
+                  <Text weight="extrabold" color="#fff" style={{ fontSize: 11.5 }}>
+                    128 salles actives
+                  </Text>
+                </Glass>
+              </View>
             </View>
 
             <Text weight="black" color="#fff" style={{ fontSize: 26, letterSpacing: -0.6, lineHeight: 30 }}>
@@ -300,15 +308,23 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     borderRadius: radius.pill,
   },
-  mapCard: {
+  mapCardShadow: {
     flex: 1,
     marginVertical: spacing.lg,
-    borderRadius: radius.xxl,
+    borderRadius: radius.sheet,
+    shadowColor: '#000',
+    shadowOpacity: 0.35,
+    shadowRadius: 20,
+    shadowOffset: { width: 0, height: 12 },
+    elevation: 10,
+  },
+  mapCard: {
+    flex: 1,
+    borderRadius: radius.sheet,
     overflow: 'hidden',
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.18)',
   },
-  mapOverlay: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(20,16,26,0.18)' },
   previewPin: {
     height: 26,
     paddingHorizontal: 10,
