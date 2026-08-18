@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { View, StyleSheet, Pressable, Animated, Easing, TextInput } from 'react-native';
+import { View, StyleSheet, Pressable, Animated, Easing, TextInput, KeyboardAvoidingView, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import * as Location from 'expo-location';
@@ -102,6 +102,7 @@ export default function Onboarding() {
 
   return (
     <GradientBlock kind="brand" start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ flex: 1 }}>
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <SafeAreaView style={styles.wrap} edges={['top', 'bottom']}>
         {step === 'ask' && (
           <View style={{ flex: 1 }}>
@@ -235,6 +236,7 @@ export default function Onboarding() {
           </View>
         )}
       </SafeAreaView>
+      </KeyboardAvoidingView>
 
       <BottomSheet visible={cityPicker} onClose={() => setCityPicker(false)} title="Choisis ta ville">
         <View style={{ paddingHorizontal: spacing.xl, paddingBottom: spacing.xl }}>

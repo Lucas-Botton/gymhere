@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { Modal, View, Pressable, Animated, StyleSheet, Dimensions } from 'react-native';
+import { Modal, View, Pressable, Animated, StyleSheet, Dimensions, KeyboardAvoidingView, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors, radius, shadow } from '../../theme';
 import Text from './Text';
@@ -43,7 +43,7 @@ export default function BottomSheet({
 
   return (
     <Modal visible={visible} transparent animationType="none" onRequestClose={handleClose} statusBarTranslucent>
-      <View style={StyleSheet.absoluteFill}>
+      <KeyboardAvoidingView style={StyleSheet.absoluteFill} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <Animated.View style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(20,16,26,0.5)', opacity: backdrop }]}>
           <Pressable style={StyleSheet.absoluteFill} onPress={handleClose} />
         </Animated.View>
@@ -71,7 +71,7 @@ export default function BottomSheet({
             {children}
           </SafeAreaView>
         </Animated.View>
-      </View>
+      </KeyboardAvoidingView>
     </Modal>
   );
 }
