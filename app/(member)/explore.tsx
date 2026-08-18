@@ -149,7 +149,12 @@ export default function Explore() {
                   <Text weight="black" style={{ fontSize: 15.5, marginBottom: spacing.sm }}>
                     {activeGoal.emoji} Pour ton objectif
                   </Text>
-                  <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                  <ScrollView
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    contentContainerStyle={{ paddingVertical: 14, paddingRight: spacing.md }}
+                    style={{ marginVertical: -14 }}
+                  >
                     {recoGyms.map((g) => (
                       <GymCardFeatured key={g.id} gym={g} />
                     ))}
@@ -162,7 +167,12 @@ export default function Explore() {
                   <Text weight="black" style={{ fontSize: 15.5, marginBottom: spacing.sm }}>
                     Mises en avant
                   </Text>
-                  <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                  <ScrollView
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    contentContainerStyle={{ paddingVertical: 14, paddingRight: spacing.md }}
+                    style={{ marginVertical: -14 }}
+                  >
                     {sponsored.map((g) => (
                       <GymCardFeatured key={g.id} gym={g} />
                     ))}

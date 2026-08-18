@@ -33,8 +33,11 @@ function HeartButton({ id, small }: { id: string; small?: boolean }) {
 export function GymCardFeatured({ gym }: { gym: Gym }) {
   const distanceKm = useGymDistanceKm(gym);
   return (
-    <View style={[{ marginRight: spacing.md, borderRadius: radius.xl }, gym.sponsored ? shadow.glowPink : shadow.card]}>
-      <Tap onPress={() => router.push(`/gym/${gym.id}`)} style={styles.featuredWrap}>
+    <Tap
+      onPress={() => router.push(`/gym/${gym.id}`)}
+      style={[styles.featuredOuter, gym.sponsored ? shadow.glowPink : shadow.card]}
+    >
+      <View style={styles.featuredWrap}>
         <GradientBlock kind={gym.photo as GradientKey} style={styles.featuredPhoto}>
           <HeartButton id={gym.id} />
           {gym.sponsored ? (
@@ -64,8 +67,8 @@ export function GymCardFeatured({ gym }: { gym: Gym }) {
             dès <Text weight="black" color={colors.ink} style={{ fontSize: 16 }}>{gym.priceFrom}€</Text>/mois
           </Text>
         </View>
-      </Tap>
-    </View>
+      </View>
+    </Tap>
   );
 }
 
@@ -100,7 +103,8 @@ export function GymCardCompact({ gym }: { gym: Gym }) {
 }
 
 const styles = StyleSheet.create({
-  featuredWrap: { width: 250, borderRadius: radius.xl, backgroundColor: '#fff', overflow: 'hidden' },
+  featuredOuter: { width: 250, marginRight: spacing.md, borderRadius: radius.xl, backgroundColor: '#fff' },
+  featuredWrap: { borderRadius: radius.xl, backgroundColor: '#fff', overflow: 'hidden' },
   featuredPhoto: { height: 130, padding: spacing.sm, alignItems: 'flex-end' },
   featuredBody: { padding: spacing.md },
   compactWrap: {
