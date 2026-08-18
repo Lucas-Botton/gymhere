@@ -88,6 +88,34 @@ export const shadow = {
     shadowOffset: { width: 0, height: -6 },
     elevation: 12,
   },
+  glowPink: {
+    shadowColor: colors.pink,
+    shadowOpacity: 0.35,
+    shadowRadius: 20,
+    shadowOffset: { width: 0, height: 10 },
+    elevation: 8,
+  },
+  glowViolet: {
+    shadowColor: colors.violet,
+    shadowOpacity: 0.32,
+    shadowRadius: 20,
+    shadowOffset: { width: 0, height: 10 },
+    elevation: 8,
+  },
+  glowMint: {
+    shadowColor: colors.mintDeep,
+    shadowOpacity: 0.32,
+    shadowRadius: 18,
+    shadowOffset: { width: 0, height: 8 },
+    elevation: 7,
+  },
+  glowBlue: {
+    shadowColor: colors.blue,
+    shadowOpacity: 0.32,
+    shadowRadius: 18,
+    shadowOffset: { width: 0, height: 8 },
+    elevation: 7,
+  },
 } as const;
 
 export const fontWeight = {

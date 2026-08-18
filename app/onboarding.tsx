@@ -13,6 +13,8 @@ import { colors, radius, spacing } from '../src/theme';
 import { useSession } from '../src/store/session';
 import { useLocationStore } from '../src/store/location';
 
+const MUTED_MAP_TYPE = Platform.OS === 'ios' ? 'mutedStandard' : 'standard';
+
 const CITIES = [
   { name: 'Lyon', live: true },
   { name: 'Paris', live: false },
@@ -123,6 +125,7 @@ export default function Onboarding() {
                 provider={PROVIDER_DEFAULT}
                 style={StyleSheet.absoluteFill}
                 pointerEvents="none"
+                mapType={MUTED_MAP_TYPE as any}
                 initialRegion={{ latitude: ME_LOCATION.lat, longitude: ME_LOCATION.lng, latitudeDelta: 0.09, longitudeDelta: 0.09 }}
                 scrollEnabled={false}
                 zoomEnabled={false}

@@ -33,37 +33,39 @@ function HeartButton({ id, small }: { id: string; small?: boolean }) {
 export function GymCardFeatured({ gym }: { gym: Gym }) {
   const distanceKm = useGymDistanceKm(gym);
   return (
-    <Tap onPress={() => router.push(`/gym/${gym.id}`)} style={[styles.featuredWrap, shadow.card]}>
-      <GradientBlock kind={gym.photo as GradientKey} style={styles.featuredPhoto}>
-        <HeartButton id={gym.id} />
-        {gym.sponsored ? (
-          <View style={styles.sponsoredTag}>
-            <Text weight="black" color="#fff" style={{ fontSize: 10.5 }}>
-              MIS EN AVANT
+    <View style={[{ marginRight: spacing.md, borderRadius: radius.xl }, gym.sponsored ? shadow.glowPink : shadow.card]}>
+      <Tap onPress={() => router.push(`/gym/${gym.id}`)} style={styles.featuredWrap}>
+        <GradientBlock kind={gym.photo as GradientKey} style={styles.featuredPhoto}>
+          <HeartButton id={gym.id} />
+          {gym.sponsored ? (
+            <View style={styles.sponsoredTag}>
+              <Text weight="black" color="#fff" style={{ fontSize: 10.5 }}>
+                MIS EN AVANT
+              </Text>
+            </View>
+          ) : null}
+        </GradientBlock>
+        <View style={styles.featuredBody}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
+            <Text weight="black" style={{ fontSize: 16.5, flexShrink: 1 }} numberOfLines={1}>
+              {gym.name}
             </Text>
+            {gym.certified ? <CertifiedBadge /> : null}
           </View>
-        ) : null}
-      </GradientBlock>
-      <View style={styles.featuredBody}>
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
-          <Text weight="black" style={{ fontSize: 16.5, flexShrink: 1 }} numberOfLines={1}>
-            {gym.name}
+          <Text weight="bold" color={colors.textMuted} style={{ fontSize: 12.5, marginTop: 3 }}>
+            <StarRating rating={gym.rating} size={11} /> {gym.rating} · {gym.reviews} avis · {distanceLabel(distanceKm)}
           </Text>
-          {gym.certified ? <CertifiedBadge /> : null}
+          <View style={styles.tagsRow}>
+            {gym.tags.slice(0, 3).map((t) => (
+              <Tag key={t} label={t} />
+            ))}
+          </View>
+          <Text weight="bold" color={colors.textMuted} style={{ fontSize: 12.5, marginTop: spacing.sm }}>
+            dès <Text weight="black" color={colors.ink} style={{ fontSize: 16 }}>{gym.priceFrom}€</Text>/mois
+          </Text>
         </View>
-        <Text weight="bold" color={colors.textMuted} style={{ fontSize: 12.5, marginTop: 3 }}>
-          <StarRating rating={gym.rating} size={11} /> {gym.rating} · {gym.reviews} avis · {distanceLabel(distanceKm)}
-        </Text>
-        <View style={styles.tagsRow}>
-          {gym.tags.slice(0, 3).map((t) => (
-            <Tag key={t} label={t} />
-          ))}
-        </View>
-        <Text weight="bold" color={colors.textMuted} style={{ fontSize: 12.5, marginTop: spacing.sm }}>
-          dès <Text weight="black" color={colors.ink} style={{ fontSize: 16 }}>{gym.priceFrom}€</Text>/mois
-        </Text>
-      </View>
-    </Tap>
+      </Tap>
+    </View>
   );
 }
 
@@ -98,7 +100,7 @@ export function GymCardCompact({ gym }: { gym: Gym }) {
 }
 
 const styles = StyleSheet.create({
-  featuredWrap: { width: 250, borderRadius: radius.xl, backgroundColor: '#fff', overflow: 'hidden', marginRight: spacing.md },
+  featuredWrap: { width: 250, borderRadius: radius.xl, backgroundColor: '#fff', overflow: 'hidden' },
   featuredPhoto: { height: 130, padding: spacing.sm, alignItems: 'flex-end' },
   featuredBody: { padding: spacing.md },
   compactWrap: {

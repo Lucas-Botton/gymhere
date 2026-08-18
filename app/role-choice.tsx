@@ -6,7 +6,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import Text from '../src/components/ui/Text';
 import { Wordmark } from '../src/components/ui/Logo';
 import { IconDumbbell, IconBolt, IconChevronRight } from '../src/components/ui/icons';
-import { colors, radius, spacing } from '../src/theme';
+import { colors, radius, shadow, spacing } from '../src/theme';
 import { useSession } from '../src/store/session';
 
 export default function RoleChoice() {
@@ -33,7 +33,7 @@ export default function RoleChoice() {
           On adapte l’app à ton profil. Tu pourras changer à tout moment.
         </Text>
 
-        <Pressable onPress={chooseMember} style={{ marginTop: spacing.xl }}>
+        <Pressable onPress={chooseMember} style={[{ marginTop: spacing.xl }, shadow.glowPink]}>
           <LinearGradient colors={['#FF6B6B', colors.pink]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.card}>
             <View style={styles.decoCircleLight} />
             <IconDumbbell size={30} color="#fff" />
@@ -52,22 +52,24 @@ export default function RoleChoice() {
           </LinearGradient>
         </Pressable>
 
-        <Pressable onPress={chooseCoach} style={[styles.card, styles.coachCard]}>
-          <View style={styles.decoCirclePurple} />
-          <LinearGradient colors={[colors.violet, colors.blue]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.coachIconBox}>
-            <IconBolt size={20} color="#fff" />
-          </LinearGradient>
-          <Text weight="black" style={{ fontSize: 20, marginTop: spacing.md }}>
-            Je suis coach
-          </Text>
-          <Text weight="bold" color={colors.textMuted} style={{ fontSize: 13.5, marginTop: 4, lineHeight: 18 }}>
-            Créer ma fiche pro, mes formules et recevoir des demandes.
-          </Text>
-          <View style={styles.linkRow}>
-            <Text weight="black" color={colors.violet} style={{ fontSize: 13.5 }}>
-              Ouvrir mon espace
+        <Pressable onPress={chooseCoach} style={[{ marginTop: spacing.md }, shadow.glowViolet]}>
+          <View style={[styles.card, styles.coachCard]}>
+            <View style={styles.decoCirclePurple} />
+            <LinearGradient colors={[colors.violet, colors.blue]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.coachIconBox}>
+              <IconBolt size={20} color="#fff" />
+            </LinearGradient>
+            <Text weight="black" style={{ fontSize: 20, marginTop: spacing.md }}>
+              Je suis coach
             </Text>
-            <IconChevronRight size={15} color={colors.violet} />
+            <Text weight="bold" color={colors.textMuted} style={{ fontSize: 13.5, marginTop: 4, lineHeight: 18 }}>
+              Créer ma fiche pro, mes formules et recevoir des demandes.
+            </Text>
+            <View style={styles.linkRow}>
+              <Text weight="black" color={colors.violet} style={{ fontSize: 13.5 }}>
+                Ouvrir mon espace
+              </Text>
+              <IconChevronRight size={15} color={colors.violet} />
+            </View>
           </View>
         </Pressable>
       </View>
@@ -78,7 +80,7 @@ export default function RoleChoice() {
 const styles = StyleSheet.create({
   wrap: { flex: 1, padding: spacing.xl, paddingTop: spacing.xl },
   card: { borderRadius: radius.xxl, padding: spacing.xl, overflow: 'hidden' },
-  coachCard: { marginTop: spacing.md, backgroundColor: '#fff', borderWidth: 1.5, borderColor: colors.border },
+  coachCard: { backgroundColor: '#fff', borderWidth: 1.5, borderColor: colors.border },
   decoCircleLight: {
     position: 'absolute',
     right: -14,

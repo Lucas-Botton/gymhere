@@ -12,7 +12,7 @@ import GymMap from '../../src/components/gym/GymMap';
 import FiltersSheet from '../../src/components/gym/FiltersSheet';
 import GoalPickerSheet from '../../src/components/gym/GoalPickerSheet';
 import SearchOverlay from '../../src/components/gym/SearchOverlay';
-import { colors, radius, spacing } from '../../src/theme';
+import { colors, radius, shadow, spacing } from '../../src/theme';
 import { GYMS, GOALS } from '../../src/data/seed';
 import { activeFilterCount, gymDistanceKm, gymPassesFilters } from '../../src/lib/filters';
 import { useApp } from '../../src/store/app';
@@ -67,7 +67,7 @@ export default function Explore() {
           <Text weight="black" color="#fff" style={{ fontSize: 21, marginTop: spacing.md }}>
             Salut 👋 on s’entraîne où ?
           </Text>
-          <Tap onPress={() => setSearchOpen(true)} style={styles.searchBar}>
+          <Tap onPress={() => setSearchOpen(true)} style={[styles.searchBar, shadow.card]}>
             <IconExplore size={16} color={colors.textMuted} />
             <Text weight="semibold" color={colors.textMuted} style={{ fontSize: 13.5 }}>
               Machine, marque, salle, quartier...
@@ -103,7 +103,7 @@ export default function Explore() {
       </View>
 
       <View style={{ paddingHorizontal: spacing.lg, paddingBottom: spacing.sm }}>
-        <Tap onPress={() => router.push('/compare')} style={styles.compareBtn}>
+        <Tap onPress={() => router.push('/compare')} style={[styles.compareBtn, shadow.soft]}>
           <Text style={{ fontSize: 15 }}>⇄</Text>
           <Text weight="extrabold" color={colors.violet} style={{ fontSize: 13.5 }}>
             Comparer les salles côte à côte
@@ -122,7 +122,7 @@ export default function Explore() {
           ListHeaderComponent={
             <>
               {!goal && !goalDismissed ? (
-                <View style={styles.goalBanner}>
+                <View style={[styles.goalBanner, shadow.glowViolet]}>
                   <View style={{ flex: 1 }}>
                     <Text weight="extrabold" color="#fff" style={{ fontSize: 13.5 }}>
                       C’est quoi ton objectif ?

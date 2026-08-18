@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { View, StyleSheet, Pressable } from 'react-native';
+import { View, StyleSheet, Pressable, Platform } from 'react-native';
 import MapView, { Marker, PROVIDER_DEFAULT } from 'react-native-maps';
 import { router } from 'expo-router';
 import Text from '../ui/Text';
@@ -10,6 +10,8 @@ import { Gym } from '../../types';
 import { ME_LOCATION } from '../../data/seed';
 import { distanceLabel, gymDistanceKm } from '../../lib/filters';
 import { useLocationStore } from '../../store/location';
+
+const MUTED_MAP_TYPE = Platform.OS === 'ios' ? 'mutedStandard' : 'standard';
 
 export default function GymMap({ gyms }: { gyms: Gym[] }) {
   const [selected, setSelected] = useState<Gym | null>(null);
@@ -29,6 +31,7 @@ export default function GymMap({ gyms }: { gyms: Gym[] }) {
         ref={mapRef}
         provider={PROVIDER_DEFAULT}
         style={StyleSheet.absoluteFill}
+        mapType={MUTED_MAP_TYPE as any}
         initialRegion={{ latitude: me.lat, longitude: me.lng, latitudeDelta: 0.07, longitudeDelta: 0.07 }}
         showsUserLocation={!!coords}
       >
