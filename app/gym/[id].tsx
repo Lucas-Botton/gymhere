@@ -16,7 +16,8 @@ import { findGym, COACHES } from '../../src/data/seed';
 import { useApp } from '../../src/store/app';
 import { useSession } from '../../src/store/session';
 import { useBookingSheet } from '../../src/store/booking';
-import { distanceLabel } from '../../src/lib/filters';
+import { distanceLabel, gymDistanceKm } from '../../src/lib/filters';
+import { useLocationStore } from '../../src/store/location';
 import { bookingActionVerb } from '../../src/lib/booking-config';
 
 export default function GymDetail() {
@@ -28,6 +29,7 @@ export default function GymDetail() {
   const toggleFav = useApp((s) => s.toggleFavGym);
   const { requireAuth } = useSession();
   const openBooking = useBookingSheet((s) => s.openSheet);
+  const coords = useLocationStore((s) => s.coords);
 
   if (!gym) {
     return (
@@ -36,6 +38,8 @@ export default function GymDetail() {
       </SafeAreaView>
     );
   }
+
+  const distanceKm = gymDistanceKm(gym, coords);
 
   const book = (kind: 'essai' | 'inscription') => {
     const verb = bookingActionVerb(kind);
@@ -77,7 +81,7 @@ export default function GymDetail() {
           </Text>
           <Pressable onPress={() => setReviewsOpen(true)}>
             <Text weight="bold" color={colors.textMuted} style={{ fontSize: 13, marginTop: 4 }}>
-              <StarRating rating={gym.rating} /> {gym.rating} · {gym.reviews} avis · {distanceLabel(gym.distanceKm)}
+              <StarRating rating={gym.rating} /> {gym.rating} · {gym.reviews} avis · {distanceLabel(distanceKm)}
             </Text>
           </Pressable>
 
@@ -98,7 +102,7 @@ export default function GymDetail() {
           <View style={styles.infoCard}>
             <InfoRow label="Adresse" value={gym.address} />
             <InfoRow label="Horaires" value={gym.hours} valueColor={gym.hoursColor} sub={gym.hoursSub} />
-            <InfoRow label="Distance" value={distanceLabel(gym.distanceKm)} last />
+            <InfoRow label="Distance" value={distanceLabel(distanceKm)} last />
           </View>
 
           <SectionTitle>Formules & prix</SectionTitle>

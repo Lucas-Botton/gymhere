@@ -10,6 +10,7 @@ import { colors, radius, shadow, spacing } from '../../theme';
 import { Gym } from '../../types';
 import { useApp } from '../../store/app';
 import { distanceLabel } from '../../lib/filters';
+import { useGymDistanceKm } from '../../lib/useGymDistance';
 
 function HeartButton({ id, small }: { id: string; small?: boolean }) {
   const isFav = useApp((s) => s.favGyms.includes(id));
@@ -30,6 +31,7 @@ function HeartButton({ id, small }: { id: string; small?: boolean }) {
 }
 
 export function GymCardFeatured({ gym }: { gym: Gym }) {
+  const distanceKm = useGymDistanceKm(gym);
   return (
     <Tap onPress={() => router.push(`/gym/${gym.id}`)} style={[styles.featuredWrap, shadow.card]}>
       <GradientBlock kind={gym.photo as GradientKey} style={styles.featuredPhoto}>
@@ -50,7 +52,7 @@ export function GymCardFeatured({ gym }: { gym: Gym }) {
           {gym.certified ? <CertifiedBadge /> : null}
         </View>
         <Text weight="bold" color={colors.textMuted} style={{ fontSize: 12.5, marginTop: 3 }}>
-          <StarRating rating={gym.rating} size={11} /> {gym.rating} · {gym.reviews} avis · {distanceLabel(gym.distanceKm)}
+          <StarRating rating={gym.rating} size={11} /> {gym.rating} · {gym.reviews} avis · {distanceLabel(distanceKm)}
         </Text>
         <View style={styles.tagsRow}>
           {gym.tags.slice(0, 3).map((t) => (
@@ -66,6 +68,7 @@ export function GymCardFeatured({ gym }: { gym: Gym }) {
 }
 
 export function GymCardCompact({ gym }: { gym: Gym }) {
+  const distanceKm = useGymDistanceKm(gym);
   return (
     <Tap onPress={() => router.push(`/gym/${gym.id}`)} style={[styles.compactWrap, shadow.soft]}>
       <GradientBlock kind={gym.photo as GradientKey} style={styles.compactPhoto}>
@@ -79,7 +82,7 @@ export function GymCardCompact({ gym }: { gym: Gym }) {
           {gym.certified ? <CertifiedBadge size={13} /> : null}
         </View>
         <Text weight="bold" color={colors.textMuted} style={{ fontSize: 11.5, marginTop: 2 }} numberOfLines={1}>
-          ★ {gym.rating} · {gym.reviews} avis · {distanceLabel(gym.distanceKm)}
+          ★ {gym.rating} · {gym.reviews} avis · {distanceLabel(distanceKm)}
         </Text>
         <View style={[styles.tagsRow, { marginTop: 4 }]}>
           {gym.tags.slice(0, 2).map((t) => (

@@ -7,6 +7,7 @@ import Button from '../ui/Button';
 import { Chip } from '../ui/primitives';
 import { colors, spacing } from '../../theme';
 import { useApp } from '../../store/app';
+import { useLocationStore } from '../../store/location';
 import { BRANDS, SERVICES } from '../../data/seed';
 import { GYMS } from '../../data/seed';
 import { gymPassesFilters, POPULAR_EQUIPMENT } from '../../lib/filters';
@@ -25,7 +26,8 @@ export default function FiltersSheet({ visible, onClose }: { visible: boolean; o
     setLocal((s) => ({ ...s, [key]: s[key].includes(value) ? s[key].filter((x) => x !== value) : [...s[key], value] }));
   };
 
-  const matchCount = GYMS.filter((g) => gymPassesFilters(g, local)).length;
+  const coords = useLocationStore((s) => s.coords);
+  const matchCount = GYMS.filter((g) => gymPassesFilters(g, local, coords)).length;
 
   const apply = () => {
     setFilters(local);

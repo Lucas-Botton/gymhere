@@ -2,7 +2,6 @@ import React, { useEffect, useRef, useState } from 'react';
 import { View, StyleSheet, Pressable, Animated, Easing, TextInput, KeyboardAvoidingView, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
-import * as Location from 'expo-location';
 import Text from '../src/components/ui/Text';
 import { Wordmark } from '../src/components/ui/Logo';
 import GradientBlock from '../src/components/ui/GradientBlock';
@@ -10,6 +9,7 @@ import BottomSheet from '../src/components/ui/BottomSheet';
 import { IconLocationPin, IconChevronDown, IconBack, IconChevronRight } from '../src/components/ui/icons';
 import { colors, radius, spacing } from '../src/theme';
 import { useSession } from '../src/store/session';
+import { useLocationStore } from '../src/store/location';
 
 const CITIES = [
   { name: 'Lyon', live: true },
@@ -69,12 +69,11 @@ export default function Onboarding() {
   const [email, setEmail] = useState('');
   const [sent, setSent] = useState(false);
   const { city, setCity, setHasOnboarded } = useSession();
+  const requestAndFetchLocation = useLocationStore((s) => s.requestAndFetch);
 
   const activatePosition = async () => {
     setStep('locating');
-    try {
-      await Location.requestForegroundPermissionsAsync();
-    } catch {}
+    requestAndFetchLocation();
     setTimeout(() => {
       setCity('Lyon');
       setHasOnboarded(true);

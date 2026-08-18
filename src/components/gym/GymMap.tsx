@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { View, StyleSheet, Pressable } from 'react-native';
 import MapView, { Marker, PROVIDER_DEFAULT } from 'react-native-maps';
 import { router } from 'expo-router';
@@ -8,21 +8,35 @@ import { CertifiedBadge, StarRating } from '../ui/primitives';
 import { colors, radius, shadow, spacing } from '../../theme';
 import { Gym } from '../../types';
 import { ME_LOCATION } from '../../data/seed';
-import { distanceLabel } from '../../lib/filters';
+import { distanceLabel, gymDistanceKm } from '../../lib/filters';
+import { useLocationStore } from '../../store/location';
 
 export default function GymMap({ gyms }: { gyms: Gym[] }) {
   const [selected, setSelected] = useState<Gym | null>(null);
+  const coords = useLocationStore((s) => s.coords);
+  const mapRef = useRef<MapView>(null);
+  const me = coords ?? ME_LOCATION;
+
+  useEffect(() => {
+    if (coords) {
+      mapRef.current?.animateToRegion({ latitude: coords.lat, longitude: coords.lng, latitudeDelta: 0.07, longitudeDelta: 0.07 }, 600);
+    }
+  }, [coords?.lat, coords?.lng]);
 
   return (
     <View style={{ flex: 1 }}>
       <MapView
+        ref={mapRef}
         provider={PROVIDER_DEFAULT}
         style={StyleSheet.absoluteFill}
-        initialRegion={{ latitude: ME_LOCATION.lat, longitude: ME_LOCATION.lng, latitudeDelta: 0.07, longitudeDelta: 0.07 }}
+        initialRegion={{ latitude: me.lat, longitude: me.lng, latitudeDelta: 0.07, longitudeDelta: 0.07 }}
+        showsUserLocation={!!coords}
       >
-        <Marker coordinate={{ latitude: ME_LOCATION.lat, longitude: ME_LOCATION.lng }} anchor={{ x: 0.5, y: 0.5 }}>
-          <View style={styles.meDot} />
-        </Marker>
+        {!coords ? (
+          <Marker coordinate={{ latitude: me.lat, longitude: me.lng }} anchor={{ x: 0.5, y: 0.5 }}>
+            <View style={styles.meDot} />
+          </Marker>
+        ) : null}
         {gyms.map((g) => (
           <Marker
             key={g.id}
@@ -61,7 +75,7 @@ export default function GymMap({ gyms }: { gyms: Gym[] }) {
               {selected.certified ? <CertifiedBadge size={14} /> : null}
             </View>
             <Text weight="bold" color={colors.textMuted} style={{ fontSize: 11.5, marginTop: 3 }}>
-              ★ {selected.rating} · {selected.reviews} avis · {distanceLabel(selected.distanceKm)}
+              ★ {selected.rating} · {selected.reviews} avis · {distanceLabel(gymDistanceKm(selected, coords))}
             </Text>
             <Text weight="black" color={colors.pink} style={{ fontSize: 12.5, marginTop: 5 }}>
               dès {selected.priceFrom}€/mois · Voir la salle →

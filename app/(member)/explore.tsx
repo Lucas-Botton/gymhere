@@ -14,22 +14,31 @@ import GoalPickerSheet from '../../src/components/gym/GoalPickerSheet';
 import SearchOverlay from '../../src/components/gym/SearchOverlay';
 import { colors, radius, spacing } from '../../src/theme';
 import { GYMS, GOALS } from '../../src/data/seed';
-import { activeFilterCount, gymPassesFilters } from '../../src/lib/filters';
+import { activeFilterCount, gymDistanceKm, gymPassesFilters } from '../../src/lib/filters';
 import { useApp } from '../../src/store/app';
 import { useSession } from '../../src/store/session';
+import { useLocationStore } from '../../src/store/location';
 
 export default function Explore() {
   const { city } = useSession();
   const { filters, goal, goalDismissed, dismissGoal } = useApp();
+  const coords = useLocationStore((s) => s.coords);
   const [mapView, setMapView] = useState(false);
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [goalOpen, setGoalOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const unread = useApp((s) => s.notifications.filter((n) => !n.read).length);
 
-  const filtered = useMemo(() => GYMS.filter((g) => gymPassesFilters(g, filters)), [filters]);
+  const filtered = useMemo(() => GYMS.filter((g) => gymPassesFilters(g, filters, coords)), [filters, coords]);
   const sponsored = filtered.filter((g) => g.sponsored);
-  const others = filtered.filter((g) => !g.sponsored);
+  const others = useMemo(
+    () =>
+      filtered
+        .filter((g) => !g.sponsored)
+        .slice()
+        .sort((a, b) => (coords ? gymDistanceKm(a, coords) - gymDistanceKm(b, coords) : 0)),
+    [filtered, coords]
+  );
   const filterCount = activeFilterCount(filters);
 
   const activeGoal = GOALS.find((g) => g.key === goal) ?? null;

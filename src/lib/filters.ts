@@ -50,12 +50,19 @@ export interface FiltersInput {
   minRating: number;
 }
 
-export function gymPassesFilters(g: Gym, f: FiltersInput): boolean {
+// Real distance from the given coords when available, falling back to the
+// gym's demo-data distance otherwise (pure function; see useGymDistanceKm
+// for the hook version used inside components).
+export function gymDistanceKm(g: Gym, coords: { lat: number; lng: number } | null): number {
+  return coords ? haversineKm(coords, { lat: g.lat, lng: g.lng }) : g.distanceKm;
+}
+
+export function gymPassesFilters(g: Gym, f: FiltersInput, coords: { lat: number; lng: number } | null = null): boolean {
   const eq = f.equipQuery.trim();
   return (
     g.rating >= f.minRating &&
     g.priceFrom <= f.priceMax &&
-    g.distanceKm <= f.distance &&
+    gymDistanceKm(g, coords) <= f.distance &&
     (eq.length === 0 || gymEquipHit(g, eq)) &&
     (f.muscles.length === 0 || f.muscles.every((m) => gymMuscleGroups(g).includes(m))) &&
     (f.brands.length === 0 || f.brands.some((b) => gymBrands(g).includes(b))) &&

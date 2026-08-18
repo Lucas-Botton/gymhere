@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, Pressable, ScrollView, Linking } from 'react-native';
 import { router } from 'expo-router';
-import * as Location from 'expo-location';
 import Text from '../src/components/ui/Text';
 import Tap from '../src/components/ui/Tap';
 import ScreenHeader from '../src/components/ui/ScreenHeader';
@@ -11,6 +10,7 @@ import { IconLocationPin } from '../src/components/ui/icons';
 import { colors, radius, spacing } from '../src/theme';
 import { useSession } from '../src/store/session';
 import { useApp } from '../src/store/app';
+import { useLocationStore } from '../src/store/location';
 
 const CITIES = [
   { name: 'Lyon', live: true },
@@ -38,7 +38,9 @@ export default function Settings() {
   const [legalOpen, setLegalOpen] = useState(false);
   const [paymentOpen, setPaymentOpen] = useState(false);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
-  const [locating, setLocating] = useState(false);
+  const requestAndFetchLocation = useLocationStore((s) => s.requestAndFetch);
+  const locationLoading = useLocationStore((s) => s.loading);
+  const hasLiveCoords = useLocationStore((s) => !!s.coords);
 
   const doLogout = () => {
     setLogoutOpen(false);
@@ -47,19 +49,8 @@ export default function Settings() {
   };
 
   const reactivateLocation = async () => {
-    setLocating(true);
-    try {
-      const { status } = await Location.requestForegroundPermissionsAsync();
-      if (status === 'granted') {
-        showToast('Position activée ✓');
-      } else {
-        showToast('Autorisation refusée, tu peux l’activer dans Réglages iOS');
-      }
-    } catch {
-      showToast('Impossible d’accéder à la localisation');
-    } finally {
-      setLocating(false);
-    }
+    const ok = await requestAndFetchLocation();
+    showToast(ok ? 'Position activée en temps réel ✓' : 'Autorisation refusée, active-la dans Réglages iOS');
   };
 
   const replayOnboarding = () => {
@@ -119,17 +110,24 @@ export default function Settings() {
         <View style={{ paddingHorizontal: spacing.xl, paddingBottom: spacing.xl }}>
           <View style={styles.currentCityCard}>
             <IconLocationPin size={20} color={colors.pink} />
-            <View style={{ marginLeft: spacing.sm }}>
+            <View style={{ marginLeft: spacing.sm, flex: 1 }}>
               <Text weight="extrabold" style={{ fontSize: 14 }}>
                 {city}
               </Text>
               <Text weight="semibold" color={colors.textMuted} style={{ fontSize: 11.5 }}>
-                Ville active
+                {hasLiveCoords ? 'Position temps réel active' : 'Ville active (position non partagée)'}
               </Text>
             </View>
+            {hasLiveCoords ? <View style={styles.liveDot} /> : null}
           </View>
 
-          <Button label="Réactiver la géolocalisation" variant="outline" loading={locating} onPress={reactivateLocation} style={{ marginTop: spacing.lg }} />
+          <Button
+            label={hasLiveCoords ? 'Actualiser ma position' : 'Activer la géolocalisation'}
+            variant="outline"
+            loading={locationLoading}
+            onPress={reactivateLocation}
+            style={{ marginTop: spacing.lg }}
+          />
 
           <Text weight="extrabold" style={{ fontSize: 12.5, marginTop: spacing.xl, marginBottom: spacing.sm }}>
             Changer de ville
@@ -256,6 +254,7 @@ const styles = StyleSheet.create({
   row: { flexDirection: 'row', alignItems: 'center', paddingVertical: 15, borderBottomWidth: 1, borderBottomColor: colors.border },
   statsRow: { flexDirection: 'row', backgroundColor: colors.bgTint, borderRadius: radius.lg, padding: spacing.md },
   currentCityCard: { flexDirection: 'row', alignItems: 'center', backgroundColor: colors.bgTint, borderRadius: radius.lg, padding: spacing.md },
+  liveDot: { width: 9, height: 9, borderRadius: 4.5, backgroundColor: colors.successDeep },
   cityRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: colors.border },
   cityTag: { paddingHorizontal: 10, paddingVertical: 5, borderRadius: radius.pill },
   faqRow: { paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: colors.border },
