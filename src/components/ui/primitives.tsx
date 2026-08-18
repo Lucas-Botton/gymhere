@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Pressable, StyleSheet, StyleProp, ViewStyle } from 'react-native';
 import Text from './Text';
+import Tap from './Tap';
 import GradientBlock from './GradientBlock';
 import { colors, radius, spacing } from '../../theme';
 
@@ -16,19 +17,19 @@ export function Chip({
   hue?: string;
 }) {
   return (
-    <Pressable
+    <Tap
       onPress={onPress}
       style={[
         styles.chip,
         active
-          ? { backgroundColor: hue, borderColor: hue }
+          ? { backgroundColor: hue, borderColor: hue, shadowColor: hue, shadowOpacity: 0.35, shadowRadius: 10, shadowOffset: { width: 0, height: 5 }, elevation: 3 }
           : { backgroundColor: '#fff', borderColor: colors.border },
       ]}
     >
       <Text weight="extrabold" color={active ? '#fff' : '#6B6478'} style={{ fontSize: 13 }}>
         {label}
       </Text>
-    </Pressable>
+    </Tap>
   );
 }
 
@@ -130,11 +131,14 @@ export function IconCircle({ children, tint, size = 40 }: { children: React.Reac
 }
 
 export function Card({ children, style, onPress }: { children: React.ReactNode; style?: StyleProp<ViewStyle>; onPress?: () => void }) {
-  const content = <View style={[styles.card, style]}>{children}</View>;
   if (onPress) {
-    return <Pressable onPress={onPress}>{content}</Pressable>;
+    return (
+      <Tap onPress={onPress} style={[styles.card, style]}>
+        {children}
+      </Tap>
+    );
   }
-  return content;
+  return <View style={[styles.card, style]}>{children}</View>;
 }
 
 const styles = StyleSheet.create({

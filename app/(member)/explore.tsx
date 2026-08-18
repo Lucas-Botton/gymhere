@@ -3,6 +3,7 @@ import { View, StyleSheet, Pressable, ScrollView, FlatList } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import Text from '../../src/components/ui/Text';
+import Tap from '../../src/components/ui/Tap';
 import GradientBlock from '../../src/components/ui/GradientBlock';
 import { Avatar } from '../../src/components/ui/primitives';
 import { IconBell, IconExplore, IconFilter, IconList, IconMap } from '../../src/components/ui/icons';
@@ -57,48 +58,48 @@ export default function Explore() {
           <Text weight="black" color="#fff" style={{ fontSize: 21, marginTop: spacing.md }}>
             Salut 👋 on s’entraîne où ?
           </Text>
-          <Pressable onPress={() => setSearchOpen(true)} style={styles.searchBar}>
+          <Tap onPress={() => setSearchOpen(true)} style={styles.searchBar}>
             <IconExplore size={16} color={colors.textMuted} />
             <Text weight="semibold" color={colors.textMuted} style={{ fontSize: 13.5 }}>
               Machine, marque, salle, quartier...
             </Text>
-          </Pressable>
+          </Tap>
         </SafeAreaView>
       </GradientBlock>
 
       <View style={styles.toolbar}>
         <View style={styles.segment}>
-          <Pressable onPress={() => setMapView(false)} style={[styles.segmentBtn, !mapView && styles.segmentBtnActive]}>
+          <Tap onPress={() => setMapView(false)} style={[styles.segmentBtn, !mapView && styles.segmentBtnActive]}>
             <IconList size={15} color={!mapView ? colors.pink : colors.textMuted} />
             <Text weight="extrabold" color={!mapView ? colors.pink : colors.textMuted} style={{ fontSize: 12.5 }}>
               Liste
             </Text>
-          </Pressable>
-          <Pressable onPress={() => setMapView(true)} style={[styles.segmentBtn, mapView && styles.segmentBtnActive]}>
+          </Tap>
+          <Tap onPress={() => setMapView(true)} style={[styles.segmentBtn, mapView && styles.segmentBtnActive]}>
             <IconMap size={15} color={mapView ? colors.pink : colors.textMuted} />
             <Text weight="extrabold" color={mapView ? colors.pink : colors.textMuted} style={{ fontSize: 12.5 }}>
               Carte
             </Text>
-          </Pressable>
+          </Tap>
         </View>
-        <Pressable onPress={() => setFiltersOpen(true)} style={styles.pillBtn}>
+        <Tap onPress={() => setFiltersOpen(true)} style={styles.pillBtn}>
           <IconFilter size={15} color={colors.ink} />
           <Text weight="extrabold" style={{ fontSize: 12.5 }}>
             Filtres{filterCount > 0 ? ` · ${filterCount}` : ''}
           </Text>
-        </Pressable>
-        <Pressable onPress={() => setGoalOpen(true)} style={[styles.pillBtn, goal && styles.pillBtnActive]}>
+        </Tap>
+        <Tap onPress={() => setGoalOpen(true)} style={[styles.pillBtn, goal && styles.pillBtnActive]}>
           <Text style={{ fontSize: 14 }}>{activeGoal?.emoji ?? '🎯'}</Text>
-        </Pressable>
+        </Tap>
       </View>
 
       <View style={{ paddingHorizontal: spacing.lg, paddingBottom: spacing.sm }}>
-        <Pressable onPress={() => router.push('/compare')} style={styles.compareBtn}>
+        <Tap onPress={() => router.push('/compare')} style={styles.compareBtn}>
           <Text style={{ fontSize: 15 }}>⇄</Text>
           <Text weight="extrabold" color={colors.violet} style={{ fontSize: 13.5 }}>
             Comparer les salles côte à côte
           </Text>
-        </Pressable>
+        </Tap>
       </View>
 
       {mapView ? (

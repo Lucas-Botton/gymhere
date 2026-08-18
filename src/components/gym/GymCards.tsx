@@ -1,7 +1,8 @@
 import React from 'react';
-import { View, StyleSheet, Pressable } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import { router } from 'expo-router';
 import Text from '../ui/Text';
+import Tap from '../ui/Tap';
 import GradientBlock, { GradientKey } from '../ui/GradientBlock';
 import { CertifiedBadge, StarRating, Tag } from '../ui/primitives';
 import { IconHeart } from '../ui/icons';
@@ -14,22 +15,23 @@ function HeartButton({ id, small }: { id: string; small?: boolean }) {
   const isFav = useApp((s) => s.favGyms.includes(id));
   const toggle = useApp((s) => s.toggleFavGym);
   return (
-    <Pressable
-      onPress={(e) => {
+    <Tap
+      onPress={(e: any) => {
         e.stopPropagation();
         toggle(id);
       }}
+      scaleTo={0.75}
       style={[styles.heartBtn, small && { width: 30, height: 30 }]}
       hitSlop={8}
     >
       <IconHeart size={small ? 15 : 17} color={isFav ? colors.pink : '#fff'} filled={isFav} />
-    </Pressable>
+    </Tap>
   );
 }
 
 export function GymCardFeatured({ gym }: { gym: Gym }) {
   return (
-    <Pressable onPress={() => router.push(`/gym/${gym.id}`)} style={[styles.featuredWrap, shadow.card]}>
+    <Tap onPress={() => router.push(`/gym/${gym.id}`)} style={[styles.featuredWrap, shadow.card]}>
       <GradientBlock kind={gym.photo as GradientKey} style={styles.featuredPhoto}>
         <HeartButton id={gym.id} />
         {gym.sponsored ? (
@@ -59,13 +61,13 @@ export function GymCardFeatured({ gym }: { gym: Gym }) {
           dès <Text weight="black" color={colors.ink} style={{ fontSize: 16 }}>{gym.priceFrom}€</Text>/mois
         </Text>
       </View>
-    </Pressable>
+    </Tap>
   );
 }
 
 export function GymCardCompact({ gym }: { gym: Gym }) {
   return (
-    <Pressable onPress={() => router.push(`/gym/${gym.id}`)} style={[styles.compactWrap, shadow.soft]}>
+    <Tap onPress={() => router.push(`/gym/${gym.id}`)} style={[styles.compactWrap, shadow.soft]}>
       <GradientBlock kind={gym.photo as GradientKey} style={styles.compactPhoto}>
         <HeartButton id={gym.id} small />
       </GradientBlock>
@@ -88,7 +90,7 @@ export function GymCardCompact({ gym }: { gym: Gym }) {
       <Text weight="black" color={colors.ink} style={{ fontSize: 14.5 }}>
         {gym.priceFrom}€
       </Text>
-    </Pressable>
+    </Tap>
   );
 }
 

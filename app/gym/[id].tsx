@@ -3,6 +3,7 @@ import { View, StyleSheet, ScrollView, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router, useLocalSearchParams } from 'expo-router';
 import Text from '../../src/components/ui/Text';
+import Tap from '../../src/components/ui/Tap';
 import Button from '../../src/components/ui/Button';
 import GradientBlock from '../../src/components/ui/GradientBlock';
 import { CertifiedBadge, StarRating, Avatar } from '../../src/components/ui/primitives';
@@ -48,16 +49,16 @@ export default function GymDetail() {
       <ScrollView bounces={false}>
         <GradientBlock kind={gym.photo as any} style={styles.hero}>
           <SafeAreaView edges={['top']} style={styles.heroTop}>
-            <Pressable onPress={() => router.back()} style={styles.roundBtn}>
+            <Tap onPress={() => router.back()} style={styles.roundBtn}>
               <IconBack size={18} color="#fff" />
-            </Pressable>
+            </Tap>
             <View style={{ flexDirection: 'row', gap: 8 }}>
-              <Pressable onPress={() => setShareOpen(true)} style={styles.roundBtn}>
+              <Tap onPress={() => setShareOpen(true)} style={styles.roundBtn}>
                 <IconShare size={16} color="#fff" />
-              </Pressable>
-              <Pressable onPress={() => toggleFav(gym.id)} style={styles.roundBtn}>
+              </Tap>
+              <Tap onPress={() => toggleFav(gym.id)} scaleTo={0.8} style={styles.roundBtn}>
                 <IconHeart size={16} color="#fff" filled={isFav} />
-              </Pressable>
+              </Tap>
             </View>
           </SafeAreaView>
           {gym.certified ? (
@@ -148,7 +149,7 @@ export default function GymDetail() {
                   const c = COACHES.find((x) => x.id === cid);
                   if (!c) return null;
                   return (
-                    <Pressable key={cid} onPress={() => router.push(`/coach/${cid}`)} style={[styles.coachCard, shadow.soft]}>
+                    <Tap key={cid} onPress={() => router.push(`/coach/${cid}`)} style={[styles.coachCard, shadow.soft]}>
                       <Avatar gradient={c.photo} size={54} initial={c.name[0]} />
                       <Text weight="extrabold" style={{ fontSize: 13, marginTop: 8 }} numberOfLines={1}>
                         {c.name}
@@ -156,7 +157,7 @@ export default function GymDetail() {
                       <Text weight="semibold" color={colors.textMuted} style={{ fontSize: 11 }} numberOfLines={1}>
                         {c.specs[0]}
                       </Text>
-                    </Pressable>
+                    </Tap>
                   );
                 })}
               </ScrollView>

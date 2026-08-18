@@ -3,6 +3,7 @@ import { View, StyleSheet, FlatList, Pressable, TextInput } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import Text from '../../src/components/ui/Text';
+import Tap from '../../src/components/ui/Tap';
 import { Avatar, StarRating, Tag } from '../../src/components/ui/primitives';
 import { IconExplore, IconHeart } from '../../src/components/ui/icons';
 import { colors, radius, shadow, spacing } from '../../src/theme';
@@ -66,7 +67,7 @@ export default function Coaches() {
         renderItem={({ item }) => {
           const isFav = favCoaches.includes(item.id);
           return (
-            <Pressable onPress={() => router.push(`/coach/${item.id}`)} style={[styles.card, shadow.soft]}>
+            <Tap onPress={() => router.push(`/coach/${item.id}`)} style={[styles.card, shadow.soft]}>
               <Avatar gradient={item.photo} size={64} initial={item.name[0]} />
               <View style={{ flex: 1, marginLeft: spacing.md, minWidth: 0 }}>
                 <Text weight="black" style={{ fontSize: 15.5 }} numberOfLines={1}>
@@ -90,7 +91,7 @@ export default function Coaches() {
               >
                 <IconHeart size={19} color={isFav ? colors.pink : colors.textLight} filled={isFav} />
               </Pressable>
-            </Pressable>
+            </Tap>
           );
         }}
         ListEmptyComponent={

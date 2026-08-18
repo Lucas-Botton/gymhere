@@ -3,6 +3,7 @@ import { View, StyleSheet, ScrollView, Pressable, Linking } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router, useLocalSearchParams } from 'expo-router';
 import Text from '../../src/components/ui/Text';
+import Tap from '../../src/components/ui/Tap';
 import Button from '../../src/components/ui/Button';
 import GradientBlock from '../../src/components/ui/GradientBlock';
 import { Avatar, StarRating, Tag, VerifiedPill } from '../../src/components/ui/primitives';
@@ -76,16 +77,16 @@ export default function CoachDetail() {
       <ScrollView bounces={false} contentContainerStyle={{ paddingBottom: 110 }}>
         <GradientBlock kind={coach.photo as any} style={styles.hero}>
           <SafeAreaView edges={['top']} style={styles.heroTop}>
-            <Pressable onPress={() => router.back()} style={styles.roundBtn}>
+            <Tap onPress={() => router.back()} style={styles.roundBtn}>
               <IconBack size={18} color="#fff" />
-            </Pressable>
+            </Tap>
             <View style={{ flexDirection: 'row', gap: 8 }}>
-              <Pressable onPress={() => setShareOpen(true)} style={styles.roundBtn}>
+              <Tap onPress={() => setShareOpen(true)} style={styles.roundBtn}>
                 <IconShare size={16} color="#fff" />
-              </Pressable>
-              <Pressable onPress={() => toggleFav(coach.id)} style={styles.roundBtn}>
+              </Tap>
+              <Tap onPress={() => toggleFav(coach.id)} scaleTo={0.8} style={styles.roundBtn}>
                 <IconHeart size={16} color="#fff" filled={isFav} />
-              </Pressable>
+              </Tap>
             </View>
           </SafeAreaView>
         </GradientBlock>
@@ -124,7 +125,7 @@ export default function CoachDetail() {
             const open = openOfferIdx === i;
             const tagColor = o.mode === 'Présentiel' ? colors.pink : o.mode === 'Visio' ? colors.blue : colors.violet;
             return (
-              <Pressable
+              <Tap
                 key={o.name}
                 onPress={() => setOpenOfferIdx(open ? null : i)}
                 style={[styles.offer, o.highlight && { borderColor: colors.pink }]}
@@ -162,7 +163,7 @@ export default function CoachDetail() {
                     <Button label="Choisir cette formule" size="sm" onPress={() => chooseOffer(i)} style={{ marginTop: spacing.md, alignSelf: 'flex-start' }} />
                   </>
                 ) : null}
-              </Pressable>
+              </Tap>
             );
           })}
 
@@ -223,11 +224,11 @@ export default function CoachDetail() {
                   const g = findGym(gid);
                   if (!g) return null;
                   return (
-                    <Pressable key={gid} onPress={() => router.push(`/gym/${gid}`)} style={[styles.gymChip, shadow.soft]}>
+                    <Tap key={gid} onPress={() => router.push(`/gym/${gid}`)} style={[styles.gymChip, shadow.soft]}>
                       <Text weight="extrabold" style={{ fontSize: 13 }}>
                         {g.name}
                       </Text>
-                    </Pressable>
+                    </Tap>
                   );
                 })}
               </ScrollView>

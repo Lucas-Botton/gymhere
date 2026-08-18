@@ -1,8 +1,9 @@
 import React from 'react';
-import { Pressable, StyleSheet, ActivityIndicator, ViewStyle, StyleProp } from 'react-native';
+import { StyleSheet, ActivityIndicator, ViewStyle, StyleProp } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import Tap from './Tap';
 import Text from './Text';
-import { colors, gradients, radius, spacing } from '../../theme';
+import { colors, radius, spacing } from '../../theme';
 
 type Variant = 'primary' | 'dark' | 'outline' | 'ghost';
 type Size = 'md' | 'lg' | 'sm';
@@ -57,30 +58,40 @@ export default function Button({
 
   if (variant === 'primary') {
     return (
-      <Pressable onPress={onPress} disabled={disabled || loading} style={style}>
-        <LinearGradient colors={[colors.pink, colors.violet]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={base}>
+      <Tap onPress={onPress} disabled={disabled || loading} style={style}>
+        <LinearGradient colors={[colors.pink, colors.violet]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={[base, styles.primaryShadow]}>
           {content}
         </LinearGradient>
-      </Pressable>
+      </Tap>
     );
   }
   if (variant === 'dark') {
     return (
-      <Pressable onPress={onPress} disabled={disabled || loading} style={[base, { backgroundColor: colors.ink }, style]}>
+      <Tap onPress={onPress} disabled={disabled || loading} style={[base, { backgroundColor: colors.ink }, style]}>
         {content}
-      </Pressable>
+      </Tap>
     );
   }
   if (variant === 'outline') {
     return (
-      <Pressable onPress={onPress} disabled={disabled || loading} style={[base, { backgroundColor: '#fff', borderWidth: 1.5, borderColor: colors.border }, style]}>
+      <Tap onPress={onPress} disabled={disabled || loading} style={[base, { backgroundColor: '#fff', borderWidth: 1.5, borderColor: colors.border }, style]}>
         {content}
-      </Pressable>
+      </Tap>
     );
   }
   return (
-    <Pressable onPress={onPress} disabled={disabled || loading} style={[base, { backgroundColor: 'transparent' }, style]}>
+    <Tap onPress={onPress} disabled={disabled || loading} style={[base, { backgroundColor: 'transparent' }, style]}>
       {content}
-    </Pressable>
+    </Tap>
   );
 }
+
+const styles = StyleSheet.create({
+  primaryShadow: {
+    shadowColor: colors.pink,
+    shadowOpacity: 0.4,
+    shadowRadius: 16,
+    shadowOffset: { width: 0, height: 8 },
+    elevation: 6,
+  },
+});

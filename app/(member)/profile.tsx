@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import Text from '../../src/components/ui/Text';
+import Tap from '../../src/components/ui/Tap';
 import Button from '../../src/components/ui/Button';
 import GradientBlock from '../../src/components/ui/GradientBlock';
 import { Avatar } from '../../src/components/ui/primitives';
@@ -49,7 +50,7 @@ export default function Profile() {
         </GradientBlock>
 
         <View style={{ paddingHorizontal: spacing.lg, paddingTop: spacing.lg }}>
-          <Pressable
+          <Tap
             onPress={() => {
               becomeCoach();
               router.replace('/(coach)/ma-fiche');
@@ -71,25 +72,25 @@ export default function Profile() {
                 ›
               </Text>
             </LinearGradient>
-          </Pressable>
+          </Tap>
 
           <View style={styles.countersRow}>
-            <Pressable onPress={() => router.push('/requests')} style={styles.counterCard}>
+            <Tap onPress={() => router.push('/requests')} style={styles.counterCard}>
               <Text weight="black" color={colors.pink} style={{ fontSize: 22 }}>
                 {bookings.length}
               </Text>
               <Text weight="extrabold" color={colors.textMuted} style={{ fontSize: 11.5, marginTop: 2 }}>
                 Demande(s)
               </Text>
-            </Pressable>
-            <Pressable onPress={() => router.push('/(member)/favorites')} style={styles.counterCard}>
+            </Tap>
+            <Tap onPress={() => router.push('/(member)/favorites')} style={styles.counterCard}>
               <Text weight="black" color={colors.violet} style={{ fontSize: 22 }}>
                 {favGyms.length + favCoaches.length}
               </Text>
               <Text weight="extrabold" color={colors.textMuted} style={{ fontSize: 11.5, marginTop: 2 }}>
                 Favori(s)
               </Text>
-            </Pressable>
+            </Tap>
           </View>
 
           <View style={{ gap: spacing.sm, marginTop: spacing.md }}>
