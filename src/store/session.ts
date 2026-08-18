@@ -31,6 +31,7 @@ interface SessionState {
   becomeCoach: () => void;
   backToMember: () => void;
   syncFromSupabase: (user: { id: string; email?: string | null } | null) => void;
+  resetOnboarding: () => void;
 }
 
 export const useSession = create<SessionState>()(
@@ -109,6 +110,10 @@ export const useSession = create<SessionState>()(
         });
         if (pending) setTimeout(() => pending.resume(), 60);
       },
+
+      // Pour revoir l'écran de bienvenue (géoloc + choix du rôle) : l'app ne
+      // le montre normalement qu'une seule fois, comme toute app grand public.
+      resetOnboarding: () => set({ hasOnboarded: false, role: null }),
     }),
     {
       name: 'gymhere-session',

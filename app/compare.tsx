@@ -51,74 +51,76 @@ export default function Compare() {
         </View>
       </View>
 
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.cardsRow}>
-        {selected.map((g) => {
-          const machines = g.groups.reduce((n, gr) => n + gr.items.reduce((m, it) => m + it.qty, 0), 0);
-          const has247 = gymServiceNames(g).includes('Ouvert 24/7');
-          const brands = gymBrands(g).slice(0, 2).join(', ') || '–';
-          return (
-            <View key={g.id} style={[styles.card, shadow.card]}>
-              <View style={{ height: 92 }}>
-                <GradientBlock kind={g.photo as any} style={StyleSheet.absoluteFill} />
-                <Pressable onPress={() => toggle(g.id)} style={styles.removeBtn}>
-                  <Text weight="black" color={colors.ink} style={{ fontSize: 12 }}>
-                    ✕
-                  </Text>
-                </Pressable>
-              </View>
-              <View style={styles.cardBody}>
-                <Text weight="black" style={{ fontSize: 15, lineHeight: 19, minHeight: 38 }}>
-                  {g.name}
-                </Text>
-                <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 3, marginTop: 2 }}>
-                  <Text weight="black" color={colors.pink} style={{ fontSize: 24 }}>
-                    {g.priceFrom}€
-                  </Text>
-                  <Text weight="bold" color={colors.textMuted} style={{ fontSize: 12 }}>
-                    /mois
-                  </Text>
+      <ScrollView contentContainerStyle={{ paddingBottom: spacing.xxl }}>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.cardsRow}>
+          {selected.map((g) => {
+            const machines = g.groups.reduce((n, gr) => n + gr.items.reduce((m, it) => m + it.qty, 0), 0);
+            const has247 = gymServiceNames(g).includes('Ouvert 24/7');
+            const brands = gymBrands(g).slice(0, 2).join(', ') || '–';
+            return (
+              <View key={g.id} style={[styles.card, shadow.card]}>
+                <View style={{ height: 92 }}>
+                  <GradientBlock kind={g.photo as any} style={StyleSheet.absoluteFill} />
+                  <Pressable onPress={() => toggle(g.id)} style={styles.removeBtn}>
+                    <Text weight="black" color={colors.ink} style={{ fontSize: 12 }}>
+                      ✕
+                    </Text>
+                  </Pressable>
                 </View>
-
-                <StatRow label="Note" value={`★ ${g.rating}`} />
-                <StatRow label="Distance" value={`${g.distanceKm.toFixed(1).replace('.', ',')} km`} />
-                <StatRow label="Ouvert 24/7" value={has247 ? 'Oui' : '–'} valueColor={has247 ? colors.successDeep : colors.textLight} />
-                <StatRow label="Certifié" value={g.certified ? 'Certifié' : '–'} valueColor={g.certified ? colors.pink : colors.textLight} />
-                <StatRow label="Machines dispo" value={String(machines)} />
-                <StatRow label="Services" value={String(g.services.length)} />
-                <View style={styles.statRow}>
-                  <Text weight="extrabold" color={colors.textMuted} style={{ fontSize: 12 }}>
-                    Marques clés
+                <View style={styles.cardBody}>
+                  <Text weight="black" style={{ fontSize: 15, lineHeight: 19, minHeight: 38 }}>
+                    {g.name}
                   </Text>
+                  <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 3, marginTop: 2 }}>
+                    <Text weight="black" color={colors.pink} style={{ fontSize: 24 }}>
+                      {g.priceFrom}€
+                    </Text>
+                    <Text weight="bold" color={colors.textMuted} style={{ fontSize: 12 }}>
+                      /mois
+                    </Text>
+                  </View>
+
+                  <StatRow label="Note" value={`★ ${g.rating}`} />
+                  <StatRow label="Distance" value={`${g.distanceKm.toFixed(1).replace('.', ',')} km`} />
+                  <StatRow label="Ouvert 24/7" value={has247 ? 'Oui' : '–'} valueColor={has247 ? colors.successDeep : colors.textLight} />
+                  <StatRow label="Certifié" value={g.certified ? 'Certifié' : '–'} valueColor={g.certified ? colors.pink : colors.textLight} />
+                  <StatRow label="Machines dispo" value={String(machines)} />
+                  <StatRow label="Services" value={String(g.services.length)} />
+                  <View style={styles.statRow}>
+                    <Text weight="extrabold" color={colors.textMuted} style={{ fontSize: 12 }}>
+                      Marques clés
+                    </Text>
+                  </View>
+                  <Text weight="black" style={{ fontSize: 12.5, marginTop: 3, marginBottom: spacing.md, minHeight: 32 }}>
+                    {brands}
+                  </Text>
+
+                  <Pressable onPress={() => router.push(`/gym/${g.id}`)} style={styles.viewBtn}>
+                    <Text weight="black" color="#fff" style={{ fontSize: 13 }}>
+                      Voir la salle
+                    </Text>
+                  </Pressable>
                 </View>
-                <Text weight="black" style={{ fontSize: 12.5, marginTop: 3, marginBottom: spacing.md, minHeight: 32 }}>
-                  {brands}
-                </Text>
-
-                <Pressable onPress={() => router.push(`/gym/${g.id}`)} style={styles.viewBtn}>
-                  <Text weight="black" color="#fff" style={{ fontSize: 13 }}>
-                    Voir la salle
-                  </Text>
-                </Pressable>
               </View>
+            );
+          })}
+          {ids.length < 3 ? (
+            <View style={styles.addMore}>
+              <Text weight="extrabold" color={colors.textLight} style={{ fontSize: 13, textAlign: 'center' }}>
+                Ajoute une salle ci-dessus ↑
+              </Text>
             </View>
-          );
-        })}
-        {ids.length < 3 ? (
-          <View style={styles.addMore}>
-            <Text weight="extrabold" color={colors.textLight} style={{ fontSize: 13, textAlign: 'center' }}>
-              Ajoute une salle ci-dessus ↑
-            </Text>
-          </View>
-        ) : null}
-      </ScrollView>
+          ) : null}
+        </ScrollView>
 
-      <Text weight="semibold" color={colors.textMuted} style={{ fontSize: 12.5, lineHeight: 19, paddingHorizontal: spacing.xl, marginTop: spacing.sm }}>
-        💡 Astuce : compare le{' '}
-        <Text weight="black" color={colors.violet} style={{ fontSize: 12.5 }}>
-          nombre de machines disponibles
-        </Text>{' '}
-        et les marques présentes pour trouver la salle la mieux équipée pour toi.
-      </Text>
+        <Text weight="semibold" color={colors.textMuted} style={{ fontSize: 12.5, lineHeight: 19, paddingHorizontal: spacing.xl, marginTop: spacing.sm }}>
+          💡 Astuce : compare le{' '}
+          <Text weight="black" color={colors.violet} style={{ fontSize: 12.5 }}>
+            nombre de machines disponibles
+          </Text>{' '}
+          et les marques présentes pour trouver la salle la mieux équipée pour toi.
+        </Text>
+      </ScrollView>
     </View>
   );
 }
