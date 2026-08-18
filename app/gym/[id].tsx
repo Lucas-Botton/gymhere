@@ -155,7 +155,7 @@ export default function GymDetail() {
           {gym.coachIds.length > 0 ? (
             <>
               <SectionTitle>Coachs de la salle</SectionTitle>
-              <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingVertical: 10 }} style={{ marginVertical: -10 }}>
                 {gym.coachIds.map((cid) => {
                   const c = COACHES.find((x) => x.id === cid);
                   if (!c) return null;

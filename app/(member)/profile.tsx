@@ -10,7 +10,7 @@ import GradientBlock from '../../src/components/ui/GradientBlock';
 import { Avatar } from '../../src/components/ui/primitives';
 import BottomSheet from '../../src/components/ui/BottomSheet';
 import { IconBell } from '../../src/components/ui/icons';
-import { colors, radius, spacing } from '../../src/theme';
+import { colors, radius, shadow, spacing } from '../../src/theme';
 import { useSession } from '../../src/store/session';
 import { useApp } from '../../src/store/app';
 
@@ -56,7 +56,7 @@ export default function Profile() {
               router.replace('/(coach)/ma-fiche');
             }}
           >
-            <LinearGradient colors={['#1A1024', '#3A2150', '#5A2E66']} locations={[0, 0.65, 1]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.coachCard}>
+            <LinearGradient colors={['#1A1024', '#3A2150', '#5A2E66']} locations={[0, 0.65, 1]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={[styles.coachCard, shadow.card]}>
               <View style={styles.coachIconBox}>
                 <Text style={{ fontSize: 18 }}>⚡</Text>
               </View>
@@ -75,7 +75,7 @@ export default function Profile() {
           </Tap>
 
           <View style={styles.countersRow}>
-            <Tap onPress={() => router.push('/requests')} style={styles.counterCard}>
+            <Tap onPress={() => router.push('/requests')} style={[styles.counterCard, shadow.soft]}>
               <Text weight="black" color={colors.pink} style={{ fontSize: 22 }}>
                 {bookings.length}
               </Text>
@@ -83,7 +83,7 @@ export default function Profile() {
                 Demande(s)
               </Text>
             </Tap>
-            <Tap onPress={() => router.push('/(member)/favorites')} style={styles.counterCard}>
+            <Tap onPress={() => router.push('/(member)/favorites')} style={[styles.counterCard, shadow.soft]}>
               <Text weight="black" color={colors.violet} style={{ fontSize: 22 }}>
                 {favGyms.length + favCoaches.length}
               </Text>
@@ -186,6 +186,11 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     alignItems: 'center',
     justifyContent: 'center',
+    shadowColor: '#280A32',
+    shadowOpacity: 0.3,
+    shadowRadius: 5,
+    shadowOffset: { width: 0, height: 3 },
+    elevation: 3,
   },
   coachCard: {
     flexDirection: 'row',

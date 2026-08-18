@@ -226,7 +226,7 @@ export default function CoachDetail() {
           {coach.gymIds.length > 0 ? (
             <>
               <SectionTitle>Intervient à</SectionTitle>
-              <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingVertical: 10 }} style={{ marginVertical: -10 }}>
                 {coach.gymIds.map((gid) => {
                   const g = findGym(gid);
                   if (!g) return null;

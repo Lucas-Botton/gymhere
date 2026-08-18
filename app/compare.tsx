@@ -58,7 +58,8 @@ export default function Compare() {
             const has247 = gymServiceNames(g).includes('Ouvert 24/7');
             const brands = gymBrands(g).slice(0, 2).join(', ') || '–';
             return (
-              <View key={g.id} style={[styles.card, shadow.card]}>
+              <View key={g.id} style={[{ borderRadius: radius.xxl }, shadow.card]}>
+                <View style={styles.card}>
                 <View style={{ height: 92 }}>
                   <GradientBlock kind={g.photo as any} style={StyleSheet.absoluteFill} />
                   <Pressable onPress={() => toggle(g.id)} style={styles.removeBtn}>
@@ -100,6 +101,7 @@ export default function Compare() {
                       Voir la salle
                     </Text>
                   </Pressable>
+                </View>
                 </View>
               </View>
             );
