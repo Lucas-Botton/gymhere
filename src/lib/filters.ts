@@ -59,8 +59,8 @@ export function gymDistanceKm(g: Gym, coords: { lat: number; lng: number } | nul
 
 export function gymPassesFilters(g: Gym, f: FiltersInput, coords: { lat: number; lng: number } | null = null): boolean {
   return (
-    g.rating >= f.minRating &&
-    g.priceFrom <= f.priceMax &&
+    (f.minRating === 0 || (g.rating ?? 0) >= f.minRating) &&
+    (g.priceFrom == null || g.priceFrom <= f.priceMax) &&
     gymDistanceKm(g, coords) <= f.distance &&
     (f.equipItems.length === 0 || f.equipItems.every((eq) => gymEquipHit(g, eq))) &&
     (f.muscles.length === 0 || f.muscles.every((m) => gymMuscleGroups(g).includes(m))) &&
@@ -112,6 +112,10 @@ export const POPULAR_ZONES = ['Presqu’île', 'Croix-Rousse', 'Confluence', 'Ge
 
 export function distanceLabel(km: number): string {
   return km.toFixed(1).replace('.', ',') + ' km';
+}
+
+export function priceLabel(priceFrom?: number): string {
+  return priceFrom != null ? `dès ${priceFrom}€/mois` : 'Tarifs sur place';
 }
 
 export function haversineKm(a: { lat: number; lng: number }, b: { lat: number; lng: number }): number {

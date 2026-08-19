@@ -10,7 +10,7 @@ import { GYMS } from '../src/data/seed';
 import { normalize, gymBrands, gymServiceNames } from '../src/lib/filters';
 
 export default function Compare() {
-  const [ids, setIds] = useState<string[]>(['iron', 'crx']);
+  const [ids, setIds] = useState<string[]>(['gymnass']);
   const [query, setQuery] = useState('');
 
   const toggle = (id: string) => {
@@ -73,15 +73,23 @@ export default function Compare() {
                     {g.name}
                   </Text>
                   <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 3, marginTop: 2 }}>
-                    <Text weight="black" color={colors.pink} style={{ fontSize: 24 }}>
-                      {g.priceFrom}€
-                    </Text>
-                    <Text weight="bold" color={colors.textMuted} style={{ fontSize: 12 }}>
-                      /mois
-                    </Text>
+                    {g.priceFrom != null ? (
+                      <>
+                        <Text weight="black" color={colors.pink} style={{ fontSize: 24 }}>
+                          {g.priceFrom}€
+                        </Text>
+                        <Text weight="bold" color={colors.textMuted} style={{ fontSize: 12 }}>
+                          /mois
+                        </Text>
+                      </>
+                    ) : (
+                      <Text weight="black" color={colors.textMuted} style={{ fontSize: 15 }}>
+                        Tarifs sur place
+                      </Text>
+                    )}
                   </View>
 
-                  <StatRow label="Note" value={`★ ${g.rating}`} />
+                  <StatRow label="Note" value={g.rating != null ? `★ ${g.rating}` : 'Nouveau'} />
                   <StatRow label="Distance" value={`${g.distanceKm.toFixed(1).replace('.', ',')} km`} />
                   <StatRow label="Ouvert 24/7" value={has247 ? 'Oui' : '–'} valueColor={has247 ? colors.successDeep : colors.textLight} />
                   <StatRow label="Certifié" value={g.certified ? 'Certifié' : '–'} valueColor={g.certified ? colors.pink : colors.textLight} />

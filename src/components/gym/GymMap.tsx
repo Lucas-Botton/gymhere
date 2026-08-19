@@ -5,11 +5,11 @@ import { router } from 'expo-router';
 import Text from '../ui/Text';
 import GradientBlock from '../ui/GradientBlock';
 import Glass from '../ui/Glass';
-import { CertifiedBadge, StarRating } from '../ui/primitives';
+import { CertifiedBadge, GymRatingMeta } from '../ui/primitives';
 import { colors, radius, shadow, spacing } from '../../theme';
 import { Gym } from '../../types';
 import { ME_LOCATION } from '../../data/seed';
-import { distanceLabel, gymDistanceKm } from '../../lib/filters';
+import { distanceLabel, gymDistanceKm, priceLabel } from '../../lib/filters';
 import { useLocationStore } from '../../store/location';
 
 const MUTED_MAP_TYPE = Platform.OS === 'ios' ? 'mutedStandard' : 'standard';
@@ -24,7 +24,6 @@ interface QuartierCluster {
   count: number;
   lat: number;
   lng: number;
-  minPrice: number;
   latSpan: number;
   lngSpan: number;
 }
@@ -44,7 +43,6 @@ function clusterByQuartier(gyms: Gym[]): QuartierCluster[] {
       count: list.length,
       lat: lats.reduce((a, b) => a + b, 0) / list.length,
       lng: lngs.reduce((a, b) => a + b, 0) / list.length,
-      minPrice: Math.min(...list.map((g) => g.priceFrom)),
       latSpan: Math.max(...lats) - Math.min(...lats),
       lngSpan: Math.max(...lngs) - Math.min(...lngs),
     };
@@ -146,13 +144,13 @@ export default function GymMap({ gyms }: { gyms: Gym[] }) {
                     <GradientBlock kind="pinkViolet" style={[styles.bubble, shadow.card, selected?.id === g.id && styles.bubbleSelected]}>
                       <View style={styles.bubbleDot} />
                       <Text weight="black" color="#fff" style={{ fontSize: 13 }}>
-                        {g.priceFrom}€
+                        {g.priceFrom != null ? `${g.priceFrom}€` : '•'}
                       </Text>
                     </GradientBlock>
                   ) : (
                     <View style={[styles.bubblePlain, shadow.card, selected?.id === g.id && styles.bubbleSelectedPlain]}>
                       <Text weight="black" color={selected?.id === g.id ? '#fff' : colors.ink} style={{ fontSize: 13 }}>
-                        {g.priceFrom}€
+                        {g.priceFrom != null ? `${g.priceFrom}€` : '•'}
                       </Text>
                     </View>
                   )}
@@ -173,10 +171,10 @@ export default function GymMap({ gyms }: { gyms: Gym[] }) {
               {selected.certified ? <CertifiedBadge size={14} /> : null}
             </View>
             <Text weight="bold" color={colors.textMuted} style={{ fontSize: 11.5, marginTop: 3 }}>
-              ★ {selected.rating} · {selected.reviews} avis · {distanceLabel(gymDistanceKm(selected, coords))}
+              <GymRatingMeta gym={selected} distance={distanceLabel(gymDistanceKm(selected, coords))} />
             </Text>
             <Text weight="black" color={colors.pink} style={{ fontSize: 12.5, marginTop: 5 }}>
-              dès {selected.priceFrom}€/mois · Voir la salle →
+              {priceLabel(selected.priceFrom)} · Voir la salle →
             </Text>
           </View>
           <Pressable onPress={() => setSelected(null)} hitSlop={8} style={styles.closeBtnWrap}>

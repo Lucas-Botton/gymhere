@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView, Pressable } from 'react-native';
+import { View, StyleSheet, ScrollView, Pressable, Linking } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router, useLocalSearchParams } from 'expo-router';
 import Text from '../../src/components/ui/Text';
@@ -7,7 +7,7 @@ import Tap from '../../src/components/ui/Tap';
 import Button from '../../src/components/ui/Button';
 import GradientBlock from '../../src/components/ui/GradientBlock';
 import Glass from '../../src/components/ui/Glass';
-import { CertifiedBadge, StarRating, Avatar } from '../../src/components/ui/primitives';
+import { CertifiedBadge, GymRatingMeta, Avatar } from '../../src/components/ui/primitives';
 import { IconBack, IconHeart, IconShare } from '../../src/components/ui/icons';
 import EquipmentTabs from '../../src/components/gym/EquipmentTabs';
 import ShareSheet from '../../src/components/ui/ShareSheet';
@@ -86,9 +86,9 @@ export default function GymDetail() {
           <Text weight="black" style={{ fontSize: 22 }}>
             {gym.name}
           </Text>
-          <Pressable onPress={() => setReviewsOpen(true)}>
+          <Pressable onPress={() => setReviewsOpen(true)} disabled={gym.rating == null}>
             <Text weight="bold" color={colors.textMuted} style={{ fontSize: 13, marginTop: 4 }}>
-              <StarRating rating={gym.rating} /> {gym.rating} · {gym.reviews} avis · {distanceLabel(distanceKm)}
+              <GymRatingMeta gym={gym} distance={distanceLabel(distanceKm)} starSize={12} />
             </Text>
           </Pressable>
 
@@ -109,48 +109,68 @@ export default function GymDetail() {
           <View style={styles.infoCard}>
             <InfoRow label="Adresse" value={gym.address} />
             <InfoRow label="Horaires" value={gym.hours} valueColor={gym.hoursColor} sub={gym.hoursSub} />
+            {gym.phone ? (
+              <InfoRow label="Téléphone" value={gym.phone} onPress={() => Linking.openURL(`tel:${gym.phone!.replace(/\s/g, '')}`)} />
+            ) : null}
+            {gym.website ? (
+              <InfoRow label="Site web" value={gym.website.replace(/^https?:\/\//, '')} onPress={() => Linking.openURL(gym.website!)} />
+            ) : null}
             <InfoRow label="Distance" value={distanceLabel(distanceKm)} last />
           </View>
 
           <SectionTitle>Formules & prix</SectionTitle>
-          {gym.formulas.map((f) => (
-            <View key={f.name} style={[styles.formula, f.highlight && { borderColor: colors.pink }]}>
-              <View style={{ flex: 1 }}>
-                <Text weight="extrabold" style={{ fontSize: 14 }}>
-                  {f.name}
-                </Text>
-                <Text weight="semibold" color={colors.textMuted} style={{ fontSize: 12 }}>
-                  {f.sub}
+          {gym.formulas.length > 0 ? (
+            gym.formulas.map((f) => (
+              <View key={f.name} style={[styles.formula, f.highlight && { borderColor: colors.pink }]}>
+                <View style={{ flex: 1 }}>
+                  <Text weight="extrabold" style={{ fontSize: 14 }}>
+                    {f.name}
+                  </Text>
+                  <Text weight="semibold" color={colors.textMuted} style={{ fontSize: 12 }}>
+                    {f.sub}
+                  </Text>
+                </View>
+                <Text weight="black" color={f.highlight ? colors.pink : colors.ink} style={{ fontSize: 14.5 }}>
+                  {f.price}
                 </Text>
               </View>
-              <Text weight="black" color={f.highlight ? colors.pink : colors.ink} style={{ fontSize: 14.5 }}>
-                {f.price}
-              </Text>
-            </View>
-          ))}
+            ))
+          ) : (
+            <Text weight="semibold" color={colors.textMuted} style={{ fontSize: 13, lineHeight: 19 }}>
+              Tarifs non communiqués publiquement — contacte la salle directement{gym.phone ? ` (${gym.phone})` : ''} pour connaître les formules.
+            </Text>
+          )}
           <View style={{ flexDirection: 'row', gap: spacing.sm, marginTop: spacing.md }}>
             <Button label="S’inscrire en ligne" onPress={() => book('inscription')} style={{ flex: 1 }} />
             <Button label="Séance d’essai" variant="outline" onPress={() => book('essai')} style={{ flex: 1 }} />
           </View>
 
-          <SectionTitle>Matériel par groupe musculaire</SectionTitle>
-          <EquipmentTabs groups={gym.groups} initialGroup={typeof group === 'string' ? group : undefined} />
+          {gym.groups.length > 0 ? (
+            <>
+              <SectionTitle>Matériel par groupe musculaire</SectionTitle>
+              <EquipmentTabs groups={gym.groups} initialGroup={typeof group === 'string' ? group : undefined} />
+            </>
+          ) : null}
 
-          <SectionTitle>Services</SectionTitle>
-          <View style={styles.servicesGrid}>
-            {gym.services.map((s) => (
-              <View key={s.name} style={styles.serviceCell}>
-                <View style={[styles.serviceIcon, { backgroundColor: s.tint }]}>
-                  <Text weight="black" color={s.color} style={{ fontSize: 13 }}>
-                    {s.icon}
-                  </Text>
-                </View>
-                <Text weight="bold" style={{ fontSize: 11.5, flex: 1 }}>
-                  {s.name}
-                </Text>
+          {gym.services.length > 0 ? (
+            <>
+              <SectionTitle>Services</SectionTitle>
+              <View style={styles.servicesGrid}>
+                {gym.services.map((s) => (
+                  <View key={s.name} style={styles.serviceCell}>
+                    <View style={[styles.serviceIcon, { backgroundColor: s.tint }]}>
+                      <Text weight="black" color={s.color} style={{ fontSize: 13 }}>
+                        {s.icon}
+                      </Text>
+                    </View>
+                    <Text weight="bold" style={{ fontSize: 11.5, flex: 1 }}>
+                      {s.name}
+                    </Text>
+                  </View>
+                ))}
               </View>
-            ))}
-          </View>
+            </>
+          ) : null}
 
           {gym.coachIds.length > 0 ? (
             <>
@@ -175,20 +195,24 @@ export default function GymDetail() {
             </>
           ) : null}
 
-          <SectionTitle>Avis</SectionTitle>
-          {gym.reviewList.slice(0, 2).map((r, i) => (
-            <View key={i} style={styles.reviewRow}>
-              <Avatar size={36} initial={r.authorInitial} gradient="pinkViolet" />
-              <View style={{ flex: 1, marginLeft: spacing.sm }}>
-                <Text weight="extrabold" style={{ fontSize: 13 }}>
-                  {r.authorName} · {'★'.repeat(r.stars)}
-                </Text>
-                <Text weight="semibold" color={colors.textMuted} style={{ fontSize: 12.5, marginTop: 2 }}>
-                  {r.text}
-                </Text>
-              </View>
-            </View>
-          ))}
+          {gym.reviewList.length > 0 ? (
+            <>
+              <SectionTitle>Avis</SectionTitle>
+              {gym.reviewList.slice(0, 2).map((r, i) => (
+                <View key={i} style={styles.reviewRow}>
+                  <Avatar size={36} initial={r.authorInitial} gradient="pinkViolet" />
+                  <View style={{ flex: 1, marginLeft: spacing.sm }}>
+                    <Text weight="extrabold" style={{ fontSize: 13 }}>
+                      {r.authorName} · {'★'.repeat(r.stars)}
+                    </Text>
+                    <Text weight="semibold" color={colors.textMuted} style={{ fontSize: 12.5, marginTop: 2 }}>
+                      {r.text}
+                    </Text>
+                  </View>
+                </View>
+              ))}
+            </>
+          ) : null}
           {gym.reviewList.length > 2 ? (
             <Pressable onPress={() => setReviewsOpen(true)} style={{ alignItems: 'center', marginTop: spacing.sm }}>
               <Text weight="extrabold" color={colors.pink} style={{ fontSize: 13 }}>
@@ -232,14 +256,29 @@ function SectionTitle({ children }: { children: React.ReactNode }) {
   );
 }
 
-function InfoRow({ label, value, valueColor, sub, last }: { label: string; value: string; valueColor?: string; sub?: string; last?: boolean }) {
+function InfoRow({
+  label,
+  value,
+  valueColor,
+  sub,
+  last,
+  onPress,
+}: {
+  label: string;
+  value: string;
+  valueColor?: string;
+  sub?: string;
+  last?: boolean;
+  onPress?: () => void;
+}) {
+  const Wrap = onPress ? Pressable : View;
   return (
-    <View style={[styles.infoRow, last && { borderBottomWidth: 0 }]}>
+    <Wrap onPress={onPress} style={[styles.infoRow, last && { borderBottomWidth: 0 }]}>
       <Text weight="bold" color={colors.textMuted} style={{ fontSize: 12.5 }}>
         {label}
       </Text>
       <View style={{ alignItems: 'flex-end' }}>
-        <Text weight="extrabold" color={valueColor ?? colors.ink} style={{ fontSize: 13 }}>
+        <Text weight="extrabold" color={onPress ? colors.pink : valueColor ?? colors.ink} style={{ fontSize: 13 }}>
           {value}
         </Text>
         {sub ? (
@@ -248,7 +287,7 @@ function InfoRow({ label, value, valueColor, sub, last }: { label: string; value
           </Text>
         ) : null}
       </View>
-    </View>
+    </Wrap>
   );
 }
 

@@ -106,6 +106,20 @@ export function StarRating({ rating, size = 12 }: { rating: number; size?: numbe
   );
 }
 
+// Renders "★ 4.8 · 214 avis · 0,4 km" when the gym has a verified rating,
+// or "Nouveau sur gymhere · 0,4 km" otherwise — never a fabricated rating.
+// Meant to be nested inside a <Text>.
+export function GymRatingMeta({ gym, distance, starSize = 11 }: { gym: { rating?: number; reviews?: number }; distance: string; starSize?: number }) {
+  if (gym.rating != null) {
+    return (
+      <>
+        <StarRating rating={gym.rating} size={starSize} /> {gym.rating} · {gym.reviews} avis · {distance}
+      </>
+    );
+  }
+  return <>Nouveau sur gymhere · {distance}</>;
+}
+
 export function Avatar({ gradient = 'pinkViolet', size = 40, initial }: { gradient?: string; size?: number; initial?: string }) {
   return (
     <GradientBlock kind={gradient} style={{ width: size, height: size, borderRadius: size / 2, alignItems: 'center', justifyContent: 'center' }}>

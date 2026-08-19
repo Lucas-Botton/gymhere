@@ -46,10 +46,14 @@ export interface Gym {
   name: string;
   certified: boolean;
   sponsored: boolean;
-  rating: number;
-  reviews: number;
+  // Absent (not 0) means no verified rating exists yet — the UI must not
+  // show stars/review counts it can't back up, especially for real gyms.
+  rating?: number;
+  reviews?: number;
   distanceKm: number;
-  priceFrom: number;
+  // Absent means no verified public price was found for this specific
+  // branch — never a guess. The UI shows "Tarifs sur place" instead.
+  priceFrom?: number;
   photo: string; // gradient css-like string, used by GradientBlock
   tags: string[];
   address: string;
@@ -59,6 +63,8 @@ export interface Gym {
   hours: string;
   hoursColor: string;
   hoursSub: string;
+  phone?: string;
+  website?: string;
   services: GymService[];
   formulas: GymFormula[];
   groups: EquipmentGroup[];

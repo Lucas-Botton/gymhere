@@ -1,15 +1,22 @@
-// Demo dataset, ported from the Jimmy.dc.html mockup so the app is fully
-// browsable before a real Supabase project is connected (see README).
+// Real Lyon gym dataset, compiled via cross-checked web research (see the
+// audit shared with the app owner). Deliberately conservative: no invented
+// ratings, prices, equipment inventories, or customer reviews for any real
+// business — those fields are simply omitted/empty until verified data is
+// available, and the UI is built to handle that gracefully.
 import { Coach, Gym, Goal } from '../types';
+import { haversineKm } from '../lib/filters';
 
 export const ME_LOCATION = { lat: 45.76, lng: 4.83 };
 
+// Personalization only ever RE-ORDERS results, never filters — but since we
+// don't have equipment data for real gyms yet, there's no honest basis to
+// recommend specific ones per objective. Left empty until that data exists.
 export const GOALS: Goal[] = [
-  { key: 'masse', label: 'Prise de masse', emoji: '💪', gymIds: ['iron', 'crx'], specs: ['Prise de masse', 'Force athlétique', 'Transformation physique'] },
-  { key: 'perte', label: 'Perte de poids', emoji: '🔥', gymIds: ['conf', 'ger'], specs: ['Perte de poids', 'Transformation physique'] },
-  { key: 'hyrox', label: 'HYROX / Cross-training', emoji: '⚡', gymIds: ['ger', 'crx'], specs: ['HYROX', 'Cross-training', 'Prépa physique'] },
-  { key: 'force', label: 'Force athlétique', emoji: '🏋️', gymIds: ['crx', 'iron'], specs: ['Force athlétique', 'Prise de masse'] },
-  { key: 'forme', label: 'Remise en forme', emoji: '✨', gymIds: ['conf', 'ger'], specs: ['Perte de poids', 'Sport santé'] },
+  { key: 'masse', label: 'Prise de masse', emoji: '💪', gymIds: [], specs: ['Prise de masse', 'Force athlétique', 'Transformation physique'] },
+  { key: 'perte', label: 'Perte de poids', emoji: '🔥', gymIds: [], specs: ['Perte de poids', 'Transformation physique'] },
+  { key: 'hyrox', label: 'HYROX / Cross-training', emoji: '⚡', gymIds: [], specs: ['HYROX', 'Cross-training', 'Prépa physique'] },
+  { key: 'force', label: 'Force athlétique', emoji: '🏋️', gymIds: [], specs: ['Force athlétique', 'Prise de masse'] },
+  { key: 'forme', label: 'Remise en forme', emoji: '✨', gymIds: [], specs: ['Perte de poids', 'Sport santé'] },
 ];
 
 export const MUSCLES = ['Pectoraux', 'Dos', 'Épaules', 'Biceps', 'Triceps', 'Quadriceps', 'Ischios', 'Fessiers', 'Mollets', 'Abdos/Core', 'Cardio', 'Fonctionnel'];
@@ -17,150 +24,400 @@ export const BRANDS = ['Technogym', 'Hammer Strength', 'Eleiko', 'Panatta', 'Con
 export const SERVICES = ['Ouvert 24/7', 'Sauna', 'Hammam', 'Parking', 'Espace femmes', 'Douches', 'Vestiaires', 'Cours collectifs', 'Coachs sur place', 'Accès PMR', 'Bar à protéines', 'Casiers'];
 export const SPECS = ['Transformation physique', 'Perte de poids', 'Prise de masse', 'Prépa physique', 'HYROX', 'Cross-training', 'Renforcement musculaire', 'Callisthénie', 'Course à pied', 'Mobilité & souplesse', 'Boxe & sports de combat', 'Pilates', 'Sport santé', 'Post-partum', 'Nutrition & rééquilibrage'];
 
-const g = (name: string, brand: string, qty: number) => ({ name, brand, qty });
+// Small palette of confirmed-service definitions reused across entries below.
+const SVC = {
+  h24: { name: 'Ouvert 24/7', icon: '24', tint: '#FDECF3', color: '#F5397F' },
+  sauna: { name: 'Sauna', icon: '♨', tint: '#EEF9F6', color: '#12B39A' },
+  hammam: { name: 'Hammam', icon: '♨', tint: '#EEF9F6', color: '#12B39A' },
+  piscine: { name: 'Piscine', icon: '~', tint: '#EEF0FF', color: '#4F6EF7' },
+  jacuzzi: { name: 'Jacuzzi', icon: '~', tint: '#EEF0FF', color: '#4F6EF7' },
+  parking: { name: 'Parking', icon: 'P', tint: '#F4F0FC', color: '#8B5CFF' },
+  douches: { name: 'Douches', icon: '🚿', tint: '#EEF0FF', color: '#4F6EF7' },
+  clim: { name: 'Climatisée', icon: '❄', tint: '#EEF0FF', color: '#4F6EF7' },
+  femmes: { name: 'Espace femmes', icon: '♀', tint: '#FDECF3', color: '#F5397F' },
+  cours: { name: 'Cours collectifs', icon: '◎', tint: '#F4F0FC', color: '#8B5CFF' },
+  mma: { name: 'Espace MMA/Boxing', icon: '🥊', tint: '#FDECF3', color: '#F5397F' },
+};
 
-export const GYMS: Gym[] = [
+const PHOTOS = ['pinkViolet', 'violetBlue', 'blueMint', 'coralPink'] as const;
+
+// Every entry below (except Gymnass, corrected from the owner's own
+// knowledge) is a real gym compiled from cross-checked public sources —
+// see the shared audit. rating/reviews/priceFrom are OMITTED (not
+// guessed) wherever no verified figure was found; the UI treats their
+// absence as "no data yet", never as zero. Equipment/formulas/reviews are
+// intentionally empty for every real gym — none of that exists publicly
+// and it's for each gym to provide once contacted, not to invent.
+const RAW_GYMS: Omit<Gym, 'distanceKm'>[] = [
   {
-    id: 'gymnass', name: 'Gymnass', certified: true, sponsored: true, rating: 4.9, reviews: 180,
-    distanceKm: 0.9, priceFrom: 59, photo: 'pinkViolet', tags: ['Coaching', 'Small group', 'Premium'],
-    address: '9e · Vaise', quartier: 'Vaise', lat: 45.7735, lng: 4.809,
-    hours: '6h30 – 21h30', hoursColor: '#1A1024', hoursSub: 'Lun–Sam',
-    services: [
-      { name: 'Coaching personnalisé', icon: '◉', tint: '#FDECF3', color: '#F5397F' },
-      { name: 'Small group', icon: '◎', tint: '#F4F0FC', color: '#8B5CFF' },
-      { name: 'Suivi nutrition', icon: '♥', tint: '#EEF9F6', color: '#12B39A' },
-      { name: 'Douches', icon: '🚿', tint: '#EEF0FF', color: '#4F6EF7' },
-    ],
-    formulas: [
-      { name: 'Séance découverte', sub: '1er cours offert', price: 'Gratuit', highlight: false },
-      { name: 'Small group', sub: 'cours collectif encadré', price: 'à partir de 59€/mois', highlight: true },
-      { name: 'Coaching individuel', sub: '1-to-1 sur-mesure', price: 'sur devis', highlight: false },
-    ],
-    groups: [
-      { group: 'Fonctionnel', items: [g('Kettlebells', '–', 12), g('Sled', '–', 1), g('Battle ropes', '–', 2), g('Anneaux', '–', 2)] },
-      { group: 'Cardio', items: [g('Assault bike', 'Assault', 2), g('Rameur', 'Concept2', 2), g('SkiErg', 'Concept2', 1)] },
-      { group: 'Force', items: [g('Rack à squat', '–', 2), g('Barres olympiques', '–', 4), g('Haltères', '–', 20)] },
-      { group: 'Core', items: [g('Wall balls', '–', 6), g('TRX', '–', 4)] },
-    ],
-    coachIds: ['lea'],
-    reviewList: [
-      { authorName: 'Diego', authorInitial: 'D', stars: 5, text: 'Coachs au top, ambiance familiale et vrais résultats. Le small group est parfait pour rester motivé.' },
-      { authorName: 'Marie', authorInitial: 'M', stars: 5, text: 'Suivi personnalisé exceptionnel, on progresse sans se blesser. Je recommande les yeux fermés.' },
-      { authorName: 'Adel', authorInitial: 'A', stars: 5, text: 'Le meilleur studio de Lyon pour se remettre en forme sérieusement. Coachs à l’écoute.' },
-    ],
+    id: 'gymnass', name: 'Gymnass', certified: true, sponsored: true, rating: 4.9, reviews: 48,
+    photo: 'pinkViolet', tags: ['Coaching', 'Small group', 'Premium'],
+    address: '24 rue Laporte, 9e', quartier: 'Vaise', lat: 45.786, lng: 4.802,
+    hours: 'Lun–Ven 8h–21h', hoursColor: '#1A1024', hoursSub: 'Sam 9h–13h · Dim fermé',
+    phone: '04 78 43 47 67', website: 'https://gymnass.fr',
+    services: [], formulas: [], groups: [], coachIds: ['lea'], reviewList: [],
     gallery: ['pinkViolet', 'blueMint', 'coralPink', 'violetBlue'],
   },
   {
-    id: 'iron', name: 'Iron Presqu’île', certified: true, sponsored: false, rating: 4.8, reviews: 214,
-    distanceKm: 0.4, priceFrom: 39, photo: 'pinkViolet', tags: ['Hack squat', 'Sauna', 'Ouvert 24/7'],
-    address: '12 rue de la République, 2e', quartier: 'Presqu’île', lat: 45.764, lng: 4.8335,
-    hours: 'Ouvert 24h/24', hoursColor: '#12B39A', hoursSub: 'Accès badge 24/7',
-    services: [
-      { name: 'Ouvert 24/7', icon: '24', tint: '#FDECF3', color: '#F5397F' },
-      { name: 'Sauna', icon: '♨', tint: '#EEF9F6', color: '#12B39A' },
-      { name: 'Douches', icon: '🚿', tint: '#EEF0FF', color: '#4F6EF7' },
-      { name: 'Parking', icon: 'P', tint: '#F4F0FC', color: '#8B5CFF' },
-    ],
-    formulas: [
-      { name: 'Sans engagement', sub: 'résiliable à tout moment', price: '49€', highlight: false },
-      { name: 'Abonnement 12 mois', sub: 'le plus populaire', price: '39€', highlight: true },
-      { name: 'Séance d’essai', sub: '1 accès découverte', price: 'Gratuit', highlight: false },
-    ],
-    groups: [
-      { group: 'Quadriceps', items: [g('Hack squat', 'Panatta', 2), g('Presse à cuisses', 'Technogym', 2), g('Leg extension', 'Technogym', 3)] },
-      { group: 'Pectoraux', items: [g('Développé couché', 'Hammer Strength', 3), g('Pec deck', 'Technogym', 2), g('Développé incliné', 'Hammer Strength', 2)] },
-      { group: 'Dos', items: [g('Tirage vertical', 'Technogym', 2), g('Rowing T-bar', 'Hammer Strength', 1), g('Tirage horizontal', 'Technogym', 2)] },
-      { group: 'Épaules', items: [g('Développé militaire', 'Hammer Strength', 2), g('Élévation latérale', 'Technogym', 2)] },
-      { group: 'Cardio', items: [g('SkiErg', 'Concept2', 2), g('Rameur', 'Concept2', 4), g('Assault bike', 'Assault', 3)] },
-    ],
-    coachIds: ['lea'],
-    reviewList: [
-      { authorName: 'Marine', authorInitial: 'M', stars: 5, text: 'Salle top, matériel Hammer Strength nickel et jamais la queue même le soir. Le sauna en bonus, je valide à 100%.' },
-      { authorName: 'Yanis', authorInitial: 'Y', stars: 5, text: 'Le hack squat Panatta à lui seul vaut l’abo. Coachs dispos et sympas.' },
-    ],
-    gallery: ['pinkViolet', 'blueMint', 'coralPink', 'violetBlue'],
+    id: 'basicfit-republique', name: 'Basic-Fit République', certified: false, sponsored: false,
+    photo: PHOTOS[0], tags: [],
+    address: '13-15 Rue de la République, 1er', quartier: 'Terreaux', lat: 45.764, lng: 4.835,
+    hours: 'Lun–Ven 6h–22h30', hoursColor: '#1A1024', hoursSub: 'Sam–Dim 9h–19h',
+    website: 'https://www.basic-fit.com',
+    services: [], formulas: [], groups: [], coachIds: [], reviewList: [], gallery: PHOTOS.slice(),
   },
   {
-    id: 'crx', name: 'Croix-Rousse Strength', certified: true, sponsored: false, rating: 4.7, reviews: 156,
-    distanceKm: 1.2, priceFrom: 45, photo: 'violetBlue', tags: ['Eleiko', 'Force athlétique'],
-    address: '34 bd de la Croix-Rousse, 4e', quartier: 'Croix-Rousse', lat: 45.7745, lng: 4.832,
-    hours: '6h – 23h', hoursColor: '#1A1024', hoursSub: '7j/7',
-    services: [
-      { name: 'Espace femmes', icon: '♀', tint: '#FDECF3', color: '#F5397F' },
-      { name: 'Douches', icon: '🚿', tint: '#EEF0FF', color: '#4F6EF7' },
-      { name: 'Cours collectifs', icon: '◎', tint: '#F4F0FC', color: '#8B5CFF' },
-    ],
-    formulas: [
-      { name: 'Sans engagement', sub: 'résiliable à tout moment', price: '55€', highlight: false },
-      { name: 'Abonnement 12 mois', sub: 'le plus populaire', price: '45€', highlight: true },
-      { name: 'Séance d’essai', sub: '1 accès découverte', price: 'Gratuit', highlight: false },
-    ],
-    groups: [
-      { group: 'Dos', items: [g('Rack à tractions', 'Eleiko', 3), g('Rowing Pendlay', 'Eleiko', 2)] },
-      { group: 'Quadriceps', items: [g('Squat rack', 'Eleiko', 4), g('Hack squat', 'Panatta', 1)] },
-      { group: 'Ischios', items: [g('Leg curl', 'Panatta', 2), g('Soulevé de terre', 'Eleiko', 4)] },
-      { group: 'Fonctionnel', items: [g('Kettlebells', 'Eleiko', 20), g('Anneaux', 'Eleiko', 4)] },
-    ],
-    coachIds: ['sophie'],
-    reviewList: [
-      { authorName: 'Thomas', authorInitial: 'T', stars: 5, text: 'Le paradis pour la force. Barres Eleiko, plateforme dédiée, ambiance sérieuse mais bienveillante.' },
-      { authorName: 'Inès', authorInitial: 'I', stars: 4, text: 'Espace femmes vraiment appréciable. Un peu chargé le midi.' },
-    ],
-    gallery: ['violetBlue', 'blueMint', 'coralPink', 'pinkViolet'],
+    id: 'basicfit-villette', name: 'Basic-Fit Villette', certified: false, sponsored: false,
+    photo: PHOTOS[1], tags: [],
+    address: '44 Rue de la Villette, 3e', quartier: 'Villette-Gare', lat: 45.760, lng: 4.860,
+    hours: 'Lun–Ven 6h–22h30', hoursColor: '#1A1024', hoursSub: 'Sam–Dim 9h–19h',
+    website: 'https://www.basic-fit.com',
+    services: [], formulas: [], groups: [], coachIds: [], reviewList: [], gallery: PHOTOS.slice(),
   },
   {
-    id: 'conf', name: 'Confluence 24/7', certified: false, sponsored: false, rating: 4.4, reviews: 89,
-    distanceKm: 2.1, priceFrom: 29, photo: 'blueMint', tags: ['Ouvert 24/7', 'Cardio'],
-    address: '6 cours Charlemagne, 2e', quartier: 'Confluence', lat: 45.741, lng: 4.816,
-    hours: 'Ouvert 24h/24', hoursColor: '#12B39A', hoursSub: 'Accès badge 24/7',
-    services: [
-      { name: 'Ouvert 24/7', icon: '24', tint: '#FDECF3', color: '#F5397F' },
-      { name: 'Parking', icon: 'P', tint: '#F4F0FC', color: '#8B5CFF' },
-      { name: 'Douches', icon: '🚿', tint: '#EEF0FF', color: '#4F6EF7' },
-    ],
-    formulas: [
-      { name: 'Sans engagement', sub: 'résiliable à tout moment', price: '35€', highlight: false },
-      { name: 'Abonnement 12 mois', sub: 'le plus populaire', price: '29€', highlight: true },
-      { name: 'Séance d’essai', sub: '1 accès découverte', price: 'Gratuit', highlight: false },
-    ],
-    groups: [
-      { group: 'Cardio', items: [g('Tapis de course', 'Technogym', 12), g('Elliptique', 'Technogym', 8), g('Vélo', 'Technogym', 10)] },
-      { group: 'Pectoraux', items: [g('Développé couché', 'Technogym', 2), g('Pec deck', 'Technogym', 2)] },
-      { group: 'Abdos/Core', items: [g('Banc à abdos', 'Technogym', 4), g('Machine crunch', 'Technogym', 2)] },
-    ],
-    coachIds: [],
-    reviewList: [
-      { authorName: 'Karim', authorInitial: 'K', stars: 4, text: 'Parfait pour s’entraîner à 6h du mat avant le taf. Cardio au top, un peu juste côté charge libre.' },
-    ],
-    gallery: ['blueMint', 'pinkViolet', 'coralPink', 'violetBlue'],
+    id: 'basicfit-berliet', name: 'Basic-Fit Marius Berliet', certified: false, sponsored: false,
+    photo: PHOTOS[2], tags: ['Ouvert 24/7'],
+    address: '76 Rue Marius Berliet, 8e', quartier: 'Mermoz', lat: 45.728, lng: 4.873,
+    hours: 'Ouvert 24h/24', hoursColor: '#12B39A', hoursSub: 'Accès badge',
+    website: 'https://www.basic-fit.com',
+    services: [SVC.h24], formulas: [], groups: [], coachIds: [], reviewList: [], gallery: PHOTOS.slice(),
   },
   {
-    id: 'ger', name: 'Gerland Athletic', certified: false, sponsored: false, rating: 4.6, reviews: 132,
-    distanceKm: 3.0, priceFrom: 35, photo: 'coralPink', tags: ['Fonctionnel', 'HYROX'],
-    address: '50 av. Jean Jaurès, 7e', quartier: 'Gerland', lat: 45.727, lng: 4.8325,
-    hours: '6h30 – 22h30', hoursColor: '#1A1024', hoursSub: '7j/7',
-    services: [
-      { name: 'Parking', icon: 'P', tint: '#F4F0FC', color: '#8B5CFF' },
-      { name: 'Cours collectifs', icon: '◎', tint: '#FDECF3', color: '#F5397F' },
-      { name: 'Douches', icon: '🚿', tint: '#EEF0FF', color: '#4F6EF7' },
-    ],
-    formulas: [
-      { name: 'Sans engagement', sub: 'résiliable à tout moment', price: '42€', highlight: false },
-      { name: 'Abonnement 12 mois', sub: 'le plus populaire', price: '35€', highlight: true },
-      { name: 'Séance d’essai', sub: '1 accès découverte', price: 'Gratuit', highlight: false },
-    ],
-    groups: [
-      { group: 'Fonctionnel', items: [g('SkiErg', 'Concept2', 3), g('Sled push', 'Hammer Strength', 2), g('Wall balls', '–', 15)] },
-      { group: 'Cardio', items: [g('Assault bike', 'Assault', 4), g('Rameur', 'Concept2', 6)] },
-      { group: 'Fessiers', items: [g('Hip thrust', 'Hammer Strength', 2), g('Presse inclinée', 'Hammer Strength', 2)] },
-    ],
-    coachIds: ['karim'],
-    reviewList: [
-      { authorName: 'Léa', authorInitial: 'L', stars: 5, text: 'LA salle pour préparer un HYROX à Lyon. SkiErg, sled, tout y est. Communauté géniale.' },
-    ],
-    gallery: ['coralPink', 'blueMint', 'pinkViolet', 'violetBlue'],
+    id: 'basicfit-marietton', name: 'Basic-Fit Marietton', certified: false, sponsored: false,
+    photo: PHOTOS[3], tags: [],
+    address: '93 Rue Marietton, 9e', quartier: 'Vaise', lat: 45.769, lng: 4.800,
+    hours: 'Jusqu’à 22h30', hoursColor: '#1A1024', hoursSub: '',
+    website: 'https://www.basic-fit.com',
+    services: [], formulas: [], groups: [], coachIds: [], reviewList: [], gallery: PHOTOS.slice(),
+  },
+  {
+    id: 'basicfit-audry', name: 'Basic-Fit Pierre Audry', certified: false, sponsored: false,
+    photo: PHOTOS[0], tags: ['Ouvert 24/7'],
+    address: '54B Rue Pierre Audry, 9e', quartier: 'La Grivière', lat: 45.786, lng: 4.810,
+    hours: 'Ouvert 24h/24', hoursColor: '#12B39A', hoursSub: 'Accès badge',
+    website: 'https://www.basic-fit.com',
+    services: [SVC.h24], formulas: [], groups: [], coachIds: [], reviewList: [], gallery: PHOTOS.slice(),
+  },
+  {
+    id: 'basicfit-gerland', name: 'Basic-Fit Gerland', certified: false, sponsored: false,
+    photo: PHOTOS[1], tags: [],
+    address: 'Av. Jean Jaurès, 7e', quartier: 'Gerland', lat: 45.730, lng: 4.829,
+    hours: 'Lun–Sam 6h–22h30', hoursColor: '#1A1024', hoursSub: 'Dim 9h–19h',
+    phone: '03 66 33 33 44', website: 'https://www.basic-fit.com',
+    services: [], formulas: [], groups: [], coachIds: [], reviewList: [], gallery: PHOTOS.slice(),
+  },
+  {
+    id: 'basicfit-villeurbanne', name: 'Basic-Fit Villeurbanne', certified: false, sponsored: false,
+    photo: PHOTOS[2], tags: [],
+    address: '117 Bd de Stalingrad, Villeurbanne', quartier: 'Villeurbanne', lat: 45.774, lng: 4.880,
+    hours: 'Horaires non communiqués', hoursColor: '#1A1024', hoursSub: '',
+    website: 'https://www.basic-fit.com',
+    services: [], formulas: [], groups: [], coachIds: [], reviewList: [], gallery: PHOTOS.slice(),
+  },
+  {
+    id: 'basicfit-venissieux', name: 'Basic-Fit Vénissieux', certified: false, sponsored: false,
+    photo: PHOTOS[3], tags: ['Ouvert 24/7'],
+    address: '369 Route de Vienne, Vénissieux', quartier: 'Vénissieux', lat: 45.696, lng: 4.876,
+    hours: 'Ouvert 24h/24', hoursColor: '#12B39A', hoursSub: 'Accès badge',
+    website: 'https://www.basic-fit.com',
+    services: [SVC.h24], formulas: [], groups: [], coachIds: [], reviewList: [], gallery: PHOTOS.slice(),
+  },
+  {
+    id: 'basicfit-vaulxenvelin', name: 'Basic-Fit Vaulx-en-Velin', certified: false, sponsored: false,
+    rating: 4.5, reviews: 970,
+    photo: PHOTOS[0], tags: [],
+    address: '236 Av. Franklin Roosevelt, Vaulx-en-Velin', quartier: 'Vaulx-en-Velin', lat: 45.782, lng: 4.912,
+    hours: 'Lun–Ven 6h–22h30', hoursColor: '#1A1024', hoursSub: 'Sam–Dim 9h–19h',
+    website: 'https://www.basic-fit.com',
+    services: [], formulas: [], groups: [], coachIds: [], reviewList: [], gallery: PHOTOS.slice(),
+  },
+  {
+    id: 'fitnesspark-partdieu', name: 'Fitness Park Part-Dieu', certified: false, sponsored: false,
+    rating: 4.3, reviews: 909,
+    photo: PHOTOS[1], tags: [],
+    address: '129 Rue Servient (Tour Part-Dieu), 3e', quartier: 'Part-Dieu', lat: 45.760, lng: 4.858,
+    hours: 'Lun–Sam 6h–22h', hoursColor: '#1A1024', hoursSub: 'Dim 10h–22h',
+    website: 'https://www.fitnesspark.fr',
+    services: [], formulas: [], groups: [], coachIds: [], reviewList: [], gallery: PHOTOS.slice(),
+  },
+  {
+    id: 'fitnesspark-confluence', name: 'Fitness Park Confluence', certified: false, sponsored: false,
+    photo: PHOTOS[2], tags: [],
+    address: '112 Cours Charlemagne, 2e', quartier: 'Confluence', lat: 45.735, lng: 4.818,
+    hours: '7h30–22h', hoursColor: '#1A1024', hoursSub: '',
+    phone: '04 82 91 15 26', website: 'https://www.fitnesspark.fr',
+    services: [], formulas: [], groups: [], coachIds: [], reviewList: [], gallery: PHOTOS.slice(),
+  },
+  {
+    id: 'fitnesspark-terreaux', name: 'Fitness Park Terreaux', certified: false, sponsored: false,
+    photo: PHOTOS[3], tags: [],
+    address: '3 Rue Sainte-Marie-des-Terreaux, 1er', quartier: 'Terreaux', lat: 45.768, lng: 4.834,
+    hours: '6h–23h', hoursColor: '#1A1024', hoursSub: '',
+    website: 'https://www.fitnesspark.fr',
+    services: [], formulas: [], groups: [], coachIds: [], reviewList: [], gallery: PHOTOS.slice(),
+  },
+  {
+    id: 'keepcool-partdieu', name: 'Keepcool Part-Dieu', certified: false, sponsored: false,
+    photo: PHOTOS[0], tags: [],
+    address: '17 Rue du Docteur Bouchut, 3e', quartier: 'Part-Dieu', lat: 45.761, lng: 4.856,
+    hours: '7j/7 6h–23h', hoursColor: '#1A1024', hoursSub: '',
+    website: 'https://www.keepcool.fr',
+    services: [], formulas: [], groups: [], coachIds: [], reviewList: [], gallery: PHOTOS.slice(),
+  },
+  {
+    id: 'keepcool-montchat', name: 'Keepcool Montchat', certified: false, sponsored: false,
+    photo: PHOTOS[1], tags: [],
+    address: '184 Route de Genas, 3e', quartier: 'Montchat', lat: 45.756, lng: 4.879,
+    hours: '7j/7 6h–23h', hoursColor: '#1A1024', hoursSub: '',
+    website: 'https://www.keepcool.fr',
+    services: [], formulas: [], groups: [], coachIds: [], reviewList: [], gallery: PHOTOS.slice(),
+  },
+  {
+    id: 'keepcool-felixfaure', name: 'Keepcool Félix Faure', certified: false, sponsored: false,
+    photo: PHOTOS[2], tags: [],
+    address: '172 Avenue Félix Faure, 3e', quartier: 'Grange Blanche', lat: 45.749, lng: 4.865,
+    hours: '7j/7 6h–23h', hoursColor: '#1A1024', hoursSub: '',
+    website: 'https://www.keepcool.fr',
+    services: [], formulas: [], groups: [], coachIds: [], reviewList: [], gallery: PHOTOS.slice(),
+  },
+  {
+    id: 'keepcool-vaise', name: 'Keepcool Vaise', certified: false, sponsored: false,
+    photo: PHOTOS[3], tags: [],
+    address: '14 Rue Masaryk, 9e', quartier: 'Vaise', lat: 45.774, lng: 4.810,
+    hours: '7j/7 6h–23h', hoursColor: '#1A1024', hoursSub: '',
+    website: 'https://www.keepcool.fr',
+    services: [], formulas: [], groups: [], coachIds: [], reviewList: [], gallery: PHOTOS.slice(),
+  },
+  {
+    id: 'keepcool-lyon8', name: 'Keepcool Lyon 8', certified: false, sponsored: false,
+    photo: PHOTOS[0], tags: [],
+    address: '106 Rue du Professeur Beauvisage, 8e', quartier: 'Monplaisir', lat: 45.738, lng: 4.869,
+    hours: '7j/7 6h–23h', hoursColor: '#1A1024', hoursSub: '',
+    website: 'https://www.keepcool.fr',
+    services: [], formulas: [], groups: [], coachIds: [], reviewList: [], gallery: PHOTOS.slice(),
+  },
+  {
+    id: 'keepcool-confluence', name: 'Keepcool Confluence', certified: false, sponsored: false,
+    photo: PHOTOS[1], tags: [],
+    address: '35 Rue Dénuzière, 2e', quartier: 'Confluence', lat: 45.742, lng: 4.821,
+    hours: '7j/7 6h–23h', hoursColor: '#1A1024', hoursSub: '',
+    website: 'https://www.keepcool.fr',
+    services: [], formulas: [], groups: [], coachIds: [], reviewList: [], gallery: PHOTOS.slice(),
+  },
+  {
+    id: 'keepcool-sky56', name: 'Keepcool Sky56', certified: false, sponsored: false,
+    photo: PHOTOS[2], tags: [],
+    address: '20 rue du Général Mouton-Duvernet (Tour Sky56), 3e', quartier: 'Part-Dieu', lat: 45.74479, lng: 4.81966,
+    hours: 'Lun–Ven 6h–22h', hoursColor: '#1A1024', hoursSub: 'Sam 7h–20h · Dim 7h–14h, 15h–20h',
+    phone: '04 28 29 90 70', website: 'https://www.keepcool.fr',
+    services: [], formulas: [], groups: [], coachIds: [], reviewList: [], gallery: PHOTOS.slice(),
+  },
+  {
+    id: 'keepcool-charpennes', name: 'Keepcool Villeurbanne-Charpennes', certified: false, sponsored: false,
+    photo: PHOTOS[3], tags: [],
+    address: '22 rue Gabriel Péri, Villeurbanne', quartier: 'Villeurbanne', lat: 45.774, lng: 4.881,
+    hours: '7j/7 6h–23h', hoursColor: '#1A1024', hoursSub: '',
+    phone: '04 37 43 64 03', website: 'https://www.keepcool.fr',
+    services: [], formulas: [], groups: [], coachIds: [], reviewList: [], gallery: PHOTOS.slice(),
+  },
+  {
+    id: 'neoness-lyon8', name: 'Neoness Lyon 8', certified: false, sponsored: false,
+    photo: PHOTOS[0], tags: [],
+    address: '141 Rue Marius Berliet, 8e', quartier: 'Mermoz', lat: 45.728, lng: 4.873,
+    hours: 'Lun/Ven 9h–22h · Mar–Jeu 7h–22h', hoursColor: '#1A1024', hoursSub: 'Sam 9h–19h · Dim 9h–18h',
+    website: 'https://www.neoness.fr',
+    services: [], formulas: [], groups: [], coachIds: [], reviewList: [], gallery: PHOTOS.slice(),
+  },
+  {
+    id: 'neoness-lyon6', name: 'Neoness Lyon 6', certified: false, sponsored: false,
+    photo: PHOTOS[1], tags: [],
+    address: '92 bis Rue d’Inkermann, 6e', quartier: 'Brotteaux', lat: 45.768, lng: 4.857,
+    hours: 'Lun/Ven 9h–22h · Mar–Jeu 7h–22h', hoursColor: '#1A1024', hoursSub: 'Sam 9h–19h · Dim 9h–17h',
+    website: 'https://www.neoness.fr',
+    services: [], formulas: [], groups: [], coachIds: [], reviewList: [], gallery: PHOTOS.slice(),
+  },
+  {
+    id: 'onair-gambetta', name: 'On Air Gambetta', certified: false, sponsored: false,
+    rating: 4.0, reviews: 553,
+    photo: PHOTOS[2], tags: ['MMA/Boxing', 'Espace femmes'],
+    address: '3 Place Aristide Briand, 3e', quartier: 'Saxe-Gambetta', lat: 45.750, lng: 4.846,
+    hours: 'Lun–Ven 6h–23h', hoursColor: '#1A1024', hoursSub: 'Sam–Dim 8h–20h',
+    website: 'https://www.onair-fitness.fr',
+    services: [SVC.mma, SVC.femmes, SVC.clim], formulas: [], groups: [], coachIds: [], reviewList: [], gallery: PHOTOS.slice(),
+  },
+  {
+    id: 'onair-parmentier', name: 'On Air Parmentier', certified: false, sponsored: false,
+    photo: PHOTOS[3], tags: [],
+    address: '81 Rue Parmentier, 7e', quartier: 'Jean Macé', lat: 45.746, lng: 4.839,
+    hours: 'Horaires non communiqués', hoursColor: '#1A1024', hoursSub: '',
+    website: 'https://www.onair-fitness.fr',
+    services: [], formulas: [], groups: [], coachIds: [], reviewList: [], gallery: PHOTOS.slice(),
+  },
+  {
+    id: 'onair-gerland', name: 'On Air Gerland', certified: false, sponsored: false,
+    photo: PHOTOS[0], tags: [],
+    address: '60 Avenue Tony Garnier, 7e', quartier: 'Gerland', lat: 45.733, lng: 4.828,
+    hours: 'Lun–Ven 6h–23h', hoursColor: '#1A1024', hoursSub: 'Sam–Dim 8h–20h',
+    phone: '04 78 24 49 79', website: 'https://www.onair-fitness.fr',
+    services: [], formulas: [], groups: [], coachIds: [], reviewList: [], gallery: PHOTOS.slice(),
+  },
+  {
+    id: 'onair-cordeliers', name: 'On Air Cordeliers', certified: false, sponsored: false,
+    photo: PHOTOS[1], tags: [],
+    address: '10 rue Président Carnot, 2e', quartier: 'Cordeliers', lat: 45.764, lng: 4.834,
+    hours: 'Lun–Ven 6h–23h', hoursColor: '#1A1024', hoursSub: 'Sam–Dim 8h–20h',
+    phone: '04 72 31 24 55', website: 'https://www.onair-fitness.fr',
+    services: [], formulas: [], groups: [], coachIds: [], reviewList: [], gallery: PHOTOS.slice(),
+  },
+  {
+    id: 'onair-brotteaux', name: 'On Air Brotteaux', certified: false, sponsored: false,
+    photo: PHOTOS[2], tags: [],
+    address: '34 rue du Professeur Weill, 6e', quartier: 'Brotteaux', lat: 45.769, lng: 4.853,
+    hours: 'Lun–Ven 6h–23h', hoursColor: '#1A1024', hoursSub: 'Sam–Dim 8h–20h',
+    phone: '09 55 39 49 71', website: 'https://www.onair-fitness.fr',
+    services: [], formulas: [], groups: [], coachIds: [], reviewList: [], gallery: PHOTOS.slice(),
+  },
+  {
+    id: 'vitaliberte-lacassagne', name: 'Vita Liberté Lacassagne', certified: false, sponsored: false,
+    photo: PHOTOS[3], tags: [],
+    address: '169-171 Avenue Lacassagne, 3e', quartier: 'Grange Blanche', lat: 45.748, lng: 4.865,
+    hours: '7j/7 6h–23h', hoursColor: '#1A1024', hoursSub: '',
+    phone: '04 72 33 78 50', website: 'https://www.vitaliberte.fr',
+    services: [], formulas: [], groups: [], coachIds: [], reviewList: [], gallery: PHOTOS.slice(),
+  },
+  {
+    id: 'lappart-republique', name: 'L’Appart Fitness République', certified: false, sponsored: false,
+    photo: PHOTOS[0], tags: [],
+    address: '1 Rue de la République, 1er', quartier: 'Cordeliers', lat: 45.763, lng: 4.834,
+    hours: 'Horaires non communiqués', hoursColor: '#1A1024', hoursSub: '',
+    website: 'https://www.lappartfitness.com',
+    services: [], formulas: [], groups: [], coachIds: [], reviewList: [], gallery: PHOTOS.slice(),
+  },
+  {
+    id: 'lappart-prefecture', name: 'L’Appart Fitness Préfecture', certified: false, sponsored: false,
+    photo: PHOTOS[1], tags: [],
+    address: '4 Rue Pravaz, 3e', quartier: 'Part-Dieu', lat: 45.760, lng: 4.850,
+    hours: 'Horaires non communiqués', hoursColor: '#1A1024', hoursSub: '',
+    website: 'https://www.lappartfitness.com',
+    services: [], formulas: [], groups: [], coachIds: [], reviewList: [], gallery: PHOTOS.slice(),
+  },
+  {
+    id: 'wellness-confluence', name: 'Wellness Sport Club Confluence', certified: false, sponsored: false,
+    photo: PHOTOS[2], tags: ['Piscine', 'Spa'],
+    address: '134 Cours Charlemagne, 2e', quartier: 'Confluence', lat: 45.735, lng: 4.818,
+    hours: 'Lun–Ven 7h–22h', hoursColor: '#1A1024', hoursSub: 'Sam 8h–20h · Dim 8h–17h',
+    phone: '04 78 71 79 19', website: 'https://www.wellness-sportclub.fr',
+    services: [SVC.piscine, SVC.hammam, SVC.sauna], formulas: [], groups: [], coachIds: [], reviewList: [], gallery: PHOTOS.slice(),
+  },
+  {
+    id: 'wellness-vendome', name: 'Wellness Sport Club Vendôme', certified: false, sponsored: false,
+    photo: PHOTOS[3], tags: ['Piscine', 'Spa'],
+    address: '153 rue Vendôme, 3e', quartier: 'Vendôme', lat: 45.762, lng: 4.851,
+    hours: 'Lun–Ven 7h–22h', hoursColor: '#1A1024', hoursSub: 'Sam 8h–20h · Dim 8h–17h',
+    phone: '04 78 71 02 21', website: 'https://www.wellness-sportclub.fr',
+    services: [SVC.piscine, SVC.hammam, SVC.jacuzzi, SVC.sauna], formulas: [], groups: [], coachIds: [], reviewList: [], gallery: PHOTOS.slice(),
+  },
+  {
+    id: 'wellness-gambetta', name: 'Wellness Sport Club Gambetta', certified: false, sponsored: false,
+    photo: PHOTOS[0], tags: ['Piscine', 'Spa'],
+    address: '100 Cours Gambetta, 7e', quartier: 'Guillotière', lat: 45.749, lng: 4.846,
+    hours: 'Lun–Ven 7h–22h', hoursColor: '#1A1024', hoursSub: 'Sam 8h–20h · Dim 8h–17h',
+    website: 'https://www.wellness-sportclub.fr',
+    services: [SVC.piscine, SVC.hammam], formulas: [], groups: [], coachIds: [], reviewList: [], gallery: PHOTOS.slice(),
+  },
+  {
+    id: 'wellness-villeurbanne', name: 'Wellness Sport Club Villeurbanne', certified: false, sponsored: false,
+    photo: PHOTOS[1], tags: [],
+    address: '56 rue Paul Verlaine, Villeurbanne', quartier: 'Villeurbanne', lat: 45.769, lng: 4.895,
+    hours: 'Lun–Ven 8h–22h', hoursColor: '#1A1024', hoursSub: 'Sam 9h–20h · Dim 9h–17h',
+    phone: '04 37 43 32 32', website: 'https://www.wellness-sportclub.fr',
+    services: [], formulas: [], groups: [], coachIds: [], reviewList: [], gallery: PHOTOS.slice(),
+  },
+  {
+    id: 'rituel-jeanjaures', name: 'Rituel Sport Club Jean-Jaurès', certified: false, sponsored: false,
+    photo: PHOTOS[2], tags: [],
+    address: '74 Av. Jean Jaurès, 7e', quartier: 'Jean Macé', lat: 45.745, lng: 4.838,
+    hours: '7j/7 6h–23h', hoursColor: '#1A1024', hoursSub: '',
+    website: 'https://www.rituel-sportclub.fr',
+    services: [], formulas: [], groups: [], coachIds: [], reviewList: [], gallery: PHOTOS.slice(),
+  },
+  {
+    id: 'rituel-gambetta', name: 'Rituel Sport Club Gambetta', certified: false, sponsored: false,
+    photo: PHOTOS[3], tags: [],
+    address: '133 Grande Rue de la Guillotière, 7e', quartier: 'Guillotière', lat: 45.749, lng: 4.844,
+    hours: '7j/7 6h–23h', hoursColor: '#1A1024', hoursSub: '',
+    website: 'https://www.rituel-sportclub.fr',
+    services: [], formulas: [], groups: [], coachIds: [], reviewList: [], gallery: PHOTOS.slice(),
+  },
+  {
+    id: 'uniq-partdieu', name: 'Uniq', certified: false, sponsored: false,
+    photo: PHOTOS[0], tags: [],
+    address: '9 Rue des Cuirassiers, 3e', quartier: 'Part-Dieu', lat: 45.759, lng: 4.852,
+    hours: 'Horaires non communiqués', hoursColor: '#1A1024', hoursSub: '',
+    website: 'https://www.uniqeclub.com',
+    services: [], formulas: [], groups: [], coachIds: [], reviewList: [], gallery: PHOTOS.slice(),
+  },
+  {
+    id: 'haltero-club-lyonnais', name: 'Haltéro Club Lyonnais', certified: false, sponsored: false,
+    photo: PHOTOS[1], tags: ['Powerlifting', 'Club historique'],
+    address: '53 Rue de Belfort, 4e', quartier: 'Croix-Rousse', lat: 45.775, lng: 4.829,
+    hours: '7j/7 7h–23h', hoursColor: '#1A1024', hoursSub: 'Badge d’accès',
+    phone: '04 78 28 78 64', website: 'https://www.halteroclublyonnais.fr',
+    services: [], formulas: [], groups: [], coachIds: [], reviewList: [], gallery: PHOTOS.slice(),
+  },
+  {
+    id: 'victor-hugo-monplaisir', name: 'Club Victor Hugo Monplaisir', certified: false, sponsored: false,
+    photo: PHOTOS[2], tags: [],
+    address: '104 Avenue des Frères Lumière, 8e', quartier: 'Monplaisir', lat: 45.738, lng: 4.866,
+    hours: 'Accès salle 6h–22h', hoursColor: '#1A1024', hoursSub: '7j/7 · Accueil 11h–13h, 15h–19h',
+    phone: '04 78 01 24 88', website: 'https://www.clubvictorhugo.com',
+    services: [], formulas: [], groups: [], coachIds: [], reviewList: [], gallery: PHOTOS.slice(),
+  },
+  {
+    id: 'sisters-gym', name: 'Sisters’ Gym', certified: false, sponsored: false,
+    photo: PHOTOS[3], tags: ['100% féminin'],
+    address: '101 Rue Garibaldi, 6e', quartier: 'Brotteaux', lat: 45.764, lng: 4.854,
+    hours: 'Lun–Ven 11h30–20h30', hoursColor: '#1A1024', hoursSub: 'Sam 10h30–13h30 · Dim fermé',
+    phone: '04 72 70 65 11',
+    services: [SVC.femmes], formulas: [], groups: [], coachIds: [], reviewList: [], gallery: PHOTOS.slice(),
+  },
+  {
+    id: 'l-form', name: 'L Form', certified: false, sponsored: false,
+    rating: 4.4, reviews: 27,
+    photo: PHOTOS[0], tags: ['100% féminin'],
+    address: '54 bis Rue Vendôme, 6e', quartier: 'Brotteaux', lat: 45.770, lng: 4.851,
+    hours: 'Lun–Jeu 8h30–21h', hoursColor: '#1A1024', hoursSub: 'Ven 8h30–20h30 · Sam 9h–12h · Dim fermé',
+    phone: '04 78 93 92 14', website: 'https://www.l-form.fr',
+    services: [SVC.femmes, SVC.cours], formulas: [], groups: [], coachIds: [], reviewList: [], gallery: PHOTOS.slice(),
+  },
+  {
+    id: 'crossfit-gerland', name: 'CrossFit Gerland', certified: false, sponsored: false,
+    photo: PHOTOS[1], tags: ['CrossFit'],
+    address: '18 Rue Croix Barret, 7e', quartier: 'Gerland', lat: 45.737, lng: 4.830,
+    hours: 'Horaires non communiqués', hoursColor: '#1A1024', hoursSub: '',
+    website: 'https://www.crossfit-gerland.com',
+    services: [], formulas: [], groups: [], coachIds: [], reviewList: [], gallery: PHOTOS.slice(),
+  },
+  {
+    id: 'crossfit-heka', name: 'CrossFit HEKA', certified: false, sponsored: false,
+    rating: 4.9, reviews: 150,
+    photo: PHOTOS[2], tags: ['CrossFit'],
+    address: '31 Rue de Cuire, 4e', quartier: 'Croix-Rousse', lat: 45.778, lng: 4.828,
+    hours: 'Horaires non communiqués', hoursColor: '#1A1024', hoursSub: '',
+    website: 'https://www.crossfit-heka.fr',
+    services: [], formulas: [], groups: [], coachIds: [], reviewList: [], gallery: PHOTOS.slice(),
+  },
+  {
+    id: 'crossfit-secteur3', name: 'CrossFit Secteur 3', certified: false, sponsored: false,
+    photo: PHOTOS[3], tags: ['CrossFit'],
+    address: '169-171 Avenue Lacassagne, 3e', quartier: 'Grange Blanche', lat: 45.748, lng: 4.865,
+    hours: 'Lun–Ven 7h–21h', hoursColor: '#1A1024', hoursSub: 'Sam 9h30–16h',
+    phone: '06 50 91 92 28', website: 'https://www.crossfit-secteur3.fr',
+    services: [], formulas: [], groups: [], coachIds: [], reviewList: [], gallery: PHOTOS.slice(),
   },
 ];
+
+export const GYMS: Gym[] = RAW_GYMS.map((r) => ({ ...r, distanceKm: haversineKm(ME_LOCATION, { lat: r.lat, lng: r.lng }) }));
 
 export const COACHES: Coach[] = [
   {
@@ -172,10 +429,10 @@ export const COACHES: Coach[] = [
     certifs: [{ label: 'Bayesian Bodybuilding', verified: true }, { label: 'HYROX Coach L2', verified: true }, { label: 'Nutrition sportive (SFN)', verified: false }],
     offers: [
       { name: 'Suivi en ligne complet', mode: 'En ligne', duration: '12 semaines', price: '240€', per: '/mois', desc: 'Programme + plan alimentaire personnalisés, ajustés chaque semaine. Suivi WhatsApp illimité.', highlight: true },
-      { name: 'Séance en présentiel', mode: 'Présentiel', duration: '1h', price: '60€', per: '/séance', desc: 'À Iron Presqu’île, technique et intensité encadrées.', highlight: false },
+      { name: 'Séance en présentiel', mode: 'Présentiel', duration: '1h', price: '60€', per: '/séance', desc: 'À Gymnass, technique et intensité encadrées.', highlight: false },
       { name: 'Appel découverte', mode: 'Visio', duration: '20 min', price: 'Gratuit', per: '', desc: 'On fait le point sur tes objectifs, sans engagement.', highlight: false },
     ],
-    gymIds: ['iron'],
+    gymIds: ['gymnass'],
     socials: { instagram: '@lea.coach', tiktok: '@leadubois' },
     gallery: ['pinkViolet', 'blueMint', 'coralPink'],
     availability: {
@@ -198,7 +455,7 @@ export const COACHES: Coach[] = [
       { name: 'Programme personnalisé', mode: 'En ligne', duration: 'mensuel', price: '90€', per: '/mois', desc: 'Plan d’entraînement sur-mesure, mis à jour chaque mois.', highlight: false },
       { name: 'Appel découverte', mode: 'Visio', duration: '20 min', price: 'Gratuit', per: '', desc: 'Bilan objectifs + mode de vie.', highlight: false },
     ],
-    gymIds: ['ger'],
+    gymIds: [],
     socials: {},
     gallery: ['coralPink', 'blueMint', 'violetBlue'],
     availability: {
@@ -221,7 +478,7 @@ export const COACHES: Coach[] = [
       { name: 'Séance en présentiel', mode: 'Présentiel', duration: '1h', price: '50€', per: '/séance', desc: 'Correction technique sur les gros mouvements de force.', highlight: false },
       { name: 'Appel découverte', mode: 'Visio', duration: '20 min', price: 'Gratuit', per: '', desc: 'On définit ensemble ton objectif de masse.', highlight: false },
     ],
-    gymIds: ['crx'],
+    gymIds: [],
     socials: {},
     gallery: ['violetBlue', 'pinkViolet', 'blueMint'],
     availability: {
