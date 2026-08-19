@@ -41,14 +41,16 @@ export function GymCardFeatured({ gym }: { gym: Gym }) {
       <Tap onPress={() => router.push(`/gym/${gym.id}`)} style={[styles.featuredOuter, shadow.card]}>
         <View style={styles.featuredWrap}>
           <GradientBlock kind={gym.photo as GradientKey} style={styles.featuredPhoto}>
-            <HeartButton id={gym.id} />
             {gym.sponsored ? (
-              <Glass variant="dark" style={styles.sponsoredTag}>
-                <Text weight="black" color="#fff" style={{ fontSize: 10.5 }}>
-                  MIS EN AVANT
+              <View style={styles.sponsoredTag}>
+                <Text weight="black" color="#fff" style={{ fontSize: 10 }}>
+                  SPONSORISÉ
                 </Text>
-              </Glass>
+              </View>
             ) : null}
+            <View style={styles.heartPos}>
+              <HeartButton id={gym.id} />
+            </View>
           </GradientBlock>
           <View style={styles.featuredBody}>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
@@ -115,7 +117,7 @@ const styles = StyleSheet.create({
   featuredSlot: { width: 250, marginRight: spacing.md },
   featuredOuter: { borderRadius: radius.xl, backgroundColor: '#fff' },
   featuredWrap: { borderRadius: radius.xl, backgroundColor: '#fff', overflow: 'hidden' },
-  featuredPhoto: { height: 130, padding: spacing.sm, alignItems: 'flex-end' },
+  featuredPhoto: { height: 130, padding: spacing.sm },
   featuredBody: { padding: spacing.md },
   compactWrap: {
     flexDirection: 'row',
@@ -126,18 +128,20 @@ const styles = StyleSheet.create({
     padding: spacing.sm,
     marginBottom: spacing.md,
   },
-  compactPhoto: { width: 68, height: 68, borderRadius: radius.md, alignItems: 'flex-end', padding: 4 },
+  compactPhoto: { width: 88, height: 88, borderRadius: radius.md, alignItems: 'flex-end', padding: 4 },
   tagsRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 5, marginTop: 6 },
   heartGlass: {
     alignItems: 'center',
     justifyContent: 'center',
   },
+  heartPos: { position: 'absolute', bottom: spacing.sm, right: spacing.sm },
   sponsoredTag: {
     position: 'absolute',
-    left: spacing.sm,
-    bottom: spacing.sm,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
+    top: spacing.sm,
+    right: spacing.sm,
+    backgroundColor: colors.blue,
+    paddingHorizontal: 9,
+    paddingVertical: 5,
     borderRadius: radius.pill,
   },
 });

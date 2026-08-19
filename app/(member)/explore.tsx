@@ -1,13 +1,14 @@
 import React, { useMemo, useState } from 'react';
 import { View, StyleSheet, Pressable, ScrollView, FlatList } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import Text from '../../src/components/ui/Text';
 import Tap from '../../src/components/ui/Tap';
 import GradientBlock from '../../src/components/ui/GradientBlock';
 import Glass from '../../src/components/ui/Glass';
 import { Avatar } from '../../src/components/ui/primitives';
-import { IconBell, IconExplore, IconFilter, IconList, IconMap } from '../../src/components/ui/icons';
+import { IconBell, IconExplore, IconFilter, IconList, IconMap, IconStar } from '../../src/components/ui/icons';
 import { GymCardFeatured, GymCardCompact } from '../../src/components/gym/GymCards';
 import GymMap from '../../src/components/gym/GymMap';
 import FiltersSheet from '../../src/components/gym/FiltersSheet';
@@ -94,23 +95,25 @@ export default function Explore() {
             </Text>
           </Tap>
         </View>
+        <Pressable onPress={() => setGoalOpen(true)} style={[styles.pillBtn, styles.pillBtnGoal, goal && styles.pillBtnActive]} hitSlop={4}>
+          <Text style={{ fontSize: 16 }}>{activeGoal?.emoji ?? '🎯'}</Text>
+        </Pressable>
         <Pressable onPress={() => setFiltersOpen(true)} style={styles.pillBtn} hitSlop={4}>
           <IconFilter size={15} color={colors.ink} />
           <Text weight="extrabold" color={colors.ink} numberOfLines={1} style={{ fontSize: 12.5 }}>
             Filtres{filterCount > 0 ? ` · ${filterCount}` : ''}
           </Text>
         </Pressable>
-        <Pressable onPress={() => setGoalOpen(true)} style={[styles.pillBtn, styles.pillBtnGoal, goal && styles.pillBtnActive]} hitSlop={4}>
-          <Text style={{ fontSize: 16 }}>{activeGoal?.emoji ?? '🎯'}</Text>
-        </Pressable>
       </View>
 
       <View style={{ paddingHorizontal: spacing.lg, paddingBottom: spacing.sm }}>
-        <Tap onPress={() => router.push('/compare')} style={[styles.compareBtn, shadow.soft]}>
-          <Text style={{ fontSize: 15 }}>⇄</Text>
-          <Text weight="extrabold" color={colors.violet} style={{ fontSize: 13.5 }}>
-            Comparer les salles côte à côte
-          </Text>
+        <Tap onPress={() => router.push('/compare')} style={[{ borderRadius: radius.lg }, shadow.soft]}>
+          <LinearGradient colors={[colors.equipBg, colors.successBg]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.compareBtn}>
+            <Text style={{ fontSize: 15 }}>⇄</Text>
+            <Text weight="extrabold" color={colors.violet} style={{ fontSize: 13.5 }}>
+              Comparer les salles côte à côte
+            </Text>
+          </LinearGradient>
         </Tap>
       </View>
 
@@ -126,6 +129,9 @@ export default function Explore() {
             <>
               {!goal && !goalDismissed ? (
                 <View style={[styles.goalBanner, shadow.glowViolet]}>
+                  <GradientBlock kind="pinkViolet" style={styles.goalIcon}>
+                    <Text style={{ fontSize: 18 }}>🎯</Text>
+                  </GradientBlock>
                   <View style={{ flex: 1 }}>
                     <Text weight="extrabold" color="#fff" style={{ fontSize: 13.5 }}>
                       C’est quoi ton objectif ?
@@ -167,9 +173,12 @@ export default function Explore() {
 
               {sponsored.length > 0 ? (
                 <View style={{ marginBottom: spacing.lg }}>
-                  <Text weight="black" style={{ fontSize: 15.5, marginBottom: spacing.sm }}>
-                    Mises en avant
-                  </Text>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: spacing.sm }}>
+                    <IconStar size={14} color={colors.pink} />
+                    <Text weight="black" style={{ fontSize: 15.5 }}>
+                      Mises en avant
+                    </Text>
+                  </View>
                   <ScrollView
                     horizontal
                     showsHorizontalScrollIndicator={false}
@@ -214,9 +223,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 9,
-    borderWidth: 1.5,
-    borderColor: '#EEE1EE',
-    backgroundColor: colors.bgTint2,
     borderRadius: radius.lg,
     paddingVertical: 13,
   },
@@ -253,10 +259,12 @@ const styles = StyleSheet.create({
   goalBanner: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: colors.violet,
+    gap: spacing.sm,
+    backgroundColor: colors.ink,
     borderRadius: radius.lg,
     padding: spacing.md,
     marginBottom: spacing.lg,
   },
+  goalIcon: { width: 40, height: 40, borderRadius: radius.md, alignItems: 'center', justifyContent: 'center' },
   goalBannerBtn: { backgroundColor: '#fff', paddingHorizontal: 12, paddingVertical: 8, borderRadius: radius.pill },
 });
