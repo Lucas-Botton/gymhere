@@ -35,22 +35,17 @@ export interface GymFormula {
   highlight: boolean;
 }
 
-export interface GymReview {
-  authorName: string;
-  authorInitial: string;
-  stars: number;
-  text: string;
-}
-
 export interface Gym {
   id: string;
   name: string;
   certified: boolean;
   sponsored: boolean;
-  // Absent (not 0) means no verified rating exists yet — the UI must not
-  // show stars/review counts it can't back up, especially for real gyms.
-  rating?: number;
-  reviews?: number;
+  // Google-sourced aggregate only — never gymhere's own reviews (see
+  // GymReview below for those). Absent (not 0) means no verified rating
+  // was found — the UI must not show stars/counts it can't back up,
+  // especially for real gyms.
+  googleRating?: number;
+  googleReviews?: number;
   distanceKm: number;
   // Absent means no verified public price was found for this specific
   // branch — never a guess. The UI shows "Tarifs sur place" instead.
@@ -70,7 +65,6 @@ export interface Gym {
   formulas: GymFormula[];
   groups: EquipmentGroup[];
   coachIds: string[];
-  reviewList: GymReview[];
   gallery: string[];
 }
 

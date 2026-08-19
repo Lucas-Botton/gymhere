@@ -89,7 +89,7 @@ export default function Compare() {
                     )}
                   </View>
 
-                  <StatRow label="Note" value={g.rating != null ? `★ ${g.rating}` : 'Nouveau'} />
+                  <StatRow label="Note Google" value={g.googleRating != null ? `★ ${g.googleRating}` : 'Nouveau'} />
                   <StatRow label="Distance" value={`${g.distanceKm.toFixed(1).replace('.', ',')} km`} />
                   <StatRow label="Ouvert 24/7" value={has247 ? 'Oui' : '–'} valueColor={has247 ? colors.successDeep : colors.textLight} />
                   <StatRow label="Certifié" value={g.certified ? 'Certifié' : '–'} valueColor={g.certified ? colors.pink : colors.textLight} />

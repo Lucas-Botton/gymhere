@@ -59,7 +59,7 @@ export function gymDistanceKm(g: Gym, coords: { lat: number; lng: number } | nul
 
 export function gymPassesFilters(g: Gym, f: FiltersInput, coords: { lat: number; lng: number } | null = null): boolean {
   return (
-    (f.minRating === 0 || (g.rating ?? 0) >= f.minRating) &&
+    (f.minRating === 0 || (g.googleRating ?? 0) >= f.minRating) &&
     (g.priceFrom == null || g.priceFrom <= f.priceMax) &&
     gymDistanceKm(g, coords) <= f.distance &&
     (f.equipItems.length === 0 || f.equipItems.every((eq) => gymEquipHit(g, eq))) &&

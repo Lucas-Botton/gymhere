@@ -21,12 +21,14 @@ import { useReportSheet } from '../../src/store/report';
 import { distanceLabel, gymDistanceKm } from '../../src/lib/filters';
 import { useLocationStore } from '../../src/store/location';
 import { bookingActionVerb } from '../../src/lib/booking-config';
+import { Review } from '../../src/types';
 
 export default function GymDetail() {
   const { id, group } = useLocalSearchParams<{ id: string; group?: string }>();
   const gym = findGym(id);
   const [shareOpen, setShareOpen] = useState(false);
   const [reviewsOpen, setReviewsOpen] = useState(false);
+  const allReviews = useApp((s) => s.reviews);
   const isFav = useApp((s) => (gym ? s.favGyms.includes(gym.id) : false));
   const toggleFav = useApp((s) => s.toggleFavGym);
   const { requireAuth } = useSession();
@@ -43,6 +45,8 @@ export default function GymDetail() {
   }
 
   const distanceKm = gymDistanceKm(gym, coords);
+  const nativeReviews = allReviews.filter((r) => r.targetType === 'gym' && r.targetId === gym.id);
+  const nativeAvg = nativeReviews.reduce((sum, r) => sum + r.stars, 0) / (nativeReviews.length || 1);
 
   const book = (kind: 'essai' | 'inscription') => {
     const verb = bookingActionVerb(kind);
@@ -88,11 +92,9 @@ export default function GymDetail() {
           <Text weight="black" style={{ fontSize: 22 }}>
             {gym.name}
           </Text>
-          <Pressable onPress={() => setReviewsOpen(true)} disabled={gym.rating == null}>
-            <Text weight="bold" color={colors.textMuted} style={{ fontSize: 13, marginTop: 4 }}>
-              <GymRatingMeta gym={gym} distance={distanceLabel(distanceKm)} starSize={12} />
-            </Text>
-          </Pressable>
+          <Text weight="bold" color={colors.textMuted} style={{ fontSize: 13, marginTop: 4 }}>
+            <GymRatingMeta gym={gym} distance={distanceLabel(distanceKm)} starSize={12} />
+          </Text>
 
           <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginTop: spacing.lg }}>
             <Text weight="extrabold" style={{ fontSize: 13, marginRight: spacing.md, alignSelf: 'center' }}>
@@ -197,28 +199,27 @@ export default function GymDetail() {
             </>
           ) : null}
 
-          {gym.reviewList.length > 0 ? (
+          {nativeReviews.length > 0 ? (
             <>
-              <SectionTitle>Avis</SectionTitle>
-              {gym.reviewList.slice(0, 2).map((r, i) => (
-                <View key={i} style={styles.reviewRow}>
-                  <Avatar size={36} initial={r.authorInitial} gradient="pinkViolet" />
-                  <View style={{ flex: 1, marginLeft: spacing.sm }}>
-                    <Text weight="extrabold" style={{ fontSize: 13 }}>
-                      {r.authorName} · {'★'.repeat(r.stars)}
-                    </Text>
-                    <Text weight="semibold" color={colors.textMuted} style={{ fontSize: 12.5, marginTop: 2 }}>
-                      {r.text}
-                    </Text>
-                  </View>
-                </View>
+              <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 8, marginTop: spacing.xl, marginBottom: spacing.md }}>
+                <Text weight="black" style={{ fontSize: 16.5 }}>
+                  Avis gymhere
+                </Text>
+                {nativeReviews.length >= 5 ? (
+                  <Text weight="bold" color={colors.textMuted} style={{ fontSize: 12.5 }}>
+                    ★ {nativeAvg.toFixed(1)} · {nativeReviews.length} avis
+                  </Text>
+                ) : null}
+              </View>
+              {nativeReviews.slice(0, 2).map((r) => (
+                <NativeReviewRow key={r.id} review={r} />
               ))}
             </>
           ) : null}
-          {gym.reviewList.length > 2 ? (
+          {nativeReviews.length > 2 ? (
             <Pressable onPress={() => setReviewsOpen(true)} style={{ alignItems: 'center', marginTop: spacing.sm }}>
               <Text weight="extrabold" color={colors.pink} style={{ fontSize: 13 }}>
-                Voir les {gym.reviews} avis
+                Voir les {nativeReviews.length} avis
               </Text>
             </Pressable>
           ) : null}
@@ -238,20 +239,10 @@ export default function GymDetail() {
 
       <ShareSheet visible={shareOpen} onClose={() => setShareOpen(false)} targetName={gym.name} />
 
-      <BottomSheet visible={reviewsOpen} onClose={() => setReviewsOpen(false)} title={`${gym.reviews} avis`}>
+      <BottomSheet visible={reviewsOpen} onClose={() => setReviewsOpen(false)} title={`${nativeReviews.length} avis gymhere`}>
         <ScrollView style={{ paddingHorizontal: spacing.xl }} contentContainerStyle={{ paddingBottom: spacing.xl }}>
-          {gym.reviewList.map((r, i) => (
-            <View key={i} style={styles.reviewRow}>
-              <Avatar size={36} initial={r.authorInitial} gradient="pinkViolet" />
-              <View style={{ flex: 1, marginLeft: spacing.sm }}>
-                <Text weight="extrabold" style={{ fontSize: 13 }}>
-                  {r.authorName} · {'★'.repeat(r.stars)}
-                </Text>
-                <Text weight="semibold" color={colors.textMuted} style={{ fontSize: 12.5, marginTop: 2 }}>
-                  {r.text}
-                </Text>
-              </View>
-            </View>
+          {nativeReviews.map((r) => (
+            <NativeReviewRow key={r.id} review={r} />
           ))}
         </ScrollView>
       </BottomSheet>
@@ -264,6 +255,28 @@ function SectionTitle({ children }: { children: React.ReactNode }) {
     <Text weight="black" style={{ fontSize: 16.5, marginTop: spacing.xl, marginBottom: spacing.md }}>
       {children}
     </Text>
+  );
+}
+
+function NativeReviewRow({ review }: { review: Review }) {
+  const date = new Date(review.createdAt).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
+  return (
+    <View style={styles.reviewRow}>
+      <Avatar size={36} gradient="pinkViolet" />
+      <View style={{ flex: 1, marginLeft: spacing.sm }}>
+        <Text weight="extrabold" style={{ fontSize: 13 }}>
+          {'★'.repeat(review.stars)} · Avis vérifié
+        </Text>
+        {review.comment ? (
+          <Text weight="semibold" color={colors.textMuted} style={{ fontSize: 12.5, marginTop: 2 }}>
+            {review.comment}
+          </Text>
+        ) : null}
+        <Text weight="bold" color={colors.textLight} style={{ fontSize: 11, marginTop: 3 }}>
+          {date}
+        </Text>
+      </View>
+    </View>
   );
 }
 

@@ -30,8 +30,8 @@ create table if not exists public.gyms (
   hours text,
   hours_sub text,
   price_min integer not null default 0,
-  rating numeric(2,1) not null default 0,
-  reviews_count integer not null default 0,
+  google_rating numeric(2,1), -- null = no verified figure, never 0 as a stand-in
+  google_reviews integer, -- gymhere's own reviews live in the reviews table below
   services jsonb not null default '[]', -- [{name, icon, tint, color}]
   formulas jsonb not null default '[]', -- [{name, sub, price, highlight}]
   tags text[] not null default '{}',

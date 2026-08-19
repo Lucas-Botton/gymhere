@@ -106,15 +106,17 @@ export function StarRating({ rating, size = 12 }: { rating: number; size?: numbe
   );
 }
 
-// Renders "★ 4.8 · 214 avis · 0,4 km" when the gym has a verified rating,
-// or "Nouveau sur gymhere · 0,4 km" otherwise — never a fabricated rating.
+// Renders "★ 4.8 · 214 avis Google · 0,4 km" when the gym has a verified
+// Google rating, or "Nouveau sur gymhere · 0,4 km" otherwise — never a
+// fabricated rating, and always attributed so it's never confused with
+// gymhere's own reviews (shown separately, see the gym detail screen).
 // Meant to be nested inside a <Text>.
-export function GymRatingMeta({ gym, distance, starSize = 11 }: { gym: { rating?: number; reviews?: number }; distance: string; starSize?: number }) {
-  if (gym.rating != null) {
+export function GymRatingMeta({ gym, distance, starSize = 11 }: { gym: { googleRating?: number; googleReviews?: number }; distance: string; starSize?: number }) {
+  if (gym.googleRating != null) {
     return (
       <>
-        <StarRating rating={gym.rating} size={starSize} /> {gym.rating}
-        {gym.reviews != null ? ` · ${gym.reviews} avis` : ''} · {distance}
+        <StarRating rating={gym.googleRating} size={starSize} /> {gym.googleRating}
+        {gym.googleReviews != null ? ` · ${gym.googleReviews} avis Google` : ''} · {distance}
       </>
     );
   }
