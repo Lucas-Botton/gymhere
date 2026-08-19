@@ -205,6 +205,7 @@ export interface CoachDraft {
   name: string;
   photo: string;
   bio: string;
+  zone: string;
   specs: string[];
   modalities: string[];
   diplomas: CoachCredential[];

@@ -6,16 +6,18 @@ import Text from '../../src/components/ui/Text';
 import { Avatar, StarRating, Tag } from '../../src/components/ui/primitives';
 import { GymCardCompact } from '../../src/components/gym/GymCards';
 import { colors, radius, shadow, spacing } from '../../src/theme';
-import { GYMS, COACHES } from '../../src/data/seed';
+import { GYMS } from '../../src/data/seed';
 import { useApp } from '../../src/store/app';
+import { useAllCoaches } from '../../src/lib/coaches';
 
 export default function Favorites() {
   const [tab, setTab] = useState<'gyms' | 'coaches'>('gyms');
   const favGyms = useApp((s) => s.favGyms);
   const favCoaches = useApp((s) => s.favCoaches);
+  const allCoaches = useAllCoaches();
 
   const gyms = GYMS.filter((g) => favGyms.includes(g.id));
-  const coaches = COACHES.filter((c) => favCoaches.includes(c.id));
+  const coaches = allCoaches.filter((c) => favCoaches.includes(c.id));
 
   return (
     <View style={{ flex: 1, backgroundColor: '#fff' }}>

@@ -84,7 +84,7 @@ export default function MaFiche() {
           </Text>
         </Pressable>
 
-        <SectionRow label="Ma présentation" sub={draft.bio ? 'Bio et spécialités renseignées' : 'Bio, photo, spécialités'} onPress={() => setSheet('presentation')} />
+        <SectionRow label="Ma présentation" sub={draft.bio ? 'Bio, zone et spécialités renseignées' : 'Bio, photo, zone, spécialités'} onPress={() => setSheet('presentation')} />
         <SectionRow label="Mes formules" sub={`${draft.offers.length} formule${draft.offers.length !== 1 ? 's' : ''}`} onPress={() => setSheet('formulas')} />
         <SectionRow label="Diplômes d’État" sub={`${draft.diplomas.length} diplôme${draft.diplomas.length !== 1 ? 's' : ''}`} onPress={() => setSheet('diplomas')} />
         <SectionRow label="Certifications" sub={`${draft.certifs.length} certification${draft.certifs.length !== 1 ? 's' : ''}`} onPress={() => setSheet('certifs')} />

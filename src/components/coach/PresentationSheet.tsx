@@ -15,12 +15,14 @@ export default function PresentationSheet({ visible, onClose }: { visible: boole
   const draft = useApp((s) => s.coachDraft);
   const update = useApp((s) => s.updateCoachDraft);
   const [bio, setBio] = useState(draft.bio);
+  const [zone, setZone] = useState(draft.zone);
   const [specs, setSpecs] = useState<string[]>(draft.specs);
   const [photo, setPhoto] = useState(draft.photo);
 
   useEffect(() => {
     if (visible) {
       setBio(draft.bio);
+      setZone(draft.zone);
       setSpecs(draft.specs);
       setPhoto(draft.photo);
     }
@@ -31,7 +33,7 @@ export default function PresentationSheet({ visible, onClose }: { visible: boole
   };
 
   const save = () => {
-    update({ bio, specs, photo });
+    update({ bio, zone, specs, photo });
     onClose();
   };
 
@@ -55,6 +57,11 @@ export default function PresentationSheet({ visible, onClose }: { visible: boole
         <TextInput value={bio} onChangeText={setBio} multiline placeholder="Parle de ton parcours, ton approche..." placeholderTextColor={colors.textLight} style={styles.textarea} />
 
         <Text weight="extrabold" style={{ fontSize: 12.5, marginTop: spacing.lg, marginBottom: spacing.sm }}>
+          Zone d’intervention
+        </Text>
+        <TextInput value={zone} onChangeText={setZone} placeholder="Ex : Presqu’île, Lyon 7e..." placeholderTextColor={colors.textLight} style={styles.input} />
+
+        <Text weight="extrabold" style={{ fontSize: 12.5, marginTop: spacing.lg, marginBottom: spacing.sm }}>
           Spécialités (max 3)
         </Text>
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
@@ -72,6 +79,16 @@ export default function PresentationSheet({ visible, onClose }: { visible: boole
 const styles = StyleSheet.create({
   photoDot: { width: 46, height: 46, borderRadius: 23, borderWidth: 2, borderColor: 'transparent' },
   photoDotActive: { borderColor: colors.pink },
+  input: {
+    height: 46,
+    borderRadius: 12,
+    borderWidth: 1.5,
+    borderColor: colors.border,
+    paddingHorizontal: spacing.md,
+    fontFamily: 'Nunito_700Bold',
+    fontSize: 13.5,
+    color: colors.ink,
+  },
   textarea: {
     minHeight: 100,
     borderRadius: 12,

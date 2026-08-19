@@ -6,11 +6,11 @@ import ScreenHeader from '../../src/components/ui/ScreenHeader';
 import { Avatar } from '../../src/components/ui/primitives';
 import { colors, radius, spacing } from '../../src/theme';
 import { useApp } from '../../src/store/app';
-import { findCoach } from '../../src/data/seed';
+import { useFindCoach } from '../../src/lib/coaches';
 
 export default function Chat() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const coach = findCoach(id);
+  const coach = useFindCoach(id);
   const ensureThread = useApp((s) => s.ensureThread);
   const sendMessage = useApp((s) => s.sendMessage);
   const thread = useApp((s) => s.threads[id ?? '']);

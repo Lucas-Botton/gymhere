@@ -32,6 +32,7 @@ const defaultCoachDraft: CoachDraft = {
   name: '',
   photo: 'pinkViolet',
   bio: '',
+  zone: '',
   specs: [],
   modalities: [],
   diplomas: [],
@@ -334,8 +335,9 @@ export const useApp = create<AppState>()(
 
 export function computeCompletion(draft: CoachDraft): number {
   let score = 0;
-  const total = 7;
+  const total = 8;
   if (draft.bio.trim().length > 20) score++;
+  if ((draft.zone ?? '').trim().length > 0) score++;
   if (draft.specs.length > 0) score++;
   if (draft.offers.length > 0) score++;
   if (draft.diplomas.length > 0 || draft.certifs.length > 0) score++;

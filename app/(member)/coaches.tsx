@@ -7,23 +7,27 @@ import Tap from '../../src/components/ui/Tap';
 import { Avatar, StarRating, Tag } from '../../src/components/ui/primitives';
 import { IconExplore, IconHeart } from '../../src/components/ui/icons';
 import { colors, radius, shadow, spacing } from '../../src/theme';
-import { COACHES, SPECS } from '../../src/data/seed';
+import { SPECS } from '../../src/data/seed';
 import { normalize } from '../../src/lib/filters';
 import { useApp } from '../../src/store/app';
+import { useAllCoaches } from '../../src/lib/coaches';
 
 export default function Coaches() {
   const [query, setQuery] = useState('');
   const [activeSpecs, setActiveSpecs] = useState<string[]>([]);
   const favCoaches = useApp((s) => s.favCoaches);
   const toggleFavCoach = useApp((s) => s.toggleFavCoach);
+  const allCoaches = useAllCoaches();
 
   const toggleSpec = (s: string) => setActiveSpecs((a) => (a.includes(s) ? a.filter((x) => x !== s) : [...a, s]));
 
   const filtered = useMemo(() => {
     const q = normalize(query.trim());
-    return COACHES.filter((c) => (activeSpecs.length === 0 || c.specs.some((s) => activeSpecs.includes(s))))
+    return allCoaches
+      .filter((c) => c.published)
+      .filter((c) => (activeSpecs.length === 0 || c.specs.some((s) => activeSpecs.includes(s))))
       .filter((c) => q === '' || normalize(`${c.name} ${c.zone} ${c.specs.join(' ')}`).includes(q));
-  }, [query, activeSpecs]);
+  }, [allCoaches, query, activeSpecs]);
 
   return (
     <View style={{ flex: 1, backgroundColor: '#fff' }}>
