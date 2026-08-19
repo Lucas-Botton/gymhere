@@ -57,20 +57,23 @@ export default function CoachSubscription() {
               Mensuel
             </Text>
             <Text weight="black" style={{ fontSize: 20, marginTop: 4 }}>
-              29€<Text weight="bold" style={{ fontSize: 12 }}>/mois</Text>
+              9€<Text weight="bold" style={{ fontSize: 12 }}>/mois</Text>
             </Text>
           </Pressable>
           <Pressable onPress={() => setBilling('annuel')} style={[styles.plan, billing === 'annuel' && styles.planActive]}>
             <View style={styles.saveTag}>
               <Text weight="black" color="#fff" style={{ fontSize: 9.5 }}>
-                -30%
+                -35%
               </Text>
             </View>
             <Text weight="extrabold" style={{ fontSize: 13.5 }}>
               Annuel
             </Text>
             <Text weight="black" style={{ fontSize: 20, marginTop: 4 }}>
-              20€<Text weight="bold" style={{ fontSize: 12 }}>/mois</Text>
+              5,75€<Text weight="bold" style={{ fontSize: 12 }}>/mois</Text>
+            </Text>
+            <Text weight="semibold" color={colors.textLight} style={{ fontSize: 10.5, marginTop: 1 }}>
+              soit 69€/an
             </Text>
           </Pressable>
         </View>
