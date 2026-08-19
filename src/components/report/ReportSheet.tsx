@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { View, StyleSheet, ScrollView, TextInput } from 'react-native';
 import BottomSheet from '../ui/BottomSheet';
 import Text from '../ui/Text';
@@ -34,12 +34,15 @@ export default function ReportSheet() {
   const [reason, setReason] = useState<ReportReason | null>(null);
   const [message, setMessage] = useState('');
   const [done, setDone] = useState(false);
+  const [typing, setTyping] = useState(false);
+  const scrollRef = useRef<ScrollView>(null);
 
   useEffect(() => {
     if (sheet.open) {
       setReason(null);
       setMessage('');
       setDone(false);
+      setTyping(false);
     }
   }, [sheet.open]);
 
@@ -74,7 +77,12 @@ export default function ReportSheet() {
           <Button label="Fermer" onPress={close} style={{ marginTop: spacing.xl, alignSelf: 'stretch', marginHorizontal: spacing.xl }} />
         </View>
       ) : (
-        <ScrollView style={{ flex: 1, paddingHorizontal: spacing.xl }} contentContainerStyle={{ paddingBottom: spacing.xl }}>
+        <ScrollView
+          ref={scrollRef}
+          style={{ flex: 1, paddingHorizontal: spacing.xl }}
+          contentContainerStyle={{ paddingBottom: typing ? spacing.xl + 260 : spacing.xl }}
+          keyboardShouldPersistTaps="handled"
+        >
           <Text weight="bold" color={colors.textMuted} style={{ fontSize: 13, marginBottom: spacing.md }}>
             {sheet.targetName}
           </Text>
@@ -98,6 +106,11 @@ export default function ReportSheet() {
             placeholderTextColor={colors.textLight}
             multiline
             style={styles.textarea}
+            onFocus={() => {
+              setTyping(true);
+              requestAnimationFrame(() => scrollRef.current?.scrollToEnd({ animated: true }));
+            }}
+            onBlur={() => setTyping(false)}
           />
 
           <Button label="Envoyer le signalement" onPress={submit} disabled={!reason} style={{ marginTop: spacing.xl }} />

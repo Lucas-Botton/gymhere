@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { View, StyleSheet, Pressable, ScrollView, TextInput } from 'react-native';
 import BottomSheet from '../ui/BottomSheet';
 import Text from '../ui/Text';
@@ -25,6 +25,8 @@ export default function ReviewSheet({ booking, onClose }: { booking: Booking | n
   const [tags, setTags] = useState<string[]>([]);
   const [comment, setComment] = useState('');
   const [done, setDone] = useState(false);
+  const [typing, setTyping] = useState(false);
+  const scrollRef = useRef<ScrollView>(null);
 
   useEffect(() => {
     if (booking) {
@@ -33,6 +35,7 @@ export default function ReviewSheet({ booking, onClose }: { booking: Booking | n
       setTags([]);
       setComment('');
       setDone(false);
+      setTyping(false);
     }
   }, [booking?.id]);
 
@@ -65,7 +68,12 @@ export default function ReviewSheet({ booking, onClose }: { booking: Booking | n
           <Button label="Fermer" onPress={onClose} style={{ marginTop: spacing.xl, alignSelf: 'stretch', marginHorizontal: spacing.xl }} />
         </View>
       ) : (
-        <ScrollView style={{ flex: 1, paddingHorizontal: spacing.xl }} contentContainerStyle={{ paddingBottom: spacing.xl }}>
+        <ScrollView
+          ref={scrollRef}
+          style={{ flex: 1, paddingHorizontal: spacing.xl }}
+          contentContainerStyle={{ paddingBottom: typing ? spacing.xl + 260 : spacing.xl }}
+          keyboardShouldPersistTaps="handled"
+        >
           <View style={{ alignItems: 'center', marginBottom: spacing.lg }}>
             <View style={{ flexDirection: 'row', gap: 6 }}>
               {[1, 2, 3, 4, 5].map((n) => (
@@ -115,6 +123,11 @@ export default function ReviewSheet({ booking, onClose }: { booking: Booking | n
             placeholderTextColor={colors.textLight}
             multiline
             style={styles.textarea}
+            onFocus={() => {
+              setTyping(true);
+              requestAnimationFrame(() => scrollRef.current?.scrollToEnd({ animated: true }));
+            }}
+            onBlur={() => setTyping(false)}
           />
 
           <Button label="Publier mon avis" onPress={submit} disabled={stars === 0} style={{ marginTop: spacing.xl }} />

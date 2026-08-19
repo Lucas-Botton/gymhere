@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useMemo, useRef, useState, useEffect } from 'react';
 import { View, StyleSheet, Pressable, ScrollView, TextInput } from 'react-native';
 import { router } from 'expo-router';
 import BottomSheet from '../ui/BottomSheet';
@@ -23,6 +23,8 @@ export default function BookingSheet() {
   const [slot, setSlot] = useState<string | null>(null);
   const [message, setMessage] = useState('');
   const [done, setDone] = useState(false);
+  const [typing, setTyping] = useState(false);
+  const scrollRef = useRef<ScrollView>(null);
 
   useEffect(() => {
     if (sheet.open) {
@@ -30,6 +32,7 @@ export default function BookingSheet() {
       setSlot(null);
       setMessage('');
       setDone(false);
+      setTyping(false);
     }
   }, [sheet.open]);
 
@@ -91,7 +94,12 @@ export default function BookingSheet() {
           <Button label="Voir mes demandes" onPress={goToRequests} style={{ marginTop: spacing.xl, alignSelf: 'stretch', marginHorizontal: spacing.xl }} />
         </View>
       ) : (
-        <ScrollView style={{ flex: 1, paddingHorizontal: spacing.xl }} contentContainerStyle={{ paddingBottom: spacing.xl }}>
+        <ScrollView
+          ref={scrollRef}
+          style={{ flex: 1, paddingHorizontal: spacing.xl }}
+          contentContainerStyle={{ paddingBottom: typing ? spacing.xl + 260 : spacing.xl }}
+          keyboardShouldPersistTaps="handled"
+        >
           <Text weight="bold" color={colors.textMuted} style={{ fontSize: 13, marginBottom: spacing.md }}>
             {sheet.targetName}
             {sheet.serviceKey ? ` · dispos réelles du coach` : ''}
@@ -160,6 +168,11 @@ export default function BookingSheet() {
             placeholderTextColor={colors.textLight}
             multiline
             style={styles.textarea}
+            onFocus={() => {
+              setTyping(true);
+              requestAnimationFrame(() => scrollRef.current?.scrollToEnd({ animated: true }));
+            }}
+            onBlur={() => setTyping(false)}
           />
 
           <Button label={cfg.cta} onPress={submit} disabled={!canSubmit} style={{ marginTop: spacing.xl }} />
