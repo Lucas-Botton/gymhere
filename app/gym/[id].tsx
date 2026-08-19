@@ -182,8 +182,8 @@ export default function GymDetail() {
               <ScrollView
                 horizontal
                 showsHorizontalScrollIndicator={false}
-                contentContainerStyle={{ paddingVertical: shadowBleed, paddingRight: spacing.md }}
-                style={{ marginVertical: -shadowBleed }}
+                contentContainerStyle={{ paddingVertical: shadowBleed, paddingLeft: shadowBleed, paddingRight: spacing.md }}
+                style={{ marginVertical: -shadowBleed, marginLeft: -shadowBleed }}
               >
                 {gym.coachIds.map((cid) => {
                   const c = COACHES.find((x) => x.id === cid);

@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, TextInput, Pressable, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import Text from '../src/components/ui/Text';
 import Button from '../src/components/ui/Button';
@@ -28,7 +27,7 @@ export default function CoachSignup() {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }}>
+    <View style={{ flex: 1, backgroundColor: '#fff' }}>
       <ScreenHeader title="Compte coach" onBack={() => router.replace('/role-choice')} />
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <ScrollView contentContainerStyle={styles.wrap} keyboardShouldPersistTaps="handled">
@@ -60,7 +59,7 @@ export default function CoachSignup() {
         <Button label="Créer mon compte pro" onPress={submit} disabled={!canSubmit} style={{ marginTop: spacing.xl }} />
       </ScrollView>
       </KeyboardAvoidingView>
-    </SafeAreaView>
+    </View>
   );
 }
 

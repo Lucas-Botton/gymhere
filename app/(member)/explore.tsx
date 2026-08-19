@@ -155,8 +155,8 @@ export default function Explore() {
                   <ScrollView
                     horizontal
                     showsHorizontalScrollIndicator={false}
-                    contentContainerStyle={{ paddingVertical: shadowBleed, paddingRight: spacing.md }}
-                    style={{ marginVertical: -shadowBleed }}
+                    contentContainerStyle={{ paddingVertical: shadowBleed, paddingLeft: shadowBleed, paddingRight: spacing.md }}
+                    style={{ marginVertical: -shadowBleed, marginLeft: -shadowBleed }}
                   >
                     {recoGyms.map((g) => (
                       <GymCardFeatured key={g.id} gym={g} />
@@ -173,8 +173,8 @@ export default function Explore() {
                   <ScrollView
                     horizontal
                     showsHorizontalScrollIndicator={false}
-                    contentContainerStyle={{ paddingVertical: shadowBleed, paddingRight: spacing.md }}
-                    style={{ marginVertical: -shadowBleed }}
+                    contentContainerStyle={{ paddingVertical: shadowBleed, paddingLeft: shadowBleed, paddingRight: spacing.md }}
+                    style={{ marginVertical: -shadowBleed, marginLeft: -shadowBleed }}
                   >
                     {sponsored.map((g) => (
                       <GymCardFeatured key={g.id} gym={g} />

@@ -261,8 +261,8 @@ export default function CoachDetailView({ coach, previewMode = false }: { coach:
               <ScrollView
                 horizontal
                 showsHorizontalScrollIndicator={false}
-                contentContainerStyle={{ paddingVertical: shadowBleed, paddingRight: spacing.md }}
-                style={{ marginVertical: -shadowBleed }}
+                contentContainerStyle={{ paddingVertical: shadowBleed, paddingLeft: shadowBleed, paddingRight: spacing.md }}
+                style={{ marginVertical: -shadowBleed, marginLeft: -shadowBleed }}
               >
                 {coach.gymIds.map((gid) => {
                   const g = findGym(gid);
