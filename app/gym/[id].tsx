@@ -17,6 +17,7 @@ import { findGym, COACHES } from '../../src/data/seed';
 import { useApp } from '../../src/store/app';
 import { useSession } from '../../src/store/session';
 import { useBookingSheet } from '../../src/store/booking';
+import { useReportSheet } from '../../src/store/report';
 import { distanceLabel, gymDistanceKm } from '../../src/lib/filters';
 import { useLocationStore } from '../../src/store/location';
 import { bookingActionVerb } from '../../src/lib/booking-config';
@@ -30,6 +31,7 @@ export default function GymDetail() {
   const toggleFav = useApp((s) => s.toggleFavGym);
   const { requireAuth } = useSession();
   const openBooking = useBookingSheet((s) => s.openSheet);
+  const openReport = useReportSheet((s) => s.openSheet);
   const coords = useLocationStore((s) => s.coords);
 
   if (!gym) {
@@ -220,6 +222,15 @@ export default function GymDetail() {
               </Text>
             </Pressable>
           ) : null}
+
+          <Pressable
+            onPress={() => openReport({ targetType: 'gym', targetId: gym.id, targetName: gym.name })}
+            style={{ alignItems: 'center', marginTop: spacing.xl }}
+          >
+            <Text weight="bold" color={colors.textLight} style={{ fontSize: 12.5 }}>
+              Signaler un problème sur cette fiche
+            </Text>
+          </Pressable>
 
           <View style={{ height: 40 }} />
         </View>

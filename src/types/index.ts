@@ -6,6 +6,7 @@ export type BookingKind = 'essai' | 'inscription' | 'contact' | 'appel' | 'formu
 export type BookingMode = 'slot' | 'request';
 export type BookingStatus = 'en_attente' | 'confirme' | 'accepte' | 'refuse';
 export type TargetType = 'gym' | 'coach';
+export type ReportReason = 'horaires' | 'tarifs' | 'coordonnees' | 'indisponible' | 'autre';
 export type ServiceKey = 'Présentiel salle' | 'Visio' | 'Téléphone';
 export type FormuleMode = 'Présentiel' | 'Visio' | 'En ligne';
 
@@ -135,6 +136,16 @@ export interface Booking {
   slot: string | null;
   message: string;
   status: BookingStatus;
+  createdAt: string;
+}
+
+export interface Report {
+  id: string;
+  targetType: TargetType;
+  targetId: string;
+  targetName: string;
+  reason: ReportReason;
+  message: string;
   createdAt: string;
 }
 

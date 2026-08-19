@@ -10,6 +10,8 @@ import {
   ChatMessage,
   ChatThread,
   CoachDraft,
+  Report,
+  ReportReason,
   Review,
   ServiceKey,
   TargetType,
@@ -108,6 +110,9 @@ interface AppState {
   reviews: Review[];
   addReview: (input: { bookingId: string; targetType: TargetType; targetId: string; stars: number; criteria: Record<string, number>; tags: string[]; comment: string }) => void;
 
+  reports: Report[];
+  addReport: (input: { targetType: TargetType; targetId: string; targetName: string; reason: ReportReason; message?: string }) => Report;
+
   notifications: AppNotification[];
   markNotificationRead: (id: string) => void;
   markAllNotificationsRead: () => void;
@@ -180,6 +185,21 @@ export const useApp = create<AppState>()(
         };
         set((s) => ({ bookings: [booking, ...s.bookings], notifications: [notif, ...s.notifications] }));
         return booking;
+      },
+
+      reports: [],
+      addReport: (input) => {
+        const report: Report = {
+          id: uid(),
+          targetType: input.targetType,
+          targetId: input.targetId,
+          targetName: input.targetName,
+          reason: input.reason,
+          message: input.message ?? '',
+          createdAt: new Date().toISOString(),
+        };
+        set((s) => ({ reports: [report, ...s.reports] }));
+        return report;
       },
 
       reviews: [],
@@ -301,6 +321,7 @@ export const useApp = create<AppState>()(
         goalDismissed: s.goalDismissed,
         bookings: s.bookings,
         reviews: s.reviews,
+        reports: s.reports,
         notifications: s.notifications,
         threads: s.threads,
         coachDraft: s.coachDraft,

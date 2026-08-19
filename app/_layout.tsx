@@ -14,6 +14,7 @@ import {
 } from '@expo-google-fonts/nunito';
 import AuthSheet from '../src/components/booking/AuthSheet';
 import BookingSheet from '../src/components/booking/BookingSheet';
+import ReportSheet from '../src/components/report/ReportSheet';
 import Toast from '../src/components/ui/Toast';
 import { supabase, isSupabaseConfigured } from '../src/lib/supabase';
 import { useSession } from '../src/store/session';
@@ -56,6 +57,7 @@ export default function RootLayout() {
         <Stack screenOptions={{ headerShown: false }} />
         <AuthSheet />
         <BookingSheet />
+        <ReportSheet />
         <Toast />
       </SafeAreaProvider>
     </GestureHandlerRootView>

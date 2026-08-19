@@ -127,6 +127,18 @@ create table if not exists public.reviews (
   created_at timestamptz not null default now()
 );
 
+-- ========== REPORTS (signalement d'une fiche salle/coach) ==========
+create table if not exists public.reports (
+  id uuid primary key default uuid_generate_v4(),
+  user_id uuid not null references public.users(id) on delete cascade,
+  target_type text not null check (target_type in ('gym','coach')),
+  target_id text not null,
+  reason text not null check (reason in ('horaires','tarifs','coordonnees','indisponible','autre')),
+  message text default '',
+  created_at timestamptz not null default now()
+);
+create index if not exists reports_target_idx on public.reports(target_type, target_id);
+
 -- ========== MESSAGES ==========
 create table if not exists public.messages (
   id uuid primary key default uuid_generate_v4(),
@@ -192,6 +204,7 @@ alter table public.coach_formulas enable row level security;
 alter table public.coach_availability enable row level security;
 alter table public.bookings enable row level security;
 alter table public.reviews enable row level security;
+alter table public.reports enable row level security;
 alter table public.messages enable row level security;
 alter table public.notifications enable row level security;
 alter table public.subscriptions enable row level security;
@@ -229,6 +242,10 @@ create policy "bookings owner all" on public.bookings for all using (auth.uid() 
 
 -- Reviews : l'auteur peut créer/lire les siens (au delà de la lecture publique déjà ouverte)
 create policy "reviews owner insert" on public.reviews for insert with check (auth.uid() = user_id);
+
+-- Reports : l'auteur peut créer/lire les siens ; pas de lecture publique
+-- (une vraie relecture admin viendra avec le passage hors mode démo, cf. feuille de route)
+create policy "reports owner all" on public.reports for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
 
 -- Messages : uniquement les deux participants du thread
 create policy "messages participants" on public.messages for all using (auth.uid() = from_user or auth.uid() = to_user);

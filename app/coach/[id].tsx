@@ -15,6 +15,7 @@ import { findCoach, findGym } from '../../src/data/seed';
 import { useApp } from '../../src/store/app';
 import { useSession } from '../../src/store/session';
 import { useBookingSheet } from '../../src/store/booking';
+import { useReportSheet } from '../../src/store/report';
 import { bookingActionVerb } from '../../src/lib/booking-config';
 import { ServiceKey } from '../../src/types';
 
@@ -34,6 +35,7 @@ export default function CoachDetail() {
   const toggleFav = useApp((s) => s.toggleFavCoach);
   const { requireAuth } = useSession();
   const openBooking = useBookingSheet((s) => s.openSheet);
+  const openReport = useReportSheet((s) => s.openSheet);
 
   if (!coach) {
     return (
@@ -248,6 +250,15 @@ export default function CoachDetail() {
               <GradientBlock key={i} kind={g as any} style={styles.galleryCell} />
             ))}
           </View>
+
+          <Pressable
+            onPress={() => openReport({ targetType: 'coach', targetId: coach.id, targetName: coach.name })}
+            style={{ alignItems: 'center', marginTop: spacing.xl }}
+          >
+            <Text weight="bold" color={colors.textLight} style={{ fontSize: 12.5 }}>
+              Signaler un problème sur cette fiche
+            </Text>
+          </Pressable>
         </View>
       </ScrollView>
 
