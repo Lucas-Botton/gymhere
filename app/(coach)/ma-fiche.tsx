@@ -48,11 +48,11 @@ export default function MaFiche() {
 
       <ScrollView contentContainerStyle={{ padding: spacing.lg, paddingBottom: spacing.xxl }}>
         <View style={[styles.completionCard, shadow.soft]}>
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: spacing.sm }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: spacing.sm }}>
             <Text weight="extrabold" style={{ fontSize: 13 }}>
               Complétion de ta fiche
             </Text>
-            <Text weight="black" color={colors.pink} style={{ fontSize: 13 }}>
+            <Text weight="black" color={colors.pink} style={{ fontSize: 22 }}>
               {completion}%
             </Text>
           </View>

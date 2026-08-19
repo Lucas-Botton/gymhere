@@ -93,7 +93,7 @@ export default function Compare() {
                   <StatRow label="Distance" value={`${g.distanceKm.toFixed(1).replace('.', ',')} km`} />
                   <StatRow label="Ouvert 24/7" value={has247 ? 'Oui' : '–'} valueColor={has247 ? colors.successDeep : colors.textLight} />
                   <StatRow label="Certifié" value={g.certified ? 'Certifié' : '–'} valueColor={g.certified ? colors.pink : colors.textLight} />
-                  <StatRow label="Machines dispo" value={String(machines)} />
+                  <StatRow label="Machines dispo" value={String(machines)} valueColor={colors.violet} big />
                   <StatRow label="Services" value={String(g.services.length)} />
                   <View style={styles.statRow}>
                     <Text weight="extrabold" color={colors.textMuted} style={{ fontSize: 12 }}>
@@ -135,13 +135,13 @@ export default function Compare() {
   );
 }
 
-function StatRow({ label, value, valueColor }: { label: string; value: string; valueColor?: string }) {
+function StatRow({ label, value, valueColor, big }: { label: string; value: string; valueColor?: string; big?: boolean }) {
   return (
     <View style={styles.statRow}>
       <Text weight="extrabold" color={colors.textMuted} style={{ fontSize: 12 }}>
         {label}
       </Text>
-      <Text weight="black" color={valueColor ?? colors.ink} style={{ fontSize: 13.5 }}>
+      <Text weight="black" color={valueColor ?? colors.ink} style={{ fontSize: big ? 20 : 13.5 }}>
         {value}
       </Text>
     </View>

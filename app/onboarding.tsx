@@ -157,8 +157,8 @@ export default function Onboarding() {
                 />
                 <Glass variant="dark" intensity={40} style={styles.mapBadge}>
                   <PulseDot />
-                  <Text weight="extrabold" color="#fff" style={{ fontSize: 11.5 }}>
-                    128 salles actives
+                  <Text weight="bold" color="#fff" style={{ fontSize: 11.5 }}>
+                    <Text weight="black" style={{ fontSize: 13.5 }}>{GYMS.length}</Text> salles actives
                   </Text>
                 </Glass>
               </View>

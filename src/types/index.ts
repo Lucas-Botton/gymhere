@@ -198,6 +198,9 @@ export interface Goal {
   emoji: string;
   gymIds: string[];
   specs: string[];
+  // Color-blocking accent (DESIGN-V2-SPECS.md §6.1) — a 2-stop gradient;
+  // goals without their own gradient just repeat the same color twice.
+  colors: [string, string];
 }
 
 // Fiche coach en cours d'édition côté "Espace coach" (avant publication/paiement)

@@ -95,7 +95,15 @@ export default function Explore() {
             </Text>
           </Tap>
         </View>
-        <Pressable onPress={() => setGoalOpen(true)} style={[styles.pillBtn, styles.pillBtnGoal, goal && styles.pillBtnActive]} hitSlop={4}>
+        <Pressable
+          onPress={() => setGoalOpen(true)}
+          style={[
+            styles.pillBtn,
+            styles.pillBtnGoal,
+            activeGoal && { backgroundColor: activeGoal.colors[0] + '1A', borderColor: activeGoal.colors[0] },
+          ]}
+          hitSlop={4}
+        >
           <Text style={{ fontSize: 16 }}>{activeGoal?.emoji ?? '🎯'}</Text>
         </Pressable>
         <Pressable onPress={() => setFiltersOpen(true)} style={styles.pillBtn} hitSlop={4}>
@@ -155,9 +163,12 @@ export default function Explore() {
 
               {activeGoal && recoGyms.length > 0 ? (
                 <View style={{ marginBottom: spacing.lg }}>
-                  <Text weight="black" style={{ fontSize: 15.5, marginBottom: spacing.sm }}>
-                    {activeGoal.emoji} Pour ton objectif
-                  </Text>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 7, marginBottom: spacing.sm }}>
+                    <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: activeGoal.colors[0] }} />
+                    <Text weight="black" color={activeGoal.colors[0]} style={{ fontSize: 15.5 }}>
+                      {activeGoal.emoji} Pour ton objectif
+                    </Text>
+                  </View>
                   <ScrollView
                     horizontal
                     showsHorizontalScrollIndicator={false}
