@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, TextInput } from 'react-native';
+import { View, StyleSheet, TextInput, ScrollView } from 'react-native';
 import BottomSheet from '../ui/BottomSheet';
 import Text from '../ui/Text';
 import Button from '../ui/Button';
 import { colors, spacing } from '../../theme';
 import { useApp } from '../../store/app';
+import { useKeyboardScrollFix } from '../../lib/useKeyboardScrollFix';
 
 const FIELDS: Array<{ key: 'instagram' | 'tiktok' | 'youtube' | 'linkedin'; label: string; placeholder: string }> = [
   { key: 'instagram', label: 'Instagram', placeholder: '@toncompte' },
@@ -17,6 +18,7 @@ export default function SocialsSheet({ visible, onClose }: { visible: boolean; o
   const socials = useApp((s) => s.coachDraft.socials);
   const update = useApp((s) => s.updateCoachDraft);
   const [local, setLocal] = useState(socials);
+  const kb = useKeyboardScrollFix();
 
   useEffect(() => {
     if (visible) setLocal(socials);
@@ -29,7 +31,7 @@ export default function SocialsSheet({ visible, onClose }: { visible: boolean; o
 
   return (
     <BottomSheet visible={visible} onClose={onClose} title="Mes réseaux">
-      <View style={{ paddingHorizontal: spacing.xl, paddingBottom: spacing.xl }}>
+      <ScrollView {...kb.scrollProps} style={{ flex: 1, paddingHorizontal: spacing.xl }} contentContainerStyle={{ paddingBottom: kb.contentPaddingBottom(spacing.xl) }}>
         {FIELDS.map((f) => (
           <View key={f.key} style={{ marginBottom: spacing.md }}>
             <Text weight="extrabold" style={{ fontSize: 12.5, marginBottom: 6 }}>
@@ -42,11 +44,12 @@ export default function SocialsSheet({ visible, onClose }: { visible: boolean; o
               placeholderTextColor={colors.textLight}
               autoCapitalize="none"
               style={styles.input}
+              {...kb.inputProps}
             />
           </View>
         ))}
         <Button label="Enregistrer" onPress={save} style={{ marginTop: spacing.sm }} />
-      </View>
+      </ScrollView>
     </BottomSheet>
   );
 }

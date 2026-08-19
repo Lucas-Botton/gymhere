@@ -6,6 +6,7 @@ import Button from '../ui/Button';
 import { VerifiedPill } from '../ui/primitives';
 import { colors, radius, spacing } from '../../theme';
 import { useApp } from '../../store/app';
+import { useKeyboardScrollFix } from '../../lib/useKeyboardScrollFix';
 
 export default function CredentialsSheet({
   visible,
@@ -22,6 +23,7 @@ export default function CredentialsSheet({
   const addCredential = useApp((s) => s.addCredential);
   const removeCredential = useApp((s) => s.removeCredential);
   const [draft, setDraft] = useState('');
+  const kb = useKeyboardScrollFix();
 
   const add = () => {
     addCredential(kind, draft);
@@ -30,7 +32,7 @@ export default function CredentialsSheet({
 
   return (
     <BottomSheet visible={visible} onClose={onClose} title={title}>
-      <ScrollView style={{ flex: 1, paddingHorizontal: spacing.xl }} contentContainerStyle={{ paddingBottom: spacing.xl }}>
+      <ScrollView {...kb.scrollProps} style={{ flex: 1, paddingHorizontal: spacing.xl }} contentContainerStyle={{ paddingBottom: kb.contentPaddingBottom(spacing.xl) }}>
         <Text weight="semibold" color={colors.textMuted} style={{ fontSize: 12.5, marginBottom: spacing.md }}>
           Ajoute librement ce que tu as obtenu. Chaque entrée passe en vérification par l’équipe gymhere.
         </Text>
@@ -55,6 +57,7 @@ export default function CredentialsSheet({
             placeholder="Ex : BPJEPS AGFF"
             placeholderTextColor={colors.textLight}
             style={[styles.input, { flex: 1 }]}
+            {...kb.inputProps}
           />
           <Button label="Ajouter" size="sm" onPress={add} />
         </View>

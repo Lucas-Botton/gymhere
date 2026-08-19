@@ -13,6 +13,7 @@ import { IconBell } from '../../src/components/ui/icons';
 import { colors, radius, shadow, spacing } from '../../src/theme';
 import { useSession } from '../../src/store/session';
 import { useApp } from '../../src/store/app';
+import { useKeyboardScrollFix } from '../../src/lib/useKeyboardScrollFix';
 
 export default function Profile() {
   const { user, city, becomeCoach } = useSession();
@@ -22,6 +23,7 @@ export default function Profile() {
   const unread = useApp((s) => s.notifications.filter((n) => !n.read).length);
   const [editOpen, setEditOpen] = useState(false);
   const [name, setName] = useState(user?.name ?? 'Alex');
+  const kb = useKeyboardScrollFix();
 
   const memberSince = user ? new Date(user.createdAt).getFullYear() : new Date().getFullYear();
 
@@ -117,13 +119,13 @@ export default function Profile() {
       </ScrollView>
 
       <BottomSheet visible={editOpen} onClose={() => setEditOpen(false)} title="Modifier mon profil">
-        <View style={{ paddingHorizontal: spacing.xl, paddingBottom: spacing.xl }}>
+        <ScrollView {...kb.scrollProps} contentContainerStyle={{ paddingHorizontal: spacing.xl, paddingBottom: kb.contentPaddingBottom(spacing.xl) }}>
           <Text weight="extrabold" style={{ fontSize: 12.5, marginBottom: 6 }}>
             Nom
           </Text>
-          <TextInput value={name} onChangeText={setName} style={styles.input} />
+          <TextInput value={name} onChangeText={setName} style={styles.input} {...kb.inputProps} />
           <Button label="Enregistrer" onPress={() => setEditOpen(false)} style={{ marginTop: spacing.lg }} />
-        </View>
+        </ScrollView>
       </BottomSheet>
     </View>
   );

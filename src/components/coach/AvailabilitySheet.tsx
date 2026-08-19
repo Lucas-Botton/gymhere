@@ -6,6 +6,7 @@ import Button from '../ui/Button';
 import { Chip } from '../ui/primitives';
 import { colors, radius, spacing } from '../../theme';
 import { useApp } from '../../store/app';
+import { useKeyboardScrollFix } from '../../lib/useKeyboardScrollFix';
 import { ServiceKey, WeekDay } from '../../types';
 
 const SERVICES: ServiceKey[] = ['Présentiel salle', 'Visio', 'Téléphone'];
@@ -19,12 +20,13 @@ export default function AvailabilitySheet({ visible, onClose }: { visible: boole
   const [day, setDay] = useState<WeekDay>('Lun');
   const [from, setFrom] = useState('18:00');
   const [to, setTo] = useState('20:00');
+  const kb = useKeyboardScrollFix();
 
   const daySlots = availability[service]?.[day] ?? [];
 
   return (
     <BottomSheet visible={visible} onClose={onClose} title="Mes disponibilités">
-      <ScrollView style={{ flex: 1, paddingHorizontal: spacing.xl }} contentContainerStyle={{ paddingBottom: spacing.xl }}>
+      <ScrollView {...kb.scrollProps} style={{ flex: 1, paddingHorizontal: spacing.xl }} contentContainerStyle={{ paddingBottom: kb.contentPaddingBottom(spacing.xl) }}>
         <View style={{ flexDirection: 'row', gap: 8, marginBottom: spacing.lg }}>
           {SERVICES.map((s) => (
             <Chip key={s} label={s} active={service === s} onPress={() => setService(s)} />
@@ -71,9 +73,9 @@ export default function AvailabilitySheet({ visible, onClose }: { visible: boole
           Ajouter un créneau · {day}
         </Text>
         <View style={{ flexDirection: 'row', gap: 8, alignItems: 'center' }}>
-          <TextInput value={from} onChangeText={setFrom} placeholder="18:00" placeholderTextColor={colors.textLight} style={[styles.input, { flex: 1 }]} />
+          <TextInput value={from} onChangeText={setFrom} placeholder="18:00" placeholderTextColor={colors.textLight} style={[styles.input, { flex: 1 }]} {...kb.inputProps} />
           <Text weight="bold">→</Text>
-          <TextInput value={to} onChangeText={setTo} placeholder="20:00" placeholderTextColor={colors.textLight} style={[styles.input, { flex: 1 }]} />
+          <TextInput value={to} onChangeText={setTo} placeholder="20:00" placeholderTextColor={colors.textLight} style={[styles.input, { flex: 1 }]} {...kb.inputProps} />
         </View>
         <Button label="Ajouter ce créneau" variant="outline" onPress={() => addSlot(service, day, from, to)} style={{ marginTop: spacing.md }} />
       </ScrollView>

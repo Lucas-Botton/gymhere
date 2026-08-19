@@ -6,6 +6,7 @@ import Button from '../ui/Button';
 import { Chip } from '../ui/primitives';
 import { colors, radius, spacing } from '../../theme';
 import { useApp } from '../../store/app';
+import { useKeyboardScrollFix } from '../../lib/useKeyboardScrollFix';
 import { FormuleMode } from '../../types';
 
 const MODES: FormuleMode[] = ['Présentiel', 'Visio', 'En ligne'];
@@ -18,6 +19,7 @@ export default function FormulasSheet({ visible, onClose }: { visible: boolean; 
   const [duration, setDuration] = useState('');
   const [mode, setMode] = useState<FormuleMode>('Présentiel');
   const [desc, setDesc] = useState('');
+  const kb = useKeyboardScrollFix();
 
   const add = () => {
     if (!name.trim() || !price.trim()) return;
@@ -31,7 +33,7 @@ export default function FormulasSheet({ visible, onClose }: { visible: boolean; 
 
   return (
     <BottomSheet visible={visible} onClose={onClose} title="Mes formules">
-      <ScrollView style={{ flex: 1, paddingHorizontal: spacing.xl }} contentContainerStyle={{ paddingBottom: spacing.xl }}>
+      <ScrollView {...kb.scrollProps} style={{ flex: 1, paddingHorizontal: spacing.xl }} contentContainerStyle={{ paddingBottom: kb.contentPaddingBottom(spacing.xl) }}>
         {offers.map((o, i) => (
           <View key={i} style={styles.item}>
             <View style={{ flex: 1 }}>
@@ -53,10 +55,10 @@ export default function FormulasSheet({ visible, onClose }: { visible: boolean; 
         <Text weight="extrabold" style={{ fontSize: 13, marginTop: spacing.lg, marginBottom: spacing.sm }}>
           Ajouter une formule
         </Text>
-        <TextInput value={name} onChangeText={setName} placeholder="Nom (ex: Suivi en ligne)" placeholderTextColor={colors.textLight} style={styles.input} />
+        <TextInput value={name} onChangeText={setName} placeholder="Nom (ex: Suivi en ligne)" placeholderTextColor={colors.textLight} style={styles.input} {...kb.inputProps} />
         <View style={{ flexDirection: 'row', gap: 8, marginTop: spacing.sm }}>
-          <TextInput value={duration} onChangeText={setDuration} placeholder="Durée" placeholderTextColor={colors.textLight} style={[styles.input, { flex: 1 }]} />
-          <TextInput value={price} onChangeText={setPrice} placeholder="Prix" placeholderTextColor={colors.textLight} style={[styles.input, { flex: 1 }]} />
+          <TextInput value={duration} onChangeText={setDuration} placeholder="Durée" placeholderTextColor={colors.textLight} style={[styles.input, { flex: 1 }]} {...kb.inputProps} />
+          <TextInput value={price} onChangeText={setPrice} placeholder="Prix" placeholderTextColor={colors.textLight} style={[styles.input, { flex: 1 }]} {...kb.inputProps} />
         </View>
         <View style={{ flexDirection: 'row', gap: 8, marginTop: spacing.sm }}>
           {MODES.map((m) => (
@@ -69,6 +71,7 @@ export default function FormulasSheet({ visible, onClose }: { visible: boolean; 
           placeholder="Description courte"
           placeholderTextColor={colors.textLight}
           style={[styles.input, { marginTop: spacing.sm }]}
+          {...kb.inputProps}
         />
         <Button label="Ajouter la formule" variant="outline" onPress={add} style={{ marginTop: spacing.md }} />
       </ScrollView>

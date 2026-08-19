@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, TextInput } from 'react-native';
+import { View, StyleSheet, TextInput, ScrollView } from 'react-native';
 import BottomSheet from '../ui/BottomSheet';
 import Text from '../ui/Text';
 import Button from '../ui/Button';
@@ -7,6 +7,7 @@ import { useSession } from '../../store/session';
 import { useApp } from '../../store/app';
 import { colors, spacing } from '../../theme';
 import { isSupabaseConfigured, sendEmailOtp, verifyEmailOtp, signInWithOAuth } from '../../lib/auth';
+import { useKeyboardScrollFix } from '../../lib/useKeyboardScrollFix';
 
 export default function AuthSheet() {
   const { authOpen, authActionLabel, closeAuth, login, syncFromSupabase } = useSession();
@@ -16,6 +17,7 @@ export default function AuthSheet() {
   const [code, setCode] = useState('');
   const [step, setStep] = useState<'form' | 'code'>('form');
   const [loading, setLoading] = useState<'google' | 'apple' | 'email' | null>(null);
+  const kb = useKeyboardScrollFix();
 
   const reset = () => {
     setStep('form');
@@ -77,7 +79,7 @@ export default function AuthSheet() {
 
   return (
     <BottomSheet visible={authOpen} onClose={close}>
-      <View style={styles.wrap}>
+      <ScrollView {...kb.scrollProps} contentContainerStyle={[styles.wrap, { paddingBottom: kb.contentPaddingBottom(spacing.lg) }]}>
         <Text weight="black" style={{ fontSize: 20, textAlign: 'center' }}>
           {step === 'code' ? 'Vérifie ton e-mail' : 'Crée ton compte'}
         </Text>
@@ -98,7 +100,7 @@ export default function AuthSheet() {
             <Button label="Continuer avec Apple" variant="dark" loading={loading === 'apple'} onPress={() => withOAuth('apple')} />
             <View style={{ height: spacing.lg }} />
             {!isSupabaseConfigured ? (
-              <TextInput value={name} onChangeText={setName} placeholder="Ton prénom" placeholderTextColor={colors.textLight} style={styles.input} />
+              <TextInput value={name} onChangeText={setName} placeholder="Ton prénom" placeholderTextColor={colors.textLight} style={styles.input} {...kb.inputProps} />
             ) : null}
             <TextInput
               value={email}
@@ -108,6 +110,7 @@ export default function AuthSheet() {
               autoCapitalize="none"
               keyboardType="email-address"
               style={[styles.input, !isSupabaseConfigured && { marginTop: spacing.sm }]}
+              {...kb.inputProps}
             />
             <View style={{ height: spacing.sm }} />
             <Button label="Continuer avec e-mail" loading={loading === 'email'} onPress={submitEmail} />
@@ -121,6 +124,7 @@ export default function AuthSheet() {
               placeholderTextColor={colors.textLight}
               keyboardType="number-pad"
               style={styles.input}
+              {...kb.inputProps}
             />
             <View style={{ height: spacing.sm }} />
             <Button label="Valider" loading={loading === 'email'} onPress={submitCode} />
@@ -130,7 +134,7 @@ export default function AuthSheet() {
         <Text weight="semibold" color={colors.textLight} style={{ fontSize: 11, textAlign: 'center', marginTop: spacing.lg }}>
           En continuant, tu acceptes les CGU et la politique de confidentialité de gymhere.
         </Text>
-      </View>
+      </ScrollView>
     </BottomSheet>
   );
 }

@@ -11,6 +11,7 @@ import { useLocationStore } from '../../store/location';
 import { BRANDS, SERVICES } from '../../data/seed';
 import { GYMS } from '../../data/seed';
 import { gymPassesFilters, POPULAR_EQUIPMENT } from '../../lib/filters';
+import { useKeyboardScrollFix } from '../../lib/useKeyboardScrollFix';
 
 export default function FiltersSheet({ visible, onClose }: { visible: boolean; onClose: () => void }) {
   const stored = useApp((s) => s.filters);
@@ -19,6 +20,7 @@ export default function FiltersSheet({ visible, onClose }: { visible: boolean; o
 
   const [local, setLocal] = useState(stored);
   const [equipDraft, setEquipDraft] = useState('');
+  const kb = useKeyboardScrollFix();
   useEffect(() => {
     if (visible) {
       setLocal(stored);
@@ -52,7 +54,7 @@ export default function FiltersSheet({ visible, onClose }: { visible: boolean; o
 
   return (
     <BottomSheet visible={visible} onClose={onClose} title="Filtres">
-      <ScrollView style={{ flex: 1, paddingHorizontal: spacing.xl }} contentContainerStyle={{ paddingBottom: spacing.lg }}>
+      <ScrollView {...kb.scrollProps} style={{ flex: 1, paddingHorizontal: spacing.xl }} contentContainerStyle={{ paddingBottom: kb.contentPaddingBottom(spacing.lg) }}>
         <Section label="Matériel spécifique">
           <Text weight="semibold" color={colors.textMuted} style={{ fontSize: 12, marginBottom: spacing.sm, marginTop: -4 }}>
             Sélectionne plusieurs machines, ou tape la tienne.
@@ -66,6 +68,7 @@ export default function FiltersSheet({ visible, onClose }: { visible: boolean; o
               placeholder="Hack squat, Eleiko, rameur..."
               placeholderTextColor={colors.textLight}
               style={[styles.input, { flex: 1, marginBottom: 0 }]}
+              {...kb.inputProps}
             />
             {equipDraft.trim().length > 0 ? (
               <Pressable onPress={addEquipDraft} style={styles.addBtn}>

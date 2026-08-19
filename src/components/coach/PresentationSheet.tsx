@@ -7,6 +7,7 @@ import { Chip } from '../ui/primitives';
 import GradientBlock, { GradientKey } from '../ui/GradientBlock';
 import { colors, spacing } from '../../theme';
 import { useApp } from '../../store/app';
+import { useKeyboardScrollFix } from '../../lib/useKeyboardScrollFix';
 import { SPECS } from '../../data/seed';
 
 const PHOTO_OPTIONS: GradientKey[] = ['pinkViolet', 'violetBlue', 'blueMint', 'coralPink'];
@@ -18,6 +19,7 @@ export default function PresentationSheet({ visible, onClose }: { visible: boole
   const [zone, setZone] = useState(draft.zone);
   const [specs, setSpecs] = useState<string[]>(draft.specs);
   const [photo, setPhoto] = useState(draft.photo);
+  const kb = useKeyboardScrollFix();
 
   useEffect(() => {
     if (visible) {
@@ -39,7 +41,7 @@ export default function PresentationSheet({ visible, onClose }: { visible: boole
 
   return (
     <BottomSheet visible={visible} onClose={onClose} title="Ma présentation">
-      <ScrollView style={{ flex: 1, paddingHorizontal: spacing.xl }} contentContainerStyle={{ paddingBottom: spacing.xl }}>
+      <ScrollView {...kb.scrollProps} style={{ flex: 1, paddingHorizontal: spacing.xl }} contentContainerStyle={{ paddingBottom: kb.contentPaddingBottom(spacing.xl) }}>
         <Text weight="extrabold" style={{ fontSize: 12.5, marginBottom: spacing.sm }}>
           Photo de profil
         </Text>
@@ -54,12 +56,20 @@ export default function PresentationSheet({ visible, onClose }: { visible: boole
         <Text weight="extrabold" style={{ fontSize: 12.5, marginBottom: spacing.sm }}>
           Bio
         </Text>
-        <TextInput value={bio} onChangeText={setBio} multiline placeholder="Parle de ton parcours, ton approche..." placeholderTextColor={colors.textLight} style={styles.textarea} />
+        <TextInput
+          value={bio}
+          onChangeText={setBio}
+          multiline
+          placeholder="Parle de ton parcours, ton approche..."
+          placeholderTextColor={colors.textLight}
+          style={styles.textarea}
+          {...kb.inputProps}
+        />
 
         <Text weight="extrabold" style={{ fontSize: 12.5, marginTop: spacing.lg, marginBottom: spacing.sm }}>
           Zone d’intervention
         </Text>
-        <TextInput value={zone} onChangeText={setZone} placeholder="Ex : Presqu’île, Lyon 7e..." placeholderTextColor={colors.textLight} style={styles.input} />
+        <TextInput value={zone} onChangeText={setZone} placeholder="Ex : Presqu’île, Lyon 7e..." placeholderTextColor={colors.textLight} style={styles.input} {...kb.inputProps} />
 
         <Text weight="extrabold" style={{ fontSize: 12.5, marginTop: spacing.lg, marginBottom: spacing.sm }}>
           Spécialités (max 3)
