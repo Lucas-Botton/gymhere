@@ -113,7 +113,8 @@ export function GymRatingMeta({ gym, distance, starSize = 11 }: { gym: { rating?
   if (gym.rating != null) {
     return (
       <>
-        <StarRating rating={gym.rating} size={starSize} /> {gym.rating} · {gym.reviews} avis · {distance}
+        <StarRating rating={gym.rating} size={starSize} /> {gym.rating}
+        {gym.reviews != null ? ` · ${gym.reviews} avis` : ''} · {distance}
       </>
     );
   }

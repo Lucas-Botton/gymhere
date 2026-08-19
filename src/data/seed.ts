@@ -52,7 +52,7 @@ const RAW_GYMS: Omit<Gym, 'distanceKm'>[] = [
   {
     id: 'gymnass', name: 'Gymnass', certified: true, sponsored: true, rating: 4.9, reviews: 48,
     photo: 'pinkViolet', tags: ['Coaching', 'Small group', 'Premium'],
-    address: '24 rue Laporte, 9e', quartier: 'Vaise', lat: 45.786, lng: 4.802,
+    address: '24 rue Laporte, 9e', quartier: 'Vaise', lat: 45.7716, lng: 4.8032,
     hours: 'Lun–Ven 8h–21h', hoursColor: '#1A1024', hoursSub: 'Sam 9h–13h · Dim fermé',
     phone: '04 78 43 47 67', website: 'https://gymnass.fr',
     services: [], formulas: [], groups: [], coachIds: ['lea'], reviewList: [],
@@ -60,7 +60,7 @@ const RAW_GYMS: Omit<Gym, 'distanceKm'>[] = [
   },
   {
     id: 'basicfit-republique', name: 'Basic-Fit République', certified: false, sponsored: false,
-    photo: PHOTOS[0], tags: [],
+    photo: PHOTOS[0], tags: ['Musculation', 'Sans engagement'],
     address: '13-15 Rue de la République, 1er', quartier: 'Terreaux', lat: 45.764, lng: 4.835,
     hours: 'Lun–Ven 6h–22h30', hoursColor: '#1A1024', hoursSub: 'Sam–Dim 9h–19h',
     website: 'https://www.basic-fit.com',
@@ -68,7 +68,7 @@ const RAW_GYMS: Omit<Gym, 'distanceKm'>[] = [
   },
   {
     id: 'basicfit-villette', name: 'Basic-Fit Villette', certified: false, sponsored: false,
-    photo: PHOTOS[1], tags: [],
+    photo: PHOTOS[1], tags: ['Musculation', 'Sans engagement'],
     address: '44 Rue de la Villette, 3e', quartier: 'Villette-Gare', lat: 45.760, lng: 4.860,
     hours: 'Lun–Ven 6h–22h30', hoursColor: '#1A1024', hoursSub: 'Sam–Dim 9h–19h',
     website: 'https://www.basic-fit.com',
@@ -76,7 +76,7 @@ const RAW_GYMS: Omit<Gym, 'distanceKm'>[] = [
   },
   {
     id: 'basicfit-berliet', name: 'Basic-Fit Marius Berliet', certified: false, sponsored: false,
-    photo: PHOTOS[2], tags: ['Ouvert 24/7'],
+    photo: PHOTOS[2], tags: ['Ouvert 24/7', 'Sans engagement'],
     address: '76 Rue Marius Berliet, 8e', quartier: 'Mermoz', lat: 45.728, lng: 4.873,
     hours: 'Ouvert 24h/24', hoursColor: '#12B39A', hoursSub: 'Accès badge',
     website: 'https://www.basic-fit.com',
@@ -84,7 +84,7 @@ const RAW_GYMS: Omit<Gym, 'distanceKm'>[] = [
   },
   {
     id: 'basicfit-marietton', name: 'Basic-Fit Marietton', certified: false, sponsored: false,
-    photo: PHOTOS[3], tags: [],
+    photo: PHOTOS[3], tags: ['Musculation', 'Sans engagement'],
     address: '93 Rue Marietton, 9e', quartier: 'Vaise', lat: 45.769, lng: 4.800,
     hours: 'Jusqu’à 22h30', hoursColor: '#1A1024', hoursSub: '',
     website: 'https://www.basic-fit.com',
@@ -92,7 +92,7 @@ const RAW_GYMS: Omit<Gym, 'distanceKm'>[] = [
   },
   {
     id: 'basicfit-audry', name: 'Basic-Fit Pierre Audry', certified: false, sponsored: false,
-    photo: PHOTOS[0], tags: ['Ouvert 24/7'],
+    photo: PHOTOS[0], tags: ['Ouvert 24/7', 'Sans engagement'],
     address: '54B Rue Pierre Audry, 9e', quartier: 'La Grivière', lat: 45.786, lng: 4.810,
     hours: 'Ouvert 24h/24', hoursColor: '#12B39A', hoursSub: 'Accès badge',
     website: 'https://www.basic-fit.com',
@@ -100,7 +100,7 @@ const RAW_GYMS: Omit<Gym, 'distanceKm'>[] = [
   },
   {
     id: 'basicfit-gerland', name: 'Basic-Fit Gerland', certified: false, sponsored: false,
-    photo: PHOTOS[1], tags: [],
+    photo: PHOTOS[1], tags: ['Musculation', 'Sans engagement'],
     address: 'Av. Jean Jaurès, 7e', quartier: 'Gerland', lat: 45.730, lng: 4.829,
     hours: 'Lun–Sam 6h–22h30', hoursColor: '#1A1024', hoursSub: 'Dim 9h–19h',
     phone: '03 66 33 33 44', website: 'https://www.basic-fit.com',
@@ -108,7 +108,8 @@ const RAW_GYMS: Omit<Gym, 'distanceKm'>[] = [
   },
   {
     id: 'basicfit-villeurbanne', name: 'Basic-Fit Villeurbanne', certified: false, sponsored: false,
-    photo: PHOTOS[2], tags: [],
+    rating: 3.5, reviews: 471,
+    photo: PHOTOS[2], tags: ['Musculation', 'Sans engagement'],
     address: '117 Bd de Stalingrad, Villeurbanne', quartier: 'Villeurbanne', lat: 45.774, lng: 4.880,
     hours: 'Horaires non communiqués', hoursColor: '#1A1024', hoursSub: '',
     website: 'https://www.basic-fit.com',
@@ -116,7 +117,7 @@ const RAW_GYMS: Omit<Gym, 'distanceKm'>[] = [
   },
   {
     id: 'basicfit-venissieux', name: 'Basic-Fit Vénissieux', certified: false, sponsored: false,
-    photo: PHOTOS[3], tags: ['Ouvert 24/7'],
+    photo: PHOTOS[3], tags: ['Ouvert 24/7', 'Sans engagement'],
     address: '369 Route de Vienne, Vénissieux', quartier: 'Vénissieux', lat: 45.696, lng: 4.876,
     hours: 'Ouvert 24h/24', hoursColor: '#12B39A', hoursSub: 'Accès badge',
     website: 'https://www.basic-fit.com',
@@ -125,7 +126,7 @@ const RAW_GYMS: Omit<Gym, 'distanceKm'>[] = [
   {
     id: 'basicfit-vaulxenvelin', name: 'Basic-Fit Vaulx-en-Velin', certified: false, sponsored: false,
     rating: 4.5, reviews: 970,
-    photo: PHOTOS[0], tags: [],
+    photo: PHOTOS[0], tags: ['Musculation', 'Sans engagement'],
     address: '236 Av. Franklin Roosevelt, Vaulx-en-Velin', quartier: 'Vaulx-en-Velin', lat: 45.782, lng: 4.912,
     hours: 'Lun–Ven 6h–22h30', hoursColor: '#1A1024', hoursSub: 'Sam–Dim 9h–19h',
     website: 'https://www.basic-fit.com',
@@ -134,7 +135,7 @@ const RAW_GYMS: Omit<Gym, 'distanceKm'>[] = [
   {
     id: 'fitnesspark-partdieu', name: 'Fitness Park Part-Dieu', certified: false, sponsored: false,
     rating: 4.3, reviews: 909,
-    photo: PHOTOS[1], tags: [],
+    photo: PHOTOS[1], tags: ['Musculation', 'Sans engagement'],
     address: '129 Rue Servient (Tour Part-Dieu), 3e', quartier: 'Part-Dieu', lat: 45.760, lng: 4.858,
     hours: 'Lun–Sam 6h–22h', hoursColor: '#1A1024', hoursSub: 'Dim 10h–22h',
     website: 'https://www.fitnesspark.fr',
@@ -142,15 +143,15 @@ const RAW_GYMS: Omit<Gym, 'distanceKm'>[] = [
   },
   {
     id: 'fitnesspark-confluence', name: 'Fitness Park Confluence', certified: false, sponsored: false,
-    photo: PHOTOS[2], tags: [],
-    address: '112 Cours Charlemagne, 2e', quartier: 'Confluence', lat: 45.735, lng: 4.818,
+    photo: PHOTOS[2], tags: ['Musculation', 'Sans engagement'],
+    address: '112 Cours Charlemagne, 2e', quartier: 'Confluence', lat: 45.738, lng: 4.8185,
     hours: '7h30–22h', hoursColor: '#1A1024', hoursSub: '',
     phone: '04 82 91 15 26', website: 'https://www.fitnesspark.fr',
     services: [], formulas: [], groups: [], coachIds: [], reviewList: [], gallery: PHOTOS.slice(),
   },
   {
     id: 'fitnesspark-terreaux', name: 'Fitness Park Terreaux', certified: false, sponsored: false,
-    photo: PHOTOS[3], tags: [],
+    photo: PHOTOS[3], tags: ['Musculation', 'Sans engagement'],
     address: '3 Rue Sainte-Marie-des-Terreaux, 1er', quartier: 'Terreaux', lat: 45.768, lng: 4.834,
     hours: '6h–23h', hoursColor: '#1A1024', hoursSub: '',
     website: 'https://www.fitnesspark.fr',
@@ -158,7 +159,8 @@ const RAW_GYMS: Omit<Gym, 'distanceKm'>[] = [
   },
   {
     id: 'keepcool-partdieu', name: 'Keepcool Part-Dieu', certified: false, sponsored: false,
-    photo: PHOTOS[0], tags: [],
+    rating: 4.2, reviews: 279,
+    photo: PHOTOS[0], tags: ['Musculation', 'Sans engagement'],
     address: '17 Rue du Docteur Bouchut, 3e', quartier: 'Part-Dieu', lat: 45.761, lng: 4.856,
     hours: '7j/7 6h–23h', hoursColor: '#1A1024', hoursSub: '',
     website: 'https://www.keepcool.fr',
@@ -166,7 +168,7 @@ const RAW_GYMS: Omit<Gym, 'distanceKm'>[] = [
   },
   {
     id: 'keepcool-montchat', name: 'Keepcool Montchat', certified: false, sponsored: false,
-    photo: PHOTOS[1], tags: [],
+    photo: PHOTOS[1], tags: ['Musculation', 'Sans engagement'],
     address: '184 Route de Genas, 3e', quartier: 'Montchat', lat: 45.756, lng: 4.879,
     hours: '7j/7 6h–23h', hoursColor: '#1A1024', hoursSub: '',
     website: 'https://www.keepcool.fr',
@@ -174,7 +176,7 @@ const RAW_GYMS: Omit<Gym, 'distanceKm'>[] = [
   },
   {
     id: 'keepcool-felixfaure', name: 'Keepcool Félix Faure', certified: false, sponsored: false,
-    photo: PHOTOS[2], tags: [],
+    photo: PHOTOS[2], tags: ['Musculation', 'Sans engagement'],
     address: '172 Avenue Félix Faure, 3e', quartier: 'Grange Blanche', lat: 45.749, lng: 4.865,
     hours: '7j/7 6h–23h', hoursColor: '#1A1024', hoursSub: '',
     website: 'https://www.keepcool.fr',
@@ -182,7 +184,7 @@ const RAW_GYMS: Omit<Gym, 'distanceKm'>[] = [
   },
   {
     id: 'keepcool-vaise', name: 'Keepcool Vaise', certified: false, sponsored: false,
-    photo: PHOTOS[3], tags: [],
+    photo: PHOTOS[3], tags: ['Musculation', 'Sans engagement'],
     address: '14 Rue Masaryk, 9e', quartier: 'Vaise', lat: 45.774, lng: 4.810,
     hours: '7j/7 6h–23h', hoursColor: '#1A1024', hoursSub: '',
     website: 'https://www.keepcool.fr',
@@ -190,7 +192,8 @@ const RAW_GYMS: Omit<Gym, 'distanceKm'>[] = [
   },
   {
     id: 'keepcool-lyon8', name: 'Keepcool Lyon 8', certified: false, sponsored: false,
-    photo: PHOTOS[0], tags: [],
+    rating: 4.4, reviews: 336,
+    photo: PHOTOS[0], tags: ['Musculation', 'Sans engagement'],
     address: '106 Rue du Professeur Beauvisage, 8e', quartier: 'Monplaisir', lat: 45.738, lng: 4.869,
     hours: '7j/7 6h–23h', hoursColor: '#1A1024', hoursSub: '',
     website: 'https://www.keepcool.fr',
@@ -198,7 +201,8 @@ const RAW_GYMS: Omit<Gym, 'distanceKm'>[] = [
   },
   {
     id: 'keepcool-confluence', name: 'Keepcool Confluence', certified: false, sponsored: false,
-    photo: PHOTOS[1], tags: [],
+    rating: 4.5, reviews: 268,
+    photo: PHOTOS[1], tags: ['Musculation', 'Sans engagement'],
     address: '35 Rue Dénuzière, 2e', quartier: 'Confluence', lat: 45.742, lng: 4.821,
     hours: '7j/7 6h–23h', hoursColor: '#1A1024', hoursSub: '',
     website: 'https://www.keepcool.fr',
@@ -206,23 +210,24 @@ const RAW_GYMS: Omit<Gym, 'distanceKm'>[] = [
   },
   {
     id: 'keepcool-sky56', name: 'Keepcool Sky56', certified: false, sponsored: false,
-    photo: PHOTOS[2], tags: [],
-    address: '20 rue du Général Mouton-Duvernet (Tour Sky56), 3e', quartier: 'Part-Dieu', lat: 45.74479, lng: 4.81966,
+    photo: PHOTOS[2], tags: ['Musculation', 'Sans engagement'],
+    address: '20 rue du Général Mouton-Duvernet (Tour Sky56), 3e', quartier: 'Part-Dieu', lat: 45.75919, lng: 4.85678,
     hours: 'Lun–Ven 6h–22h', hoursColor: '#1A1024', hoursSub: 'Sam 7h–20h · Dim 7h–14h, 15h–20h',
     phone: '04 28 29 90 70', website: 'https://www.keepcool.fr',
     services: [], formulas: [], groups: [], coachIds: [], reviewList: [], gallery: PHOTOS.slice(),
   },
   {
     id: 'keepcool-charpennes', name: 'Keepcool Villeurbanne-Charpennes', certified: false, sponsored: false,
-    photo: PHOTOS[3], tags: [],
-    address: '22 rue Gabriel Péri, Villeurbanne', quartier: 'Villeurbanne', lat: 45.774, lng: 4.881,
+    rating: 4.3, reviews: 194,
+    photo: PHOTOS[3], tags: ['Musculation', 'Sans engagement'],
+    address: '22 rue Gabriel Péri, Villeurbanne', quartier: 'Villeurbanne', lat: 45.7695, lng: 4.881,
     hours: '7j/7 6h–23h', hoursColor: '#1A1024', hoursSub: '',
     phone: '04 37 43 64 03', website: 'https://www.keepcool.fr',
     services: [], formulas: [], groups: [], coachIds: [], reviewList: [], gallery: PHOTOS.slice(),
   },
   {
     id: 'neoness-lyon8', name: 'Neoness Lyon 8', certified: false, sponsored: false,
-    photo: PHOTOS[0], tags: [],
+    photo: PHOTOS[0], tags: ['Musculation', 'Sans engagement'],
     address: '141 Rue Marius Berliet, 8e', quartier: 'Mermoz', lat: 45.728, lng: 4.873,
     hours: 'Lun/Ven 9h–22h · Mar–Jeu 7h–22h', hoursColor: '#1A1024', hoursSub: 'Sam 9h–19h · Dim 9h–18h',
     website: 'https://www.neoness.fr',
@@ -230,7 +235,7 @@ const RAW_GYMS: Omit<Gym, 'distanceKm'>[] = [
   },
   {
     id: 'neoness-lyon6', name: 'Neoness Lyon 6', certified: false, sponsored: false,
-    photo: PHOTOS[1], tags: [],
+    photo: PHOTOS[1], tags: ['Musculation', 'Sans engagement'],
     address: '92 bis Rue d’Inkermann, 6e', quartier: 'Brotteaux', lat: 45.768, lng: 4.857,
     hours: 'Lun/Ven 9h–22h · Mar–Jeu 7h–22h', hoursColor: '#1A1024', hoursSub: 'Sam 9h–19h · Dim 9h–17h',
     website: 'https://www.neoness.fr',
@@ -247,7 +252,8 @@ const RAW_GYMS: Omit<Gym, 'distanceKm'>[] = [
   },
   {
     id: 'onair-parmentier', name: 'On Air Parmentier', certified: false, sponsored: false,
-    photo: PHOTOS[3], tags: [],
+    rating: 4.4, reviews: 282,
+    photo: PHOTOS[3], tags: ['Musculation', 'Cours collectifs'],
     address: '81 Rue Parmentier, 7e', quartier: 'Jean Macé', lat: 45.746, lng: 4.839,
     hours: 'Horaires non communiqués', hoursColor: '#1A1024', hoursSub: '',
     website: 'https://www.onair-fitness.fr',
@@ -255,7 +261,7 @@ const RAW_GYMS: Omit<Gym, 'distanceKm'>[] = [
   },
   {
     id: 'onair-gerland', name: 'On Air Gerland', certified: false, sponsored: false,
-    photo: PHOTOS[0], tags: [],
+    photo: PHOTOS[0], tags: ['Musculation', 'Cours collectifs'],
     address: '60 Avenue Tony Garnier, 7e', quartier: 'Gerland', lat: 45.733, lng: 4.828,
     hours: 'Lun–Ven 6h–23h', hoursColor: '#1A1024', hoursSub: 'Sam–Dim 8h–20h',
     phone: '04 78 24 49 79', website: 'https://www.onair-fitness.fr',
@@ -263,15 +269,17 @@ const RAW_GYMS: Omit<Gym, 'distanceKm'>[] = [
   },
   {
     id: 'onair-cordeliers', name: 'On Air Cordeliers', certified: false, sponsored: false,
-    photo: PHOTOS[1], tags: [],
-    address: '10 rue Président Carnot, 2e', quartier: 'Cordeliers', lat: 45.764, lng: 4.834,
+    rating: 4.9, reviews: 54,
+    photo: PHOTOS[1], tags: ['Musculation', 'Cours collectifs'],
+    address: '10 rue Président Carnot, 2e', quartier: 'Cordeliers', lat: 45.760, lng: 4.834,
     hours: 'Lun–Ven 6h–23h', hoursColor: '#1A1024', hoursSub: 'Sam–Dim 8h–20h',
     phone: '04 72 31 24 55', website: 'https://www.onair-fitness.fr',
     services: [], formulas: [], groups: [], coachIds: [], reviewList: [], gallery: PHOTOS.slice(),
   },
   {
     id: 'onair-brotteaux', name: 'On Air Brotteaux', certified: false, sponsored: false,
-    photo: PHOTOS[2], tags: [],
+    rating: 4.3,
+    photo: PHOTOS[2], tags: ['Musculation', 'Cours collectifs'],
     address: '34 rue du Professeur Weill, 6e', quartier: 'Brotteaux', lat: 45.769, lng: 4.853,
     hours: 'Lun–Ven 6h–23h', hoursColor: '#1A1024', hoursSub: 'Sam–Dim 8h–20h',
     phone: '09 55 39 49 71', website: 'https://www.onair-fitness.fr',
@@ -279,7 +287,7 @@ const RAW_GYMS: Omit<Gym, 'distanceKm'>[] = [
   },
   {
     id: 'vitaliberte-lacassagne', name: 'Vita Liberté Lacassagne', certified: false, sponsored: false,
-    photo: PHOTOS[3], tags: [],
+    photo: PHOTOS[3], tags: ['Musculation', 'Cardio'],
     address: '169-171 Avenue Lacassagne, 3e', quartier: 'Grange Blanche', lat: 45.748, lng: 4.865,
     hours: '7j/7 6h–23h', hoursColor: '#1A1024', hoursSub: '',
     phone: '04 72 33 78 50', website: 'https://www.vitaliberte.fr',
@@ -287,7 +295,7 @@ const RAW_GYMS: Omit<Gym, 'distanceKm'>[] = [
   },
   {
     id: 'lappart-republique', name: 'L’Appart Fitness République', certified: false, sponsored: false,
-    photo: PHOTOS[0], tags: [],
+    photo: PHOTOS[0], tags: ['Musculation', 'Sans engagement'],
     address: '1 Rue de la République, 1er', quartier: 'Cordeliers', lat: 45.763, lng: 4.834,
     hours: 'Horaires non communiqués', hoursColor: '#1A1024', hoursSub: '',
     website: 'https://www.lappartfitness.com',
@@ -295,7 +303,8 @@ const RAW_GYMS: Omit<Gym, 'distanceKm'>[] = [
   },
   {
     id: 'lappart-prefecture', name: 'L’Appart Fitness Préfecture', certified: false, sponsored: false,
-    photo: PHOTOS[1], tags: [],
+    rating: 4.4, reviews: 495,
+    photo: PHOTOS[1], tags: ['Musculation', 'Sans engagement'],
     address: '4 Rue Pravaz, 3e', quartier: 'Part-Dieu', lat: 45.760, lng: 4.850,
     hours: 'Horaires non communiqués', hoursColor: '#1A1024', hoursSub: '',
     website: 'https://www.lappartfitness.com',
@@ -327,15 +336,15 @@ const RAW_GYMS: Omit<Gym, 'distanceKm'>[] = [
   },
   {
     id: 'wellness-villeurbanne', name: 'Wellness Sport Club Villeurbanne', certified: false, sponsored: false,
-    photo: PHOTOS[1], tags: [],
+    photo: PHOTOS[1], tags: ['Piscine', 'Spa'],
     address: '56 rue Paul Verlaine, Villeurbanne', quartier: 'Villeurbanne', lat: 45.769, lng: 4.895,
     hours: 'Lun–Ven 8h–22h', hoursColor: '#1A1024', hoursSub: 'Sam 9h–20h · Dim 9h–17h',
     phone: '04 37 43 32 32', website: 'https://www.wellness-sportclub.fr',
-    services: [], formulas: [], groups: [], coachIds: [], reviewList: [], gallery: PHOTOS.slice(),
+    services: [SVC.piscine, SVC.hammam], formulas: [], groups: [], coachIds: [], reviewList: [], gallery: PHOTOS.slice(),
   },
   {
     id: 'rituel-jeanjaures', name: 'Rituel Sport Club Jean-Jaurès', certified: false, sponsored: false,
-    photo: PHOTOS[2], tags: [],
+    photo: PHOTOS[2], tags: ['Musculation', 'Cardio'],
     address: '74 Av. Jean Jaurès, 7e', quartier: 'Jean Macé', lat: 45.745, lng: 4.838,
     hours: '7j/7 6h–23h', hoursColor: '#1A1024', hoursSub: '',
     website: 'https://www.rituel-sportclub.fr',
@@ -343,7 +352,8 @@ const RAW_GYMS: Omit<Gym, 'distanceKm'>[] = [
   },
   {
     id: 'rituel-gambetta', name: 'Rituel Sport Club Gambetta', certified: false, sponsored: false,
-    photo: PHOTOS[3], tags: [],
+    rating: 4.3, reviews: 364,
+    photo: PHOTOS[3], tags: ['Musculation', 'Cardio'],
     address: '133 Grande Rue de la Guillotière, 7e', quartier: 'Guillotière', lat: 45.749, lng: 4.844,
     hours: '7j/7 6h–23h', hoursColor: '#1A1024', hoursSub: '',
     website: 'https://www.rituel-sportclub.fr',
@@ -351,7 +361,7 @@ const RAW_GYMS: Omit<Gym, 'distanceKm'>[] = [
   },
   {
     id: 'uniq-partdieu', name: 'Uniq', certified: false, sponsored: false,
-    photo: PHOTOS[0], tags: [],
+    photo: PHOTOS[0], tags: ['Musculation', 'Salle indépendante'],
     address: '9 Rue des Cuirassiers, 3e', quartier: 'Part-Dieu', lat: 45.759, lng: 4.852,
     hours: 'Horaires non communiqués', hoursColor: '#1A1024', hoursSub: '',
     website: 'https://www.uniqeclub.com',
@@ -367,7 +377,7 @@ const RAW_GYMS: Omit<Gym, 'distanceKm'>[] = [
   },
   {
     id: 'victor-hugo-monplaisir', name: 'Club Victor Hugo Monplaisir', certified: false, sponsored: false,
-    photo: PHOTOS[2], tags: [],
+    photo: PHOTOS[2], tags: ['Musculation', 'Salle indépendante'],
     address: '104 Avenue des Frères Lumière, 8e', quartier: 'Monplaisir', lat: 45.738, lng: 4.866,
     hours: 'Accès salle 6h–22h', hoursColor: '#1A1024', hoursSub: '7j/7 · Accueil 11h–13h, 15h–19h',
     phone: '04 78 01 24 88', website: 'https://www.clubvictorhugo.com',
@@ -375,7 +385,7 @@ const RAW_GYMS: Omit<Gym, 'distanceKm'>[] = [
   },
   {
     id: 'sisters-gym', name: 'Sisters’ Gym', certified: false, sponsored: false,
-    photo: PHOTOS[3], tags: ['100% féminin'],
+    photo: PHOTOS[3], tags: ['100% féminin', 'Cours collectifs'],
     address: '101 Rue Garibaldi, 6e', quartier: 'Brotteaux', lat: 45.764, lng: 4.854,
     hours: 'Lun–Ven 11h30–20h30', hoursColor: '#1A1024', hoursSub: 'Sam 10h30–13h30 · Dim fermé',
     phone: '04 72 70 65 11',
@@ -384,7 +394,7 @@ const RAW_GYMS: Omit<Gym, 'distanceKm'>[] = [
   {
     id: 'l-form', name: 'L Form', certified: false, sponsored: false,
     rating: 4.4, reviews: 27,
-    photo: PHOTOS[0], tags: ['100% féminin'],
+    photo: PHOTOS[0], tags: ['100% féminin', 'Cours collectifs'],
     address: '54 bis Rue Vendôme, 6e', quartier: 'Brotteaux', lat: 45.770, lng: 4.851,
     hours: 'Lun–Jeu 8h30–21h', hoursColor: '#1A1024', hoursSub: 'Ven 8h30–20h30 · Sam 9h–12h · Dim fermé',
     phone: '04 78 93 92 14', website: 'https://www.l-form.fr',
@@ -392,7 +402,7 @@ const RAW_GYMS: Omit<Gym, 'distanceKm'>[] = [
   },
   {
     id: 'crossfit-gerland', name: 'CrossFit Gerland', certified: false, sponsored: false,
-    photo: PHOTOS[1], tags: ['CrossFit'],
+    photo: PHOTOS[1], tags: ['CrossFit', 'Fonctionnel'],
     address: '18 Rue Croix Barret, 7e', quartier: 'Gerland', lat: 45.737, lng: 4.830,
     hours: 'Horaires non communiqués', hoursColor: '#1A1024', hoursSub: '',
     website: 'https://www.crossfit-gerland.com',
@@ -401,7 +411,7 @@ const RAW_GYMS: Omit<Gym, 'distanceKm'>[] = [
   {
     id: 'crossfit-heka', name: 'CrossFit HEKA', certified: false, sponsored: false,
     rating: 4.9, reviews: 150,
-    photo: PHOTOS[2], tags: ['CrossFit'],
+    photo: PHOTOS[2], tags: ['CrossFit', 'Fonctionnel'],
     address: '31 Rue de Cuire, 4e', quartier: 'Croix-Rousse', lat: 45.778, lng: 4.828,
     hours: 'Horaires non communiqués', hoursColor: '#1A1024', hoursSub: '',
     website: 'https://www.crossfit-heka.fr',
@@ -409,7 +419,7 @@ const RAW_GYMS: Omit<Gym, 'distanceKm'>[] = [
   },
   {
     id: 'crossfit-secteur3', name: 'CrossFit Secteur 3', certified: false, sponsored: false,
-    photo: PHOTOS[3], tags: ['CrossFit'],
+    photo: PHOTOS[3], tags: ['CrossFit', 'Fonctionnel'],
     address: '169-171 Avenue Lacassagne, 3e', quartier: 'Grange Blanche', lat: 45.748, lng: 4.865,
     hours: 'Lun–Ven 7h–21h', hoursColor: '#1A1024', hoursSub: 'Sam 9h30–16h',
     phone: '06 50 91 92 28', website: 'https://www.crossfit-secteur3.fr',

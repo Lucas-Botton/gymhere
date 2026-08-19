@@ -38,13 +38,7 @@ export function GymCardFeatured({ gym }: { gym: Gym }) {
   const distanceKm = useGymDistanceKm(gym);
   return (
     <View style={styles.featuredSlot}>
-      {gym.sponsored ? (
-        <>
-          <View pointerEvents="none" style={[styles.glowLayer, { top: -16, left: -16, right: -16, bottom: -16, borderRadius: radius.xl + 16, opacity: 0.07 }]} />
-          <View pointerEvents="none" style={[styles.glowLayer, { top: -9, left: -9, right: -9, bottom: -9, borderRadius: radius.xl + 9, opacity: 0.13 }]} />
-          <View pointerEvents="none" style={[styles.glowLayer, { top: -4, left: -4, right: -4, bottom: -4, borderRadius: radius.xl + 4, opacity: 0.2 }]} />
-        </>
-      ) : null}
+      {gym.sponsored ? <View pointerEvents="none" style={styles.glowLayer} /> : null}
       <Tap onPress={() => router.push(`/gym/${gym.id}`)} style={[styles.featuredOuter, !gym.sponsored && shadow.card]}>
         <View style={styles.featuredWrap}>
           <GradientBlock kind={gym.photo as GradientKey} style={styles.featuredPhoto}>
@@ -121,7 +115,16 @@ export function GymCardCompact({ gym }: { gym: Gym }) {
 const styles = StyleSheet.create({
   featuredSlot: { width: 250, marginRight: spacing.md },
   featuredOuter: { borderRadius: radius.xl, backgroundColor: '#fff' },
-  glowLayer: { position: 'absolute', backgroundColor: colors.pink },
+  glowLayer: {
+    position: 'absolute',
+    top: -10,
+    left: -10,
+    right: -10,
+    bottom: -10,
+    borderRadius: radius.xl + 10,
+    backgroundColor: colors.pink,
+    opacity: 0.16,
+  },
   featuredWrap: { borderRadius: radius.xl, backgroundColor: '#fff', overflow: 'hidden' },
   featuredPhoto: { height: 130, padding: spacing.sm, alignItems: 'flex-end' },
   featuredBody: { padding: spacing.md },

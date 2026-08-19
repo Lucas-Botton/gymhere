@@ -117,7 +117,7 @@ export default function GymMap({ gyms }: { gyms: Gym[] }) {
         ) : null}
         {zoomedOut
           ? clusters.map((c) => (
-              <Marker key={c.quartier} coordinate={{ latitude: c.lat, longitude: c.lng }} anchor={{ x: 0.5, y: 0.5 }} onPress={() => openCluster(c)}>
+              <Marker key={c.quartier} coordinate={{ latitude: c.lat, longitude: c.lng }} anchor={{ x: 0.5, y: 0.5 }} onPress={() => openCluster(c)} tracksViewChanges={false}>
                 <View style={styles.clusterWrap}>
                   <View style={[styles.clusterBubble, shadow.card]}>
                     <View style={styles.clusterCountBadge}>
@@ -136,26 +136,36 @@ export default function GymMap({ gyms }: { gyms: Gym[] }) {
               <Marker
                 key={g.id}
                 coordinate={{ latitude: g.lat, longitude: g.lng }}
-                anchor={{ x: 0.5, y: 1 }}
+                anchor={{ x: 0.5, y: g.priceFrom != null ? 1 : 0.5 }}
                 onPress={() => setSelected(g)}
+                tracksViewChanges={false}
               >
-                <View style={styles.pinWrap}>
-                  {g.sponsored ? (
-                    <GradientBlock kind="pinkViolet" style={[styles.bubble, shadow.card, selected?.id === g.id && styles.bubbleSelected]}>
-                      <View style={styles.bubbleDot} />
-                      <Text weight="black" color="#fff" style={{ fontSize: 13 }}>
-                        {g.priceFrom != null ? `${g.priceFrom}€` : '•'}
-                      </Text>
-                    </GradientBlock>
-                  ) : (
-                    <View style={[styles.bubblePlain, shadow.card, selected?.id === g.id && styles.bubbleSelectedPlain]}>
-                      <Text weight="black" color={selected?.id === g.id ? '#fff' : colors.ink} style={{ fontSize: 13 }}>
-                        {g.priceFrom != null ? `${g.priceFrom}€` : '•'}
-                      </Text>
-                    </View>
-                  )}
-                  <View style={[styles.tail, (g.sponsored || selected?.id === g.id) && styles.tailAccent]} />
-                </View>
+                {g.priceFrom != null ? (
+                  <View style={styles.pinWrap}>
+                    {g.sponsored ? (
+                      <GradientBlock kind="pinkViolet" style={[styles.bubble, shadow.card]}>
+                        <Text weight="black" color="#fff" style={{ fontSize: 13 }}>
+                          {g.priceFrom}€
+                        </Text>
+                      </GradientBlock>
+                    ) : (
+                      <View style={[styles.bubblePlain, shadow.card]}>
+                        <Text weight="black" color={colors.ink} style={{ fontSize: 13 }}>
+                          {g.priceFrom}€
+                        </Text>
+                      </View>
+                    )}
+                    <View style={[styles.tail, g.sponsored && styles.tailAccent]} />
+                  </View>
+                ) : (
+                  <View style={[styles.dotOuter, shadow.card]}>
+                    {g.sponsored ? (
+                      <GradientBlock kind="pinkViolet" style={styles.dotInnerGradient} />
+                    ) : (
+                      <View style={styles.dotInner} />
+                    )}
+                  </View>
+                )}
               </Marker>
             ))}
       </MapView>
@@ -223,8 +233,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 5,
   },
-  bubbleDot: { width: 5, height: 5, borderRadius: 2.5, backgroundColor: '#fff', opacity: 0.9 },
-  bubbleSelected: { transform: [{ scale: 1.08 }] },
   bubblePlain: {
     height: 32,
     paddingHorizontal: 14,
@@ -235,7 +243,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  bubbleSelectedPlain: { backgroundColor: colors.pink, borderColor: colors.pink, transform: [{ scale: 1.08 }] },
+  dotOuter: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    backgroundColor: '#fff',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  dotInner: { width: 9, height: 9, borderRadius: 4.5, backgroundColor: colors.ink },
+  dotInnerGradient: { width: 9, height: 9, borderRadius: 4.5 },
   tail: {
     width: 0,
     height: 0,
