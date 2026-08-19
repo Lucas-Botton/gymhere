@@ -7,6 +7,7 @@ import Tap from '../../src/components/ui/Tap';
 import Button from '../../src/components/ui/Button';
 import GradientBlock from '../../src/components/ui/GradientBlock';
 import Glass from '../../src/components/ui/Glass';
+import Grain from '../../src/components/ui/Grain';
 import { CertifiedBadge, GymRatingMeta, Avatar } from '../../src/components/ui/primitives';
 import { IconBack, IconHeart, IconShare } from '../../src/components/ui/icons';
 import EquipmentTabs from '../../src/components/gym/EquipmentTabs';
@@ -59,6 +60,7 @@ export default function GymDetail() {
     <View style={{ flex: 1, backgroundColor: '#fff' }}>
       <ScrollView bounces={false}>
         <GradientBlock kind={gym.photo as any} style={styles.hero}>
+          <Grain />
           <SafeAreaView edges={['top']} style={styles.heroTop}>
             <Tap onPress={() => router.back()} style={styles.roundBtnWrap}>
               <Glass variant="dark" style={styles.roundBtn}>

@@ -7,6 +7,7 @@ import Tap from '../ui/Tap';
 import Button from '../ui/Button';
 import GradientBlock from '../ui/GradientBlock';
 import Glass from '../ui/Glass';
+import Grain from '../ui/Grain';
 import { StarRating, Tag, VerifiedPill } from '../ui/primitives';
 import { IconBack, IconHeart, IconShare } from '../ui/icons';
 import ShareSheet from '../ui/ShareSheet';
@@ -73,6 +74,7 @@ export default function CoachDetailView({ coach, previewMode = false }: { coach:
     <View style={{ flex: 1, backgroundColor: '#fff' }}>
       <ScrollView bounces={false} contentContainerStyle={{ paddingBottom: previewMode ? spacing.xl : 110 }}>
         <GradientBlock kind={coach.photo as any} style={styles.hero}>
+          <Grain />
           <SafeAreaView edges={['top']} style={styles.heroTop}>
             <Tap onPress={() => router.back()} style={styles.roundBtnWrap}>
               <Glass variant="dark" style={styles.roundBtn}>

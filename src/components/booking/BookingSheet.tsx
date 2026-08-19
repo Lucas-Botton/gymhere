@@ -1,9 +1,11 @@
 import React, { useMemo, useRef, useState, useEffect } from 'react';
 import { View, StyleSheet, Pressable, ScrollView, TextInput } from 'react-native';
 import { router } from 'expo-router';
+import * as Haptics from 'expo-haptics';
 import BottomSheet from '../ui/BottomSheet';
 import Text from '../ui/Text';
 import Button from '../ui/Button';
+import Confetti from '../ui/Confetti';
 import { Chip } from '../ui/primitives';
 import { useBookingSheet } from '../../store/booking';
 import { useApp } from '../../store/app';
@@ -64,6 +66,7 @@ export default function BookingSheet() {
       message,
     });
     setDone(true);
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
   };
 
   const close = () => {
@@ -80,6 +83,7 @@ export default function BookingSheet() {
     <BottomSheet visible={sheet.open} onClose={close} title={done ? undefined : sheet.sub || cfg.label}>
       {done ? (
         <View style={styles.doneWrap}>
+          <Confetti active={done} />
           <View style={styles.checkCircle}>
             <Text weight="black" color="#fff" style={{ fontSize: 28 }}>
               ✓

@@ -7,6 +7,7 @@ import Text from '../../src/components/ui/Text';
 import Tap from '../../src/components/ui/Tap';
 import GradientBlock from '../../src/components/ui/GradientBlock';
 import Glass from '../../src/components/ui/Glass';
+import Grain from '../../src/components/ui/Grain';
 import { Avatar } from '../../src/components/ui/primitives';
 import { IconBell, IconExplore, IconFilter, IconList, IconMap, IconStar } from '../../src/components/ui/icons';
 import { GymCardFeatured, GymCardCompact } from '../../src/components/gym/GymCards';
@@ -49,6 +50,7 @@ export default function Explore() {
   return (
     <View style={{ flex: 1, backgroundColor: '#fff' }}>
       <GradientBlock kind="brand" style={styles.header}>
+        <Grain style={{ borderBottomLeftRadius: radius.xxl, borderBottomRightRadius: radius.xxl }} />
         <SafeAreaView edges={['top']}>
           <View style={styles.headerTopRow}>
             <Glass variant="light" style={styles.cityPill}>

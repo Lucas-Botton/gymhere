@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { View, StyleSheet, Pressable, ScrollView, TextInput } from 'react-native';
+import * as Haptics from 'expo-haptics';
 import BottomSheet from '../ui/BottomSheet';
 import Text from '../ui/Text';
 import Button from '../ui/Button';
+import Confetti from '../ui/Confetti';
 import { Chip } from '../ui/primitives';
 import { colors, radius, spacing } from '../../theme';
 import { useApp } from '../../store/app';
@@ -20,11 +22,13 @@ const LABELS = ['', 'Décevant', 'Correct', 'Bien', 'Très bien', 'Excellent'];
 
 export default function ReviewSheet({ booking, onClose }: { booking: Booking | null; onClose: () => void }) {
   const addReview = useApp((s) => s.addReview);
+  const reviewsSoFar = useApp((s) => s.reviews.length);
   const [stars, setStars] = useState(0);
   const [criteria, setCriteria] = useState<Record<string, number>>({});
   const [tags, setTags] = useState<string[]>([]);
   const [comment, setComment] = useState('');
   const [done, setDone] = useState(false);
+  const [firstReview, setFirstReview] = useState(false);
   const [typing, setTyping] = useState(false);
   const scrollRef = useRef<ScrollView>(null);
 
@@ -35,6 +39,7 @@ export default function ReviewSheet({ booking, onClose }: { booking: Booking | n
       setTags([]);
       setComment('');
       setDone(false);
+      setFirstReview(false);
       setTyping(false);
     }
   }, [booking?.id]);
@@ -48,14 +53,18 @@ export default function ReviewSheet({ booking, onClose }: { booking: Booking | n
   const toggleTag = (t: string) => setTags((a) => (a.includes(t) ? a.filter((x) => x !== t) : [...a, t]));
 
   const submit = () => {
+    const isFirst = reviewsSoFar === 0;
     addReview({ bookingId: booking.id, targetType: kind, targetId: booking.targetId, stars, criteria, tags, comment });
+    setFirstReview(isFirst);
     setDone(true);
+    if (isFirst) Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
   };
 
   return (
     <BottomSheet visible={!!booking} onClose={onClose} title={done ? undefined : `Avis · ${booking.targetName}`}>
       {done ? (
         <View style={styles.doneWrap}>
+          <Confetti active={firstReview} />
           <Text style={{ fontSize: 40 }}>🎉</Text>
           <Text weight="black" style={{ fontSize: 18, textAlign: 'center', marginTop: spacing.md }}>
             Merci pour ton avis !
