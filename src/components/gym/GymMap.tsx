@@ -132,42 +132,56 @@ export default function GymMap({ gyms }: { gyms: Gym[] }) {
                 </View>
               </Marker>
             ))
-          : gyms.map((g) => (
-              <Marker
-                key={g.id}
-                coordinate={{ latitude: g.lat, longitude: g.lng }}
-                anchor={{ x: 0.5, y: g.priceFrom != null ? 1 : 0.5 }}
-                onPress={() => setSelected(g)}
-                tracksViewChanges={false}
-              >
-                {g.priceFrom != null ? (
-                  <View style={styles.pinWrap}>
-                    {g.sponsored ? (
-                      <GradientBlock kind="pinkViolet" style={[styles.bubble, shadow.card]}>
-                        <Text weight="black" color="#fff" style={{ fontSize: 13 }}>
-                          {g.priceFrom}€
-                        </Text>
-                      </GradientBlock>
-                    ) : (
-                      <View style={[styles.bubblePlain, shadow.card]}>
-                        <Text weight="black" color={colors.ink} style={{ fontSize: 13 }}>
-                          {g.priceFrom}€
-                        </Text>
-                      </View>
-                    )}
-                    <View style={[styles.tail, g.sponsored && styles.tailAccent]} />
-                  </View>
-                ) : (
-                  <View style={[styles.dotOuter, shadow.card]}>
-                    {g.sponsored ? (
-                      <GradientBlock kind="pinkViolet" style={styles.dotInnerGradient} />
-                    ) : (
-                      <View style={styles.dotInner} />
-                    )}
-                  </View>
-                )}
-              </Marker>
-            ))}
+          : gyms.map((g) => {
+              const isSelected = selected?.id === g.id;
+              return (
+                <Marker
+                  // Changing the key forces a full remount (fresh snapshot)
+                  // instead of an in-place update — updating tracksViewChanges
+                  // markers in place is what caused the disappear/reappear bug.
+                  key={isSelected ? `${g.id}-sel` : g.id}
+                  coordinate={{ latitude: g.lat, longitude: g.lng }}
+                  anchor={{ x: 0.5, y: g.priceFrom != null ? 1 : 0.5 }}
+                  onPress={() => setSelected(g)}
+                  tracksViewChanges={false}
+                >
+                  {g.priceFrom != null ? (
+                    <View style={styles.pinWrap}>
+                      {isSelected ? (
+                        <View style={[styles.bubble, styles.bubbleSelected, shadow.card]}>
+                          <Text weight="black" color="#fff" style={{ fontSize: 13 }}>
+                            {g.priceFrom}€
+                          </Text>
+                        </View>
+                      ) : g.sponsored ? (
+                        <GradientBlock kind="pinkViolet" style={[styles.bubble, shadow.card]}>
+                          <Text weight="black" color="#fff" style={{ fontSize: 13 }}>
+                            {g.priceFrom}€
+                          </Text>
+                        </GradientBlock>
+                      ) : (
+                        <View style={[styles.bubblePlain, shadow.card]}>
+                          <Text weight="black" color={colors.ink} style={{ fontSize: 13 }}>
+                            {g.priceFrom}€
+                          </Text>
+                        </View>
+                      )}
+                      <View style={[styles.tail, (g.sponsored || isSelected) && styles.tailAccent]} />
+                    </View>
+                  ) : (
+                    <View style={[styles.dotOuter, shadow.card, isSelected && styles.dotOuterSelected]}>
+                      {isSelected ? (
+                        <View style={styles.dotInnerSelected} />
+                      ) : g.sponsored ? (
+                        <GradientBlock kind="pinkViolet" style={styles.dotInnerGradient} />
+                      ) : (
+                        <View style={styles.dotInner} />
+                      )}
+                    </View>
+                  )}
+                </Marker>
+              );
+            })}
       </MapView>
 
       {selected ? (
@@ -233,6 +247,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 5,
   },
+  bubbleSelected: { backgroundColor: colors.pink },
   bubblePlain: {
     height: 32,
     paddingHorizontal: 14,
@@ -253,6 +268,8 @@ const styles = StyleSheet.create({
   },
   dotInner: { width: 9, height: 9, borderRadius: 4.5, backgroundColor: colors.ink },
   dotInnerGradient: { width: 9, height: 9, borderRadius: 4.5 },
+  dotOuterSelected: { width: 24, height: 24, borderRadius: 12 },
+  dotInnerSelected: { width: 11, height: 11, borderRadius: 5.5, backgroundColor: colors.pink },
   tail: {
     width: 0,
     height: 0,

@@ -360,7 +360,7 @@ const RAW_GYMS: Omit<Gym, 'distanceKm'>[] = [
     services: [], formulas: [], groups: [], coachIds: [], reviewList: [], gallery: PHOTOS.slice(),
   },
   {
-    id: 'uniq-partdieu', name: 'Uniq', certified: false, sponsored: false,
+    id: 'uniq-partdieu', name: 'Uniqe Club', certified: false, sponsored: false,
     photo: PHOTOS[0], tags: ['Musculation', 'Salle indépendante'],
     address: '9 Rue des Cuirassiers, 3e', quartier: 'Part-Dieu', lat: 45.759, lng: 4.852,
     hours: 'Horaires non communiqués', hoursColor: '#1A1024', hoursSub: '',

@@ -38,8 +38,7 @@ export function GymCardFeatured({ gym }: { gym: Gym }) {
   const distanceKm = useGymDistanceKm(gym);
   return (
     <View style={styles.featuredSlot}>
-      {gym.sponsored ? <View pointerEvents="none" style={styles.glowLayer} /> : null}
-      <Tap onPress={() => router.push(`/gym/${gym.id}`)} style={[styles.featuredOuter, !gym.sponsored && shadow.card]}>
+      <Tap onPress={() => router.push(`/gym/${gym.id}`)} style={[styles.featuredOuter, shadow.card]}>
         <View style={styles.featuredWrap}>
           <GradientBlock kind={gym.photo as GradientKey} style={styles.featuredPhoto}>
             <HeartButton id={gym.id} />
@@ -115,16 +114,6 @@ export function GymCardCompact({ gym }: { gym: Gym }) {
 const styles = StyleSheet.create({
   featuredSlot: { width: 250, marginRight: spacing.md },
   featuredOuter: { borderRadius: radius.xl, backgroundColor: '#fff' },
-  glowLayer: {
-    position: 'absolute',
-    top: -10,
-    left: -10,
-    right: -10,
-    bottom: -10,
-    borderRadius: radius.xl + 10,
-    backgroundColor: colors.pink,
-    opacity: 0.16,
-  },
   featuredWrap: { borderRadius: radius.xl, backgroundColor: '#fff', overflow: 'hidden' },
   featuredPhoto: { height: 130, padding: spacing.sm, alignItems: 'flex-end' },
   featuredBody: { padding: spacing.md },
