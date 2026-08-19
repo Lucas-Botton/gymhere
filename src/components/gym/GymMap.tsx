@@ -77,6 +77,16 @@ export default function GymMap({ gyms }: { gyms: Gym[] }) {
   const mapRef = useRef<MapView>(null);
   const me = coords ?? ME_LOCATION;
 
+  // Markers keep tracksViewChanges false at rest (that's what keeps taps
+  // cheap and stable). When the selection changes we briefly flip it back
+  // to true — for the marker gaining selection AND the one losing it — just
+  // long enough for the native layer to re-snapshot the new look, then back
+  // to false. This replaces an earlier key-based remount trick: remounting
+  // the Marker on every tap raced with react-native-maps' own native view
+  // teardown under rapid repeated taps and could crash the app.
+  const [trackedIds, setTrackedIds] = useState<Set<string>>(new Set());
+  const prevSelectedId = useRef<string | null>(null);
+
   const clusters = useMemo(() => clusterByQuartier(gyms), [gyms]);
   const zoomedOut = !region || region.latitudeDelta > CLUSTER_DELTA_THRESHOLD;
 
@@ -85,6 +95,17 @@ export default function GymMap({ gyms }: { gyms: Gym[] }) {
       mapRef.current?.animateToRegion({ latitude: coords.lat, longitude: coords.lng, latitudeDelta: 0.07, longitudeDelta: 0.07 }, 600);
     }
   }, [coords?.lat, coords?.lng]);
+
+  useEffect(() => {
+    const ids = new Set<string>();
+    if (selected) ids.add(selected.id);
+    if (prevSelectedId.current) ids.add(prevSelectedId.current);
+    prevSelectedId.current = selected?.id ?? null;
+    if (ids.size === 0) return;
+    setTrackedIds(ids);
+    const t = setTimeout(() => setTrackedIds(new Set()), 400);
+    return () => clearTimeout(t);
+  }, [selected?.id]);
 
   const openCluster = (c: QuartierCluster) => {
     setSelected(null);
@@ -136,14 +157,11 @@ export default function GymMap({ gyms }: { gyms: Gym[] }) {
               const isSelected = selected?.id === g.id;
               return (
                 <Marker
-                  // Changing the key forces a full remount (fresh snapshot)
-                  // instead of an in-place update — updating tracksViewChanges
-                  // markers in place is what caused the disappear/reappear bug.
-                  key={isSelected ? `${g.id}-sel` : g.id}
+                  key={g.id}
                   coordinate={{ latitude: g.lat, longitude: g.lng }}
                   anchor={{ x: 0.5, y: g.priceFrom != null ? 1 : 0.5 }}
                   onPress={() => setSelected(g)}
-                  tracksViewChanges={false}
+                  tracksViewChanges={trackedIds.has(g.id)}
                 >
                   {g.priceFrom != null ? (
                     <View style={styles.pinWrap}>

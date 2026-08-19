@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, StyleSheet, ScrollView, Pressable, Linking } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router, useLocalSearchParams } from 'expo-router';
+import * as Haptics from 'expo-haptics';
 import Text from '../../src/components/ui/Text';
 import Tap from '../../src/components/ui/Tap';
 import Button from '../../src/components/ui/Button';
@@ -73,7 +74,14 @@ export default function GymDetail() {
                   <IconShare size={16} color="#fff" />
                 </Glass>
               </Tap>
-              <Tap onPress={() => toggleFav(gym.id)} scaleTo={0.8} style={styles.roundBtnWrap}>
+              <Tap
+                onPress={() => {
+                  toggleFav(gym.id);
+                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
+                }}
+                scaleTo={0.8}
+                style={styles.roundBtnWrap}
+              >
                 <Glass variant="dark" style={styles.roundBtn}>
                   <IconHeart size={16} color="#fff" filled={isFav} />
                 </Glass>

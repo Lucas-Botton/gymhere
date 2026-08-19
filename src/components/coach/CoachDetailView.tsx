@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, StyleSheet, ScrollView, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
+import * as Haptics from 'expo-haptics';
 import Text from '../ui/Text';
 import Tap from '../ui/Tap';
 import Button from '../ui/Button';
@@ -94,7 +95,14 @@ export default function CoachDetailView({ coach, previewMode = false }: { coach:
                     <IconShare size={16} color="#fff" />
                   </Glass>
                 </Tap>
-                <Tap onPress={() => toggleFav(coach.id)} scaleTo={0.8} style={styles.roundBtnWrap}>
+                <Tap
+                  onPress={() => {
+                    toggleFav(coach.id);
+                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
+                  }}
+                  scaleTo={0.8}
+                  style={styles.roundBtnWrap}
+                >
                   <Glass variant="dark" style={styles.roundBtn}>
                     <IconHeart size={16} color="#fff" filled={isFav} />
                   </Glass>
@@ -204,8 +212,8 @@ export default function CoachDetailView({ coach, previewMode = false }: { coach:
             <>
               <SectionTitle>Diplômes & certifications</SectionTitle>
               {coach.diplomas.length > 0 ? (
-                <View style={styles.credBlock}>
-                  <Text weight="extrabold" color={colors.successDeep} style={{ fontSize: 12, marginBottom: 8 }}>
+                <View style={[styles.credBlock, { backgroundColor: colors.indigoBg }]}>
+                  <Text weight="extrabold" color={colors.indigoText} style={{ fontSize: 12, marginBottom: 8 }}>
                     Diplômes d’État
                   </Text>
                   {coach.diplomas.map((d) => (

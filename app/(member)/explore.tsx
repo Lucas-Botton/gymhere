@@ -1,8 +1,8 @@
 import React, { useMemo, useState } from 'react';
 import { View, StyleSheet, Pressable, ScrollView, FlatList } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
+import * as Haptics from 'expo-haptics';
 import Text from '../../src/components/ui/Text';
 import Tap from '../../src/components/ui/Tap';
 import GradientBlock from '../../src/components/ui/GradientBlock';
@@ -84,13 +84,25 @@ export default function Explore() {
 
       <View style={styles.toolbar}>
         <View style={styles.segment}>
-          <Tap onPress={() => setMapView(false)} style={[styles.segmentBtn, !mapView && styles.segmentBtnActive]}>
+          <Tap
+            onPress={() => {
+              setMapView(false);
+              Haptics.selectionAsync().catch(() => {});
+            }}
+            style={[styles.segmentBtn, !mapView && styles.segmentBtnActive]}
+          >
             <IconList size={15} color={!mapView ? colors.pink : colors.textMuted} />
             <Text weight="extrabold" color={!mapView ? colors.pink : colors.textMuted} style={{ fontSize: 12.5 }}>
               Liste
             </Text>
           </Tap>
-          <Tap onPress={() => setMapView(true)} style={[styles.segmentBtn, mapView && styles.segmentBtnActive]}>
+          <Tap
+            onPress={() => {
+              setMapView(true);
+              Haptics.selectionAsync().catch(() => {});
+            }}
+            style={[styles.segmentBtn, mapView && styles.segmentBtnActive]}
+          >
             <IconMap size={16} color={mapView ? colors.pink : colors.textMuted} />
             <Text weight="extrabold" color={mapView ? colors.pink : colors.textMuted} style={{ fontSize: 12.5 }}>
               Carte
@@ -117,13 +129,11 @@ export default function Explore() {
       </View>
 
       <View style={{ paddingHorizontal: spacing.lg, paddingBottom: spacing.sm }}>
-        <Tap onPress={() => router.push('/compare')} style={[{ borderRadius: radius.lg }, shadow.soft]}>
-          <LinearGradient colors={[colors.equipBg, colors.successBg]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.compareBtn}>
-            <Text style={{ fontSize: 15 }}>⇄</Text>
-            <Text weight="extrabold" color={colors.violet} style={{ fontSize: 13.5 }}>
-              Comparer les salles côte à côte
-            </Text>
-          </LinearGradient>
+        <Tap onPress={() => router.push('/compare')} style={[styles.compareBtn, shadow.soft]}>
+          <Text style={{ fontSize: 15 }}>⇄</Text>
+          <Text weight="extrabold" color={colors.violet} style={{ fontSize: 13.5 }}>
+            Comparer les salles côte à côte
+          </Text>
         </Tap>
       </View>
 
@@ -238,6 +248,9 @@ const styles = StyleSheet.create({
     gap: 9,
     borderRadius: radius.lg,
     paddingVertical: 13,
+    backgroundColor: colors.tagBg,
+    borderWidth: 1.5,
+    borderColor: 'rgba(200,31,255,0.22)',
   },
   searchBar: {
     flexDirection: 'row',

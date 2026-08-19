@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { router } from 'expo-router';
+import * as Haptics from 'expo-haptics';
 import Text from '../ui/Text';
 import Tap from '../ui/Tap';
 import Glass from '../ui/Glass';
@@ -22,6 +23,7 @@ function HeartButton({ id, small }: { id: string; small?: boolean }) {
       onPress={(e: any) => {
         e.stopPropagation();
         toggle(id);
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
       }}
       scaleTo={0.75}
       style={{ width: size, height: size, borderRadius: size / 2 }}

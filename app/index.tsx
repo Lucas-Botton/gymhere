@@ -22,7 +22,7 @@ function Spinner() {
   return <Animated.View style={[styles.spinner, { transform: [{ rotate: spin }] }]} />;
 }
 
-const HERE_TEXT_STYLE = { fontSize: 27, letterSpacing: -1.2 };
+const HERE_TEXT_STYLE = { fontSize: 27, lineHeight: 33, letterSpacing: -1.2 };
 
 export default function Splash() {
   const opacity = useRef(new Animated.Value(0)).current;
@@ -61,7 +61,7 @@ export default function Splash() {
       </Animated.View>
 
       <Animated.View style={[styles.bottomWrap, { opacity, transform: [{ translateY: rise }] }]}>
-        <View style={{ flexDirection: 'row' }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
           <Text weight="regular" color="#fff" style={HERE_TEXT_STYLE}>
             gym
           </Text>

@@ -2,6 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { View, StyleSheet, FlatList, Pressable, TextInput } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
+import * as Haptics from 'expo-haptics';
 import Text from '../../src/components/ui/Text';
 import Tap from '../../src/components/ui/Tap';
 import { Avatar, StarRating, Tag } from '../../src/components/ui/primitives';
@@ -90,6 +91,7 @@ export default function Coaches() {
                 onPress={(e) => {
                   e.stopPropagation();
                   toggleFavCoach(item.id);
+                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
                 }}
                 hitSlop={10}
               >
