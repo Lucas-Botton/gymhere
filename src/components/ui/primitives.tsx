@@ -23,7 +23,7 @@ export function Chip({
         styles.chip,
         active
           ? { backgroundColor: hue, borderColor: hue, shadowColor: hue, shadowOpacity: 0.35, shadowRadius: 10, shadowOffset: { width: 0, height: 5 }, elevation: 3 }
-          : { backgroundColor: '#fff', borderColor: colors.border },
+          : { backgroundColor: colors.bgTint2, borderColor: colors.bgTint2 },
       ]}
     >
       <Text weight="extrabold" color={active ? '#fff' : '#6B6478'} style={{ fontSize: 13 }}>

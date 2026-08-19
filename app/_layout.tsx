@@ -12,6 +12,14 @@ import {
   Nunito_800ExtraBold,
   Nunito_900Black,
 } from '@expo-google-fonts/nunito';
+import {
+  Gabarito_400Regular,
+  Gabarito_500Medium,
+  Gabarito_600SemiBold,
+  Gabarito_700Bold,
+  Gabarito_800ExtraBold,
+  Gabarito_900Black,
+} from '@expo-google-fonts/gabarito';
 import AuthSheet from '../src/components/booking/AuthSheet';
 import BookingSheet from '../src/components/booking/BookingSheet';
 import ReportSheet from '../src/components/report/ReportSheet';
@@ -28,6 +36,12 @@ export default function RootLayout() {
     Nunito_700Bold,
     Nunito_800ExtraBold,
     Nunito_900Black,
+    Gabarito_400Regular,
+    Gabarito_500Medium,
+    Gabarito_600SemiBold,
+    Gabarito_700Bold,
+    Gabarito_800ExtraBold,
+    Gabarito_900Black,
   });
 
   const onLayout = useCallback(async () => {

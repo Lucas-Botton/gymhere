@@ -58,7 +58,7 @@ export default function Profile() {
               router.replace('/(coach)/ma-fiche');
             }}
           >
-            <LinearGradient colors={['#1A1024', '#3A2150', '#5A2E66']} locations={[0, 0.65, 1]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={[styles.coachCard, shadow.card]}>
+            <LinearGradient colors={['#140E1F', '#3A2150', '#5A2E66']} locations={[0, 0.65, 1]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={[styles.coachCard, shadow.card]}>
               <View style={styles.coachIconBox}>
                 <Text style={{ fontSize: 18 }}>⚡</Text>
               </View>

@@ -92,6 +92,6 @@ const styles = StyleSheet.create({
   benefitRow: { flexDirection: 'row', alignItems: 'flex-start', marginBottom: spacing.sm },
   plans: { flexDirection: 'row', gap: spacing.md, marginTop: spacing.lg },
   plan: { flex: 1, borderRadius: radius.lg, borderWidth: 1.5, borderColor: colors.border, padding: spacing.md },
-  planActive: { borderColor: colors.pink, backgroundColor: '#FDECF3' },
+  planActive: { borderColor: colors.pink, backgroundColor: '#FFE9F1' },
   saveTag: { position: 'absolute', top: -8, right: 10, backgroundColor: colors.pink, paddingHorizontal: 7, paddingVertical: 3, borderRadius: radius.pill },
 });

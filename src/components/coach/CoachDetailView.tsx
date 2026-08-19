@@ -21,7 +21,7 @@ import { Coach, ServiceKey } from '../../types';
 
 const SOCIAL_META: Record<string, { label: string; bg: string }> = {
   instagram: { label: 'Instagram', bg: '#DD2A7B' },
-  tiktok: { label: 'TikTok', bg: '#1A1024' },
+  tiktok: { label: 'TikTok', bg: '#140E1F' },
   youtube: { label: 'YouTube', bg: '#FF0000' },
   linkedin: { label: 'LinkedIn', bg: '#0A66C2' },
 };

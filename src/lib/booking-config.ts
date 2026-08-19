@@ -3,7 +3,7 @@ import { BookingKind } from '../types';
 export const BOOKING_CONFIG: Record<BookingKind, { label: string; accent: string; mode: 'slot' | 'request'; cta: string; done: string; doneSub: string; note: string }> = {
   essai: {
     label: 'Séance d’essai gratuite',
-    accent: '#F5397F',
+    accent: '#FF1F6B',
     mode: 'slot',
     cta: 'Confirmer ma séance',
     done: 'C’est réservé ✓',
@@ -12,7 +12,7 @@ export const BOOKING_CONFIG: Record<BookingKind, { label: string; accent: string
   },
   inscription: {
     label: 'Demande d’inscription',
-    accent: '#F5397F',
+    accent: '#FF1F6B',
     mode: 'request',
     cta: 'Envoyer ma demande',
     done: 'Demande envoyée ✓',
@@ -21,7 +21,7 @@ export const BOOKING_CONFIG: Record<BookingKind, { label: string; accent: string
   },
   contact: {
     label: 'Prendre contact',
-    accent: '#8B5CFF',
+    accent: '#C81FFF',
     mode: 'request',
     cta: 'Envoyer mon message',
     done: 'Message envoyé ✓',
@@ -30,7 +30,7 @@ export const BOOKING_CONFIG: Record<BookingKind, { label: string; accent: string
   },
   appel: {
     label: 'Appel découverte',
-    accent: '#4F6EF7',
+    accent: '#4D5BFF',
     mode: 'slot',
     cta: 'Réserver l’appel',
     done: 'Appel réservé ✓',
@@ -39,7 +39,7 @@ export const BOOKING_CONFIG: Record<BookingKind, { label: string; accent: string
   },
   formule: {
     label: 'Choisir une formule',
-    accent: '#F5397F',
+    accent: '#FF1F6B',
     mode: 'request',
     cta: 'Envoyer ma demande',
     done: 'Demande envoyée ✓',

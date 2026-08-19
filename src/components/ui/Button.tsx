@@ -1,6 +1,7 @@
 import React from 'react';
-import { ActivityIndicator, ViewStyle, StyleProp } from 'react-native';
+import { ActivityIndicator, View, ViewStyle, StyleProp } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import * as Haptics from 'expo-haptics';
 import Tap from './Tap';
 import Text from './Text';
 import { colors, radius, shadow, spacing } from '../../theme';
@@ -57,9 +58,20 @@ export default function Button({
   };
 
   if (variant === 'primary') {
+    const press = () => {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
+      onPress?.();
+    };
     return (
-      <Tap onPress={onPress} disabled={disabled || loading} style={style}>
-        <LinearGradient colors={[colors.pink, colors.violet]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={[base, shadow.glowPink]}>
+      <Tap onPress={press} disabled={disabled || loading} style={style}>
+        <LinearGradient
+          colors={['#FF3D7F', '#FF1F6B', '#C81FFF']}
+          locations={[0, 0.55, 1]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={[base, shadow.glowPink]}
+        >
+          <View pointerEvents="none" style={{ position: 'absolute', top: 0, left: 1, right: 1, height: 1, borderRadius: radius.pill, backgroundColor: 'rgba(255,255,255,0.4)' }} />
           {content}
         </LinearGradient>
       </Tap>
@@ -74,7 +86,7 @@ export default function Button({
   }
   if (variant === 'outline') {
     return (
-      <Tap onPress={onPress} disabled={disabled || loading} style={[base, { backgroundColor: '#fff', borderWidth: 1.5, borderColor: colors.border }, style]}>
+      <Tap onPress={onPress} disabled={disabled || loading} style={[base, { backgroundColor: '#fff', borderWidth: 1.5, borderColor: colors.border }, shadow.soft, style]}>
         {content}
       </Tap>
     );

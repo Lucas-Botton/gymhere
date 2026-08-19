@@ -9,8 +9,8 @@ import { BlurView } from 'expo-blur';
 type Variant = 'light' | 'dark';
 
 const TINT: Record<Variant, string> = {
-  light: 'rgba(255,255,255,0.18)',
-  dark: 'rgba(20,16,26,0.5)',
+  light: 'rgba(255,255,255,0.22)',
+  dark: 'rgba(20,14,31,0.5)',
 };
 
 export default function Glass({
@@ -35,5 +35,5 @@ export default function Glass({
 }
 
 const styles = StyleSheet.create({
-  base: { overflow: 'hidden' },
+  base: { overflow: 'hidden', borderWidth: 1, borderColor: 'rgba(255,255,255,0.28)' },
 });

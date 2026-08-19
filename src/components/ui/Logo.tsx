@@ -3,7 +3,7 @@ import { View } from 'react-native';
 import Svg, { Path, Circle } from 'react-native-svg';
 import Text from './Text';
 
-export function PinMark({ size = 64, color = '#fff', dot = '#F5397F' }: { size?: number; color?: string; dot?: string }) {
+export function PinMark({ size = 64, color = '#fff', dot = '#FF1F6B' }: { size?: number; color?: string; dot?: string }) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
       <Path

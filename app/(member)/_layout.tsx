@@ -11,7 +11,7 @@ export default function MemberTabsLayout() {
         tabBarActiveTintColor: colors.pink,
         tabBarInactiveTintColor: colors.textLight,
         tabBarLabelStyle: { fontFamily: 'Nunito_800ExtraBold', fontSize: 10.5 },
-        tabBarStyle: { height: 82, paddingTop: 8, paddingBottom: 22, borderTopColor: colors.border },
+        tabBarStyle: { height: 82, paddingTop: 8, paddingBottom: 22, backgroundColor: '#fff', borderTopColor: '#F2EDF4' },
       }}
     >
       <Tabs.Screen

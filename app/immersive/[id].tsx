@@ -8,10 +8,10 @@ import { colors, radius, spacing } from '../../src/theme';
 import { findGym } from '../../src/data/seed';
 
 const SCENES = [
-  { name: 'Zone musculation', accent: '#F5397F' },
-  { name: 'Espace cardio', accent: '#4F6EF7' },
-  { name: 'Cross-training', accent: '#2FD4C0' },
-  { name: 'Vestiaires & sauna', accent: '#8B5CFF' },
+  { name: 'Zone musculation', accent: '#FF1F6B' },
+  { name: 'Espace cardio', accent: '#4D5BFF' },
+  { name: 'Cross-training', accent: '#00E5C0' },
+  { name: 'Vestiaires & sauna', accent: '#C81FFF' },
 ];
 
 export default function Immersive() {
