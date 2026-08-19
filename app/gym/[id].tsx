@@ -12,7 +12,7 @@ import { IconBack, IconHeart, IconShare } from '../../src/components/ui/icons';
 import EquipmentTabs from '../../src/components/gym/EquipmentTabs';
 import ShareSheet from '../../src/components/ui/ShareSheet';
 import BottomSheet from '../../src/components/ui/BottomSheet';
-import { colors, radius, shadow, spacing } from '../../src/theme';
+import { colors, radius, shadow, shadowBleed, spacing } from '../../src/theme';
 import { findGym, COACHES } from '../../src/data/seed';
 import { useApp } from '../../src/store/app';
 import { useSession } from '../../src/store/session';
@@ -179,7 +179,12 @@ export default function GymDetail() {
           {gym.coachIds.length > 0 ? (
             <>
               <SectionTitle>Coachs de la salle</SectionTitle>
-              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingVertical: 10 }} style={{ marginVertical: -10 }}>
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={{ paddingVertical: shadowBleed, paddingRight: spacing.md }}
+                style={{ marginVertical: -shadowBleed }}
+              >
                 {gym.coachIds.map((cid) => {
                   const c = COACHES.find((x) => x.id === cid);
                   if (!c) return null;

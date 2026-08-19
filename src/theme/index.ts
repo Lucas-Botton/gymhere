@@ -126,6 +126,15 @@ export const shadow = {
   },
 } as const;
 
+// A shadow extends beyond its element by roughly shadowOffset + shadowRadius —
+// for shadow.card that's ~17px below, ~11px sideways. Any horizontal
+// ScrollView holding shadow.soft/shadow.card items needs at least this much
+// paddingVertical in its contentContainerStyle (offset by the same negative
+// marginVertical on the ScrollView itself, so it doesn't add visible gap)
+// or the shadow gets clipped by the scroll viewport into a hard, ugly edge
+// instead of fading out naturally.
+export const shadowBleed = 20;
+
 export const fontWeight = {
   regular: '400' as const,
   semibold: '600' as const,

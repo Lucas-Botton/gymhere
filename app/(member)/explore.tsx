@@ -13,7 +13,7 @@ import GymMap from '../../src/components/gym/GymMap';
 import FiltersSheet from '../../src/components/gym/FiltersSheet';
 import GoalPickerSheet from '../../src/components/gym/GoalPickerSheet';
 import SearchOverlay from '../../src/components/gym/SearchOverlay';
-import { colors, radius, shadow, spacing } from '../../src/theme';
+import { colors, radius, shadow, shadowBleed, spacing } from '../../src/theme';
 import { GYMS, GOALS } from '../../src/data/seed';
 import { activeFilterCount, gymDistanceKm, gymPassesFilters } from '../../src/lib/filters';
 import { useApp } from '../../src/store/app';
@@ -155,8 +155,8 @@ export default function Explore() {
                   <ScrollView
                     horizontal
                     showsHorizontalScrollIndicator={false}
-                    contentContainerStyle={{ paddingVertical: 14, paddingRight: spacing.md }}
-                    style={{ marginVertical: -14 }}
+                    contentContainerStyle={{ paddingVertical: shadowBleed, paddingRight: spacing.md }}
+                    style={{ marginVertical: -shadowBleed }}
                   >
                     {recoGyms.map((g) => (
                       <GymCardFeatured key={g.id} gym={g} />
@@ -173,8 +173,8 @@ export default function Explore() {
                   <ScrollView
                     horizontal
                     showsHorizontalScrollIndicator={false}
-                    contentContainerStyle={{ paddingVertical: 14, paddingRight: spacing.md }}
-                    style={{ marginVertical: -14 }}
+                    contentContainerStyle={{ paddingVertical: shadowBleed, paddingRight: spacing.md }}
+                    style={{ marginVertical: -shadowBleed }}
                   >
                     {sponsored.map((g) => (
                       <GymCardFeatured key={g.id} gym={g} />

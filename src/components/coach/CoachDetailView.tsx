@@ -10,7 +10,7 @@ import Glass from '../ui/Glass';
 import { StarRating, Tag, VerifiedPill } from '../ui/primitives';
 import { IconBack, IconHeart, IconShare } from '../ui/icons';
 import ShareSheet from '../ui/ShareSheet';
-import { colors, radius, shadow, spacing } from '../../theme';
+import { colors, radius, shadow, shadowBleed, spacing } from '../../theme';
 import { findGym } from '../../data/seed';
 import { useApp } from '../../store/app';
 import { useSession } from '../../store/session';
@@ -258,7 +258,12 @@ export default function CoachDetailView({ coach, previewMode = false }: { coach:
           {coach.gymIds.length > 0 ? (
             <>
               <SectionTitle>Intervient à</SectionTitle>
-              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingVertical: 10 }} style={{ marginVertical: -10 }}>
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={{ paddingVertical: shadowBleed, paddingRight: spacing.md }}
+                style={{ marginVertical: -shadowBleed }}
+              >
                 {coach.gymIds.map((gid) => {
                   const g = findGym(gid);
                   if (!g) return null;
