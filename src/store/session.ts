@@ -28,6 +28,7 @@ interface SessionState {
   closeAuth: () => void;
   login: (profile?: Partial<UserProfile>) => void;
   logout: () => void;
+  setAvatarUrl: (uri: string) => void;
   becomeCoach: () => void;
   backToMember: () => void;
   syncFromSupabase: (user: { id: string; email?: string | null } | null) => void;
@@ -82,6 +83,7 @@ export const useSession = create<SessionState>()(
         signOutSupabase().catch(() => {});
         set({ loggedIn: false, user: null, isCoach: false, role: null });
       },
+      setAvatarUrl: (uri) => set((s) => (s.user ? { user: { ...s.user, avatarUrl: uri } } : s)),
 
       becomeCoach: () => set({ isCoach: true, role: 'coach', loggedIn: true }),
       backToMember: () => set({ role: 'member' }),

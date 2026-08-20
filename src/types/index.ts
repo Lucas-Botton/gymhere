@@ -111,6 +111,9 @@ export interface Coach {
   reviews: number;
   zone: string;
   photo: string;
+  // Real uploaded profile photo, if the coach set one — takes priority
+  // over the gradient `photo` identity wherever it's shown.
+  photoUri?: string;
   specs: string[];
   bio: string;
   modalities: string[];
@@ -203,6 +206,7 @@ export interface UserProfile {
 export interface CoachDraft {
   name: string;
   photo: string;
+  photoUri?: string;
   bio: string;
   zone: string;
   specs: string[];

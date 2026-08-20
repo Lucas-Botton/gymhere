@@ -22,7 +22,7 @@ import { useSession } from '../../src/store/session';
 import { useLocationStore } from '../../src/store/location';
 
 export default function Explore() {
-  const { city } = useSession();
+  const { city, user } = useSession();
   const { filters } = useApp();
   const coords = useLocationStore((s) => s.coords);
   const [mapView, setMapView] = useState(false);
@@ -61,7 +61,7 @@ export default function Explore() {
                 {unread > 0 ? <View style={styles.dot} /> : null}
               </Pressable>
               <Pressable onPress={() => router.push('/(member)/profile')}>
-                <Avatar size={34} gradient="blueMint" initial="A" />
+                <Avatar size={34} gradient="blueMint" initial={(user?.name ?? 'A')[0]} uri={user?.avatarUrl} />
               </Pressable>
             </View>
           </View>

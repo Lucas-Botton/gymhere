@@ -14,9 +14,16 @@ import { colors, radius, shadow, spacing } from '../../src/theme';
 import { useSession } from '../../src/store/session';
 import { useApp } from '../../src/store/app';
 import { useKeyboardScrollFix } from '../../src/lib/useKeyboardScrollFix';
+import { pickProfilePhoto } from '../../src/lib/imagePicker';
 
 export default function Profile() {
   const { user, city, becomeCoach } = useSession();
+  const setAvatarUrl = useSession((s) => s.setAvatarUrl);
+
+  const changeAvatar = async () => {
+    const uri = await pickProfilePhoto();
+    if (uri) setAvatarUrl(uri);
+  };
   const bookings = useApp((s) => s.bookings);
   const favGyms = useApp((s) => s.favGyms);
   const favCoaches = useApp((s) => s.favCoaches);
@@ -33,12 +40,12 @@ export default function Profile() {
         <GradientBlock kind="brand" style={styles.header}>
           <SafeAreaView edges={['top']}>
             <View style={styles.headerRow}>
-              <View style={styles.avatarWrap}>
-                <Avatar size={66} gradient="blueMint" initial={(user?.name ?? 'A')[0]} />
+              <Pressable onPress={changeAvatar} style={styles.avatarWrap}>
+                <Avatar size={66} gradient="blueMint" initial={(user?.name ?? 'A')[0]} uri={user?.avatarUrl} />
                 <View style={styles.editBadge}>
                   <Text style={{ fontSize: 11 }}>✎</Text>
                 </View>
-              </View>
+              </Pressable>
               <View>
                 <Text weight="black" color="#fff" style={{ fontSize: 20 }}>
                   {user?.name ?? 'Alex'}

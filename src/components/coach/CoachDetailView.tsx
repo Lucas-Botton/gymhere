@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView, Pressable } from 'react-native';
+import { View, StyleSheet, ScrollView, Pressable, ImageBackground } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import * as Haptics from 'expo-haptics';
@@ -79,46 +79,58 @@ export default function CoachDetailView({ coach, previewMode = false }: { coach:
 
   const socialEntries = Object.entries(coach.socials).filter(([, v]) => !!v);
 
+  const heroContent = (
+    <>
+      <Grain />
+      <SafeAreaView edges={['top']} style={styles.heroTop}>
+        <Tap onPress={() => router.back()} style={styles.roundBtnWrap}>
+          <Glass variant="dark" style={styles.roundBtn}>
+            <IconBack size={18} color="#fff" />
+          </Glass>
+        </Tap>
+        {previewMode ? (
+          <Glass variant="dark" style={styles.previewTag}>
+            <Text weight="black" color="#fff" style={{ fontSize: 10.5 }}>
+              APERÇU CLIENT
+            </Text>
+          </Glass>
+        ) : (
+          <View style={{ flexDirection: 'row', gap: 8 }}>
+            <Tap onPress={() => setShareOpen(true)} style={styles.roundBtnWrap}>
+              <Glass variant="dark" style={styles.roundBtn}>
+                <IconShare size={16} color="#fff" />
+              </Glass>
+            </Tap>
+            <Tap
+              onPress={() => {
+                toggleFav(coach.id);
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
+              }}
+              scaleTo={0.8}
+              style={styles.roundBtnWrap}
+            >
+              <Glass variant="dark" style={styles.roundBtn}>
+                <IconHeart size={16} color="#fff" filled={isFav} />
+              </Glass>
+            </Tap>
+          </View>
+        )}
+      </SafeAreaView>
+    </>
+  );
+
   return (
     <View style={{ flex: 1, backgroundColor: '#fff' }}>
       <ScrollView bounces={false} contentContainerStyle={{ paddingBottom: previewMode ? spacing.xl : 110 }}>
-        <GradientBlock kind={coach.photo as any} style={styles.hero}>
-          <Grain />
-          <SafeAreaView edges={['top']} style={styles.heroTop}>
-            <Tap onPress={() => router.back()} style={styles.roundBtnWrap}>
-              <Glass variant="dark" style={styles.roundBtn}>
-                <IconBack size={18} color="#fff" />
-              </Glass>
-            </Tap>
-            {previewMode ? (
-              <Glass variant="dark" style={styles.previewTag}>
-                <Text weight="black" color="#fff" style={{ fontSize: 10.5 }}>
-                  APERÇU CLIENT
-                </Text>
-              </Glass>
-            ) : (
-              <View style={{ flexDirection: 'row', gap: 8 }}>
-                <Tap onPress={() => setShareOpen(true)} style={styles.roundBtnWrap}>
-                  <Glass variant="dark" style={styles.roundBtn}>
-                    <IconShare size={16} color="#fff" />
-                  </Glass>
-                </Tap>
-                <Tap
-                  onPress={() => {
-                    toggleFav(coach.id);
-                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
-                  }}
-                  scaleTo={0.8}
-                  style={styles.roundBtnWrap}
-                >
-                  <Glass variant="dark" style={styles.roundBtn}>
-                    <IconHeart size={16} color="#fff" filled={isFav} />
-                  </Glass>
-                </Tap>
-              </View>
-            )}
-          </SafeAreaView>
-        </GradientBlock>
+        {coach.photoUri ? (
+          <ImageBackground source={{ uri: coach.photoUri }} style={styles.hero}>
+            {heroContent}
+          </ImageBackground>
+        ) : (
+          <GradientBlock kind={coach.photo as any} style={styles.hero}>
+            {heroContent}
+          </GradientBlock>
+        )}
 
         <View style={styles.body}>
           <Text weight="black" style={{ fontSize: 22 }}>

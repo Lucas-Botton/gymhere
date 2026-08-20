@@ -12,6 +12,7 @@ export function draftToCoach(draft: CoachDraft, id: string): Coach {
     reviews: 0,
     zone: draft.zone || 'Lyon',
     photo: draft.photo,
+    photoUri: draft.photoUri,
     specs: draft.specs,
     bio: draft.bio,
     modalities: draft.modalities,

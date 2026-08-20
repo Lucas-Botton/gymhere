@@ -38,6 +38,12 @@
       "expo-font",
       "expo-location",
       [
+        "expo-image-picker",
+        {
+          "photosPermission": "gymhere a besoin d'accéder à tes photos pour choisir ta photo de profil."
+        }
+      ],
+      [
         "expo-splash-screen",
         {
           "backgroundColor": "#F5397F",

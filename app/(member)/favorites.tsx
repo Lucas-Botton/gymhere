@@ -51,7 +51,7 @@ export default function Favorites() {
         ) : (
           coaches.map((c) => (
             <Pressable key={c.id} onPress={() => router.push(`/coach/${c.id}`)} style={[styles.coachCard, shadow.soft]}>
-              <Avatar gradient={c.photo} size={56} initial={c.name[0]} />
+              <Avatar gradient={c.photo} size={56} initial={c.name[0]} uri={c.photoUri} />
               <View style={{ flex: 1, marginLeft: spacing.md, minWidth: 0 }}>
                 <Text weight="black" style={{ fontSize: 14.5 }} numberOfLines={1}>
                   {c.name}

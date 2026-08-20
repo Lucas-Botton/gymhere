@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, TextInput, Pressable, ScrollView } from 'react-native';
+import { View, StyleSheet, TextInput, Pressable, ScrollView, Image } from 'react-native';
 import BottomSheet from '../ui/BottomSheet';
 import Text from '../ui/Text';
 import Button from '../ui/Button';
@@ -8,6 +8,7 @@ import GradientBlock, { GradientKey } from '../ui/GradientBlock';
 import { colors, spacing } from '../../theme';
 import { useApp } from '../../store/app';
 import { useKeyboardScrollFix } from '../../lib/useKeyboardScrollFix';
+import { pickProfilePhoto } from '../../lib/imagePicker';
 import { SPECS } from '../../data/seed';
 
 const PHOTO_OPTIONS: GradientKey[] = ['pinkViolet', 'violetBlue', 'blueMint', 'coralPink'];
@@ -19,6 +20,7 @@ export default function PresentationSheet({ visible, onClose }: { visible: boole
   const [zone, setZone] = useState(draft.zone);
   const [specs, setSpecs] = useState<string[]>(draft.specs);
   const [photo, setPhoto] = useState(draft.photo);
+  const [photoUri, setPhotoUri] = useState(draft.photoUri);
   const kb = useKeyboardScrollFix();
 
   useEffect(() => {
@@ -27,6 +29,7 @@ export default function PresentationSheet({ visible, onClose }: { visible: boole
       setZone(draft.zone);
       setSpecs(draft.specs);
       setPhoto(draft.photo);
+      setPhotoUri(draft.photoUri);
     }
   }, [visible]);
 
@@ -34,8 +37,13 @@ export default function PresentationSheet({ visible, onClose }: { visible: boole
     setSpecs((a) => (a.includes(s) ? a.filter((x) => x !== s) : a.length < 3 ? [...a, s] : a));
   };
 
+  const changePhoto = async () => {
+    const uri = await pickProfilePhoto();
+    if (uri) setPhotoUri(uri);
+  };
+
   const save = () => {
-    update({ bio, zone, specs, photo });
+    update({ bio, zone, specs, photo, photoUri });
     onClose();
   };
 
@@ -45,10 +53,37 @@ export default function PresentationSheet({ visible, onClose }: { visible: boole
         <Text weight="extrabold" style={{ fontSize: 12.5, marginBottom: spacing.sm }}>
           Photo de profil
         </Text>
+        <View style={{ alignItems: 'center', marginBottom: spacing.lg }}>
+          <Pressable onPress={changePhoto}>
+            {photoUri ? (
+              <Image source={{ uri: photoUri }} style={styles.bigPhoto} />
+            ) : (
+              <GradientBlock kind={photo} style={styles.bigPhoto} />
+            )}
+            <View style={styles.photoEditBadge}>
+              <Text style={{ fontSize: 12 }}>✎</Text>
+            </View>
+          </Pressable>
+          <Pressable onPress={changePhoto} hitSlop={6} style={{ marginTop: 8 }}>
+            <Text weight="extrabold" color={colors.pink} style={{ fontSize: 12.5 }}>
+              {photoUri ? 'Changer la photo' : 'Ajouter une photo'}
+            </Text>
+          </Pressable>
+        </View>
+
+        <Text weight="extrabold" color={colors.textMuted} style={{ fontSize: 11.5, marginBottom: spacing.sm }}>
+          Sans photo, choisis une couleur
+        </Text>
         <View style={{ flexDirection: 'row', gap: 10, marginBottom: spacing.lg }}>
           {PHOTO_OPTIONS.map((p) => (
-            <Pressable key={p} onPress={() => setPhoto(p)}>
-              <GradientBlock kind={p} style={[styles.photoDot, photo === p && styles.photoDotActive]} />
+            <Pressable
+              key={p}
+              onPress={() => {
+                setPhoto(p);
+                setPhotoUri(undefined);
+              }}
+            >
+              <GradientBlock kind={p} style={[styles.photoDot, !photoUri && photo === p && styles.photoDotActive]} />
             </Pressable>
           ))}
         </View>
@@ -87,6 +122,20 @@ export default function PresentationSheet({ visible, onClose }: { visible: boole
 }
 
 const styles = StyleSheet.create({
+  bigPhoto: { width: 92, height: 92, borderRadius: 46 },
+  photoEditBadge: {
+    position: 'absolute',
+    right: -2,
+    bottom: -2,
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: '#fff',
+    borderWidth: 1.5,
+    borderColor: colors.border,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   photoDot: { width: 46, height: 46, borderRadius: 23, borderWidth: 2, borderColor: 'transparent' },
   photoDotActive: { borderColor: colors.pink },
   input: {

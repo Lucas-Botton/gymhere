@@ -73,7 +73,7 @@ export default function Coaches() {
           const isFav = favCoaches.includes(item.id);
           return (
             <Tap onPress={() => router.push(`/coach/${item.id}`)} style={[styles.card, shadow.soft]}>
-              <Avatar gradient={item.photo} size={64} initial={item.name[0]} />
+              <Avatar gradient={item.photo} size={64} initial={item.name[0]} uri={item.photoUri} />
               <View style={{ flex: 1, marginLeft: spacing.md, minWidth: 0 }}>
                 <Text weight="black" style={{ fontSize: 15.5 }} numberOfLines={1}>
                   {item.name}

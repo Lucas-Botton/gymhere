@@ -49,7 +49,7 @@ export default function Chat() {
         contentContainerStyle={{ padding: spacing.lg }}
         renderItem={({ item }) => (
           <View style={[styles.bubbleRow, item.from === 'me' && { justifyContent: 'flex-end' }]}>
-            {item.from === 'them' ? <Avatar size={28} gradient={coach.photo} initial={coach.name[0]} /> : null}
+            {item.from === 'them' ? <Avatar size={28} gradient={coach.photo} initial={coach.name[0]} uri={coach.photoUri} /> : null}
             <View style={[styles.bubble, item.from === 'me' ? styles.bubbleMe : styles.bubbleThem]}>
               <Text weight="semibold" color={item.from === 'me' ? '#fff' : colors.ink} style={{ fontSize: 13.5 }}>
                 {item.text}

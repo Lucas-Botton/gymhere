@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Pressable, StyleSheet, StyleProp, ViewStyle } from 'react-native';
+import { View, Pressable, Image, StyleSheet, StyleProp, ViewStyle } from 'react-native';
 import Text from './Text';
 import Tap from './Tap';
 import GradientBlock from './GradientBlock';
@@ -126,7 +126,10 @@ export function GymRatingMeta({ gym, distance, starSize = 11 }: { gym: { googleR
   return <>Nouveau sur gymhere · {distance}</>;
 }
 
-export function Avatar({ gradient = 'pinkViolet', size = 40, initial }: { gradient?: string; size?: number; initial?: string }) {
+export function Avatar({ gradient = 'pinkViolet', size = 40, initial, uri }: { gradient?: string; size?: number; initial?: string; uri?: string }) {
+  if (uri) {
+    return <Image source={{ uri }} style={{ width: size, height: size, borderRadius: size / 2 }} />;
+  }
   return (
     <GradientBlock kind={gradient} style={{ width: size, height: size, borderRadius: size / 2, alignItems: 'center', justifyContent: 'center' }}>
       {initial ? (

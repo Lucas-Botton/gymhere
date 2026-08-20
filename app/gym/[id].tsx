@@ -203,7 +203,7 @@ export default function GymDetail() {
                   if (!c) return null;
                   return (
                     <Tap key={cid} onPress={() => router.push(`/coach/${cid}`)} style={[styles.coachCard, shadow.soft]}>
-                      <Avatar gradient={c.photo} size={54} initial={c.name[0]} />
+                      <Avatar gradient={c.photo} size={54} initial={c.name[0]} uri={c.photoUri} />
                       <Text weight="extrabold" style={{ fontSize: 13, marginTop: 8 }} numberOfLines={1}>
                         {c.name}
                       </Text>
