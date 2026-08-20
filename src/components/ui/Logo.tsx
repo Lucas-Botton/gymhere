@@ -16,8 +16,12 @@ export function PinMark({ size = 64, color = '#fff', dot = '#FF1F6B' }: { size?:
 }
 
 export function Wordmark({ size = 22, color = '#fff' }: { size?: number; color?: string }) {
+  // "gym" (Nunito) and "here" (Gabarito, via weight="black") don't share the
+  // same baseline metrics at equal fontSize, so a naive row leaves "here"
+  // sitting visibly higher than "gym" — align on text baseline, which reads
+  // each font's own metrics, instead of naively centering the two boxes.
   return (
-    <View style={{ flexDirection: 'row' }}>
+    <View style={{ flexDirection: 'row', alignItems: 'baseline' }}>
       <Text weight="regular" color={color} style={{ fontSize: size, letterSpacing: -0.4 }}>
         gym
       </Text>
