@@ -40,8 +40,6 @@ export default function Splash() {
   const iconScale = useSharedValue(0.86);
   const iconTranslateY = useSharedValue(-40);
   const breathScale = useSharedValue(1);
-  const ringScale = useSharedValue(0.3);
-  const ringOpacity = useSharedValue(0);
   const dotScale = useSharedValue(1);
   const wordOpacity = useSharedValue(0);
   const wordTranslateY = useSharedValue(10);
@@ -88,10 +86,6 @@ export default function Splash() {
     iconScale.value = withTiming(1, { duration: 450, easing: EASE });
     iconTranslateY.value = withSequence(withTiming(4, { duration: 350, easing: EASE }), withTiming(0, { duration: 100, easing: EASE }));
 
-    // 2. Impact ring, right as it touches down (380-760ms).
-    ringOpacity.value = withDelay(380, withSequence(withTiming(0.6, { duration: 0 }), withTiming(0, { duration: 380 })));
-    ringScale.value = withDelay(380, withTiming(2.4, { duration: 380, easing: Easing.out(Easing.quad) }));
-
     // 3. The pin's dot pulses once, like a GPS ping (at 420ms).
     dotScale.value = withDelay(420, withSequence(withTiming(1.18, { duration: 150, easing: EASE }), withTiming(1, { duration: 150, easing: EASE })));
 
@@ -125,7 +119,6 @@ export default function Splash() {
     opacity: iconOpacity.value,
     transform: [{ translateY: iconTranslateY.value }, { scale: iconScale.value * breathScale.value }],
   }));
-  const ringAnimStyle = useAnimatedStyle(() => ({ opacity: ringOpacity.value, transform: [{ scale: ringScale.value }] }));
   const dotAnimStyle = useAnimatedStyle(() => ({ transform: [{ scale: dotScale.value }] }));
   const wordAnimStyle = useAnimatedStyle(() => ({ opacity: wordOpacity.value, transform: [{ translateY: wordTranslateY.value }] }));
   const haloAnimStyle = useAnimatedStyle(() => ({ opacity: haloOpacity.value }));
@@ -158,7 +151,6 @@ export default function Splash() {
             <PinMark size={65} />
           </LinearGradient>
           <Animated.View style={[styles.dotOverlay, dotAnimStyle]} pointerEvents="none" />
-          <Animated.View style={[styles.ring, ringAnimStyle]} pointerEvents="none" />
         </Animated.View>
 
         <Animated.View style={[styles.wordWrap, wordAnimStyle]}>
@@ -191,6 +183,5 @@ const styles = StyleSheet.create({
   iconWrap: { width: ICON_BOX, height: ICON_BOX, alignItems: 'center', justifyContent: 'center' },
   iconBox: { width: ICON_BOX, height: ICON_BOX, borderRadius: ICON_BOX * 0.26, alignItems: 'center', justifyContent: 'center' },
   dotOverlay: { position: 'absolute', width: 17, height: 17, borderRadius: 9, backgroundColor: colors.pink, left: 43.5, top: 37 },
-  ring: { position: 'absolute', bottom: -8, alignSelf: 'center', width: 40, height: 40, borderRadius: 20, borderWidth: 2, borderColor: colors.pink },
   wordWrap: { flexDirection: 'row', alignItems: 'center', marginTop: 18 },
 });
