@@ -92,8 +92,8 @@ export default function Compare() {
                   <StatRow label="Note Google" value={g.googleRating != null ? `★ ${g.googleRating}` : 'Nouveau'} />
                   <StatRow label="Distance" value={`${g.distanceKm.toFixed(1).replace('.', ',')} km`} />
                   <StatRow label="Ouvert 24/7" value={has247 ? 'Oui' : '–'} valueColor={has247 ? colors.successDeep : colors.textLight} />
-                  <StatRow label="Certifié" value={g.certified ? 'Certifié' : '–'} valueColor={g.certified ? colors.pink : colors.textLight} />
-                  <StatRow label="Machines dispo" value={String(machines)} valueColor={colors.violet} big />
+                  <StatRow label="Certifié" value={g.certified ? 'Certifié' : '–'} valueColor={g.certified ? colors.successDeep : colors.textLight} />
+                  <StatRow label="Machines dispo" value={String(machines)} big />
                   <StatRow label="Services" value={String(g.services.length)} />
                   <View style={styles.statRow}>
                     <Text weight="extrabold" color={colors.textMuted} style={{ fontSize: 12 }}>
@@ -125,7 +125,7 @@ export default function Compare() {
 
         <Text weight="semibold" color={colors.textMuted} style={{ fontSize: 12.5, lineHeight: 19, paddingHorizontal: spacing.xl, marginTop: spacing.sm }}>
           💡 Astuce : compare le{' '}
-          <Text weight="black" color={colors.violet} style={{ fontSize: 12.5 }}>
+          <Text weight="black" color={colors.ink} style={{ fontSize: 12.5 }}>
             nombre de machines disponibles
           </Text>{' '}
           et les marques présentes pour trouver la salle la mieux équipée pour toi.

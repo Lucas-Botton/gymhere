@@ -51,11 +51,11 @@ export default function RoleChoice() {
           </LinearGradient>
         </Pressable>
 
-        <Pressable onPress={chooseCoach} style={[{ marginTop: spacing.md }, shadow.glowViolet]}>
+        <Pressable onPress={chooseCoach} style={[{ marginTop: spacing.md }, shadow.soft]}>
           <View style={[styles.card, styles.coachCard]}>
-            <LinearGradient colors={[colors.violet, colors.blue]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.coachIconBox}>
-              <IconBolt size={20} color="#fff" />
-            </LinearGradient>
+            <View style={styles.coachIconBox}>
+              <IconBolt size={20} color={colors.ink} />
+            </View>
             <Text weight="black" style={{ fontSize: 20, marginTop: spacing.md }}>
               Je suis coach
             </Text>
@@ -63,10 +63,10 @@ export default function RoleChoice() {
               Créer ma fiche pro, mes formules et recevoir des demandes.
             </Text>
             <View style={styles.linkRow}>
-              <Text weight="black" color={colors.violet} style={{ fontSize: 13.5 }}>
+              <Text weight="black" color={colors.ink} style={{ fontSize: 13.5 }}>
                 Ouvrir mon espace
               </Text>
-              <IconChevronRight size={15} color={colors.violet} />
+              <IconChevronRight size={15} color={colors.ink} />
             </View>
           </View>
         </Pressable>
@@ -79,6 +79,6 @@ const styles = StyleSheet.create({
   wrap: { flex: 1, padding: spacing.xl, paddingTop: spacing.xl },
   card: { borderRadius: radius.xxl, padding: spacing.xl, overflow: 'hidden' },
   coachCard: { backgroundColor: '#fff', borderWidth: 1.5, borderColor: colors.border },
-  coachIconBox: { width: 40, height: 40, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
+  coachIconBox: { width: 40, height: 40, borderRadius: 12, backgroundColor: colors.bgTint2, alignItems: 'center', justifyContent: 'center' },
   linkRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: spacing.md },
 });

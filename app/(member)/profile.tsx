@@ -78,7 +78,7 @@ export default function Profile() {
 
           <View style={styles.countersRow}>
             <Tap onPress={() => router.push('/requests')} style={[styles.counterCard, shadow.soft]}>
-              <Text weight="black" color={colors.pink} style={{ fontSize: 22 }}>
+              <Text weight="black" color={colors.ink} style={{ fontSize: 22 }}>
                 {bookings.length}
               </Text>
               <Text weight="extrabold" color={colors.textMuted} style={{ fontSize: 11.5, marginTop: 2 }}>
@@ -86,7 +86,7 @@ export default function Profile() {
               </Text>
             </Tap>
             <Tap onPress={() => router.push('/(member)/favorites')} style={[styles.counterCard, shadow.soft]}>
-              <Text weight="black" color={colors.violet} style={{ fontSize: 22 }}>
+              <Text weight="black" color={colors.ink} style={{ fontSize: 22 }}>
                 {favGyms.length + favCoaches.length}
               </Text>
               <Text weight="extrabold" color={colors.textMuted} style={{ fontSize: 11.5, marginTop: 2 }}>
@@ -99,21 +99,21 @@ export default function Profile() {
             <Row
               label="Mes demandes"
               badge={bookings.length}
-              tint={colors.equipBg}
-              iconColor={colors.pink}
+              tint={colors.bgTint2}
+              iconColor={colors.ink}
               icon="▤"
               onPress={() => router.push('/requests')}
             />
-            <Row label="Modifier mon profil" tint={colors.bgTint2} iconColor={colors.violet} icon="✎" onPress={() => setEditOpen(true)} />
+            <Row label="Modifier mon profil" tint={colors.bgTint2} iconColor={colors.ink} icon="✎" onPress={() => setEditOpen(true)} />
             <Row
               label="Notifications"
               badge={unread}
-              tint="#EEF0FF"
-              iconColor={colors.blue}
-              icon={<IconBell size={15} color={colors.blue} />}
+              tint={colors.bgTint2}
+              iconColor={colors.ink}
+              icon={<IconBell size={15} color={colors.ink} />}
               onPress={() => router.push('/notifications')}
             />
-            <Row label="Réglages" tint={colors.bgTint} iconColor={colors.textMuted} icon="⚙" onPress={() => router.push('/settings')} />
+            <Row label="Réglages" tint={colors.bgTint2} iconColor={colors.ink} icon="⚙" onPress={() => router.push('/settings')} />
           </View>
         </View>
       </ScrollView>
@@ -205,7 +205,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 12,
-    backgroundColor: 'rgba(139,92,255,0.35)',
+    backgroundColor: 'rgba(255,31,107,0.35)',
     alignItems: 'center',
     justifyContent: 'center',
   },

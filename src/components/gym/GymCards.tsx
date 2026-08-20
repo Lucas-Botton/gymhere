@@ -72,7 +72,7 @@ export function GymCardFeatured({ gym }: { gym: Gym }) {
             <Text weight="bold" color={colors.textMuted} style={{ fontSize: 12.5, marginTop: spacing.sm }}>
               {gym.priceFrom != null ? (
                 <>
-                  dès <Text weight="black" color={colors.ink} style={{ fontSize: 21 }}>{gym.priceFrom}€</Text>/mois
+                  dès <Text weight="black" color={colors.pink} style={{ fontSize: 21 }}>{gym.priceFrom}€</Text>/mois
                 </>
               ) : (
                 'Tarifs sur place'
@@ -108,7 +108,7 @@ export function GymCardCompact({ gym }: { gym: Gym }) {
           ))}
         </View>
       </View>
-      <Text weight="black" color={gym.priceFrom != null ? colors.ink : colors.textLight} style={{ fontSize: gym.priceFrom != null ? 19 : 10.5 }}>
+      <Text weight="black" color={gym.priceFrom != null ? colors.pink : colors.textLight} style={{ fontSize: gym.priceFrom != null ? 19 : 10.5 }}>
         {gym.priceFrom != null ? `${gym.priceFrom}€` : 'Sur place'}
       </Text>
     </Tap>
@@ -141,7 +141,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: spacing.sm,
     right: spacing.sm,
-    backgroundColor: colors.blue,
+    backgroundColor: colors.ink,
     paddingHorizontal: 9,
     paddingVertical: 5,
     borderRadius: radius.pill,

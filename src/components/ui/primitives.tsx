@@ -33,10 +33,13 @@ export function Chip({
   );
 }
 
+// Category/descriptive labels carry no color of their own (gymhere color
+// logic: a hue only ever means "brand/action" or "status" — everything
+// else, including category tags, is neutral ink/grey).
 export function Tag({ label }: { label: string }) {
   return (
     <View style={styles.tag}>
-      <Text weight="extrabold" color={colors.tagText} style={{ fontSize: 11 }}>
+      <Text weight="extrabold" color={colors.textMuted} style={{ fontSize: 11 }}>
         {label}
       </Text>
     </View>
@@ -45,8 +48,8 @@ export function Tag({ label }: { label: string }) {
 
 export function EquipBadge({ label }: { label: string }) {
   return (
-    <View style={[styles.tag, { backgroundColor: colors.equipBg }]}>
-      <Text weight="extrabold" color={colors.equipText} style={{ fontSize: 11 }}>
+    <View style={styles.tag}>
+      <Text weight="extrabold" color={colors.textMuted} style={{ fontSize: 11 }}>
         {label}
       </Text>
     </View>
@@ -68,10 +71,10 @@ export function VerifiedPill({ verified }: { verified: boolean }) {
     <View
       style={[
         styles.pill,
-        verified ? { backgroundColor: colors.successBg, borderColor: colors.successBorder } : { backgroundColor: colors.bgTint, borderColor: colors.border },
+        verified ? { backgroundColor: colors.successBg, borderColor: colors.successBorder } : { backgroundColor: colors.warningBg, borderColor: 'transparent' },
       ]}
     >
-      <Text weight="extrabold" color={verified ? colors.successDeep : colors.textMuted} style={{ fontSize: 10.5 }}>
+      <Text weight="extrabold" color={verified ? colors.successDeep : colors.warning} style={{ fontSize: 10.5 }}>
         {verified ? 'Vérifié ✓' : 'En attente ⏳'}
       </Text>
     </View>
@@ -168,7 +171,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   tag: {
-    backgroundColor: colors.tagBg,
+    backgroundColor: colors.bgTint2,
     paddingHorizontal: 9,
     paddingVertical: 4,
     borderRadius: radius.pill,

@@ -49,7 +49,7 @@ export default function SearchOverlay({ visible, onClose }: { visible: boolean; 
               <View style={styles.chipsWrap}>
                 {POPULAR_EQUIPMENT.map((e) => (
                   <Pressable key={e} onPress={() => setQuery(e)} style={styles.suggestChip}>
-                    <Text weight="extrabold" color={colors.equipText} style={{ fontSize: 12.5 }}>
+                    <Text weight="extrabold" color={colors.textMuted} style={{ fontSize: 12.5 }}>
                       {e}
                     </Text>
                   </Pressable>
@@ -61,7 +61,7 @@ export default function SearchOverlay({ visible, onClose }: { visible: boolean; 
               <View style={styles.chipsWrap}>
                 {POPULAR_ZONES.map((z) => (
                   <Pressable key={z} onPress={() => setQuery(z)} style={styles.suggestChipAlt}>
-                    <Text weight="extrabold" color={colors.tagText} style={{ fontSize: 12.5 }}>
+                    <Text weight="extrabold" color={colors.textMuted} style={{ fontSize: 12.5 }}>
                       {z}
                     </Text>
                   </Pressable>
@@ -116,8 +116,8 @@ const styles = StyleSheet.create({
   input: { flex: 1, fontFamily: 'Nunito_700Bold', fontSize: 14, color: colors.ink },
   closeBtn: { width: 36, height: 36, borderRadius: 18, backgroundColor: colors.bgTint, alignItems: 'center', justifyContent: 'center' },
   chipsWrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  suggestChip: { backgroundColor: colors.equipBg, paddingHorizontal: 12, paddingVertical: 9, borderRadius: radius.pill },
-  suggestChipAlt: { backgroundColor: colors.tagBg, paddingHorizontal: 12, paddingVertical: 9, borderRadius: radius.pill },
+  suggestChip: { backgroundColor: colors.bgTint2, paddingHorizontal: 12, paddingVertical: 9, borderRadius: radius.pill },
+  suggestChipAlt: { backgroundColor: colors.bgTint2, paddingHorizontal: 12, paddingVertical: 9, borderRadius: radius.pill },
   resultRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, paddingVertical: spacing.sm },
   resultPhoto: { width: 52, height: 52, borderRadius: radius.md },
 });

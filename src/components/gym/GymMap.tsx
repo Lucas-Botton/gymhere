@@ -299,7 +299,7 @@ const styles = StyleSheet.create({
     borderTopColor: '#fff',
     marginTop: -1,
   },
-  tailAccent: { borderTopColor: colors.violet },
+  tailAccent: { borderTopColor: colors.pink },
   card: {
     position: 'absolute',
     left: spacing.md,

@@ -46,7 +46,7 @@ export default function Requests() {
               <View style={{ flexDirection: 'row', gap: spacing.sm, marginTop: spacing.md }}>
                 {canReview ? (
                   <Pressable onPress={() => setReviewBooking(item)} style={styles.actionBtn}>
-                    <Text weight="extrabold" color={colors.pink} style={{ fontSize: 12.5 }}>
+                    <Text weight="extrabold" color={colors.ink} style={{ fontSize: 12.5 }}>
                       Laisser un avis
                     </Text>
                   </Pressable>
@@ -59,7 +59,7 @@ export default function Requests() {
                     }}
                     style={styles.actionBtn}
                   >
-                    <Text weight="extrabold" color={colors.violet} style={{ fontSize: 12.5 }}>
+                    <Text weight="extrabold" color={colors.ink} style={{ fontSize: 12.5 }}>
                       Envoyer un message
                     </Text>
                   </Pressable>
@@ -108,6 +108,6 @@ function kindLabel(kind: Booking['kind']) {
 
 const styles = StyleSheet.create({
   card: { backgroundColor: '#fff', borderRadius: radius.lg, padding: spacing.md, marginBottom: spacing.md },
-  actionBtn: { backgroundColor: colors.bgTint, paddingHorizontal: 12, paddingVertical: 8, borderRadius: radius.pill },
+  actionBtn: { backgroundColor: '#fff', borderWidth: 1.5, borderColor: colors.border, paddingHorizontal: 12, paddingVertical: 8, borderRadius: radius.pill },
   empty: { alignItems: 'center', marginTop: spacing.xxl * 2, paddingHorizontal: spacing.xl },
 });

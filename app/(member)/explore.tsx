@@ -131,7 +131,7 @@ export default function Explore() {
       <View style={{ paddingHorizontal: spacing.lg, paddingBottom: spacing.sm }}>
         <Tap onPress={() => router.push('/compare')} style={[styles.compareBtn, shadow.soft]}>
           <Text style={{ fontSize: 15 }}>⇄</Text>
-          <Text weight="extrabold" color={colors.violet} style={{ fontSize: 13.5 }}>
+          <Text weight="extrabold" color={colors.ink} style={{ fontSize: 13.5 }}>
             Comparer les salles côte à côte
           </Text>
         </Tap>
@@ -248,9 +248,9 @@ const styles = StyleSheet.create({
     gap: 9,
     borderRadius: radius.lg,
     paddingVertical: 13,
-    backgroundColor: colors.tagBg,
+    backgroundColor: '#fff',
     borderWidth: 1.5,
-    borderColor: 'rgba(200,31,255,0.22)',
+    borderColor: colors.border,
   },
   searchBar: {
     flexDirection: 'row',

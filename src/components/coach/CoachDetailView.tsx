@@ -21,6 +21,14 @@ import { useReportSheet } from '../../store/report';
 import { bookingActionVerb } from '../../lib/booking-config';
 import { Coach, ServiceKey } from '../../types';
 
+// Session formats are told apart by icon, not color (gymhere color logic:
+// category info is neutral — only brand/action and status carry a hue).
+const MODE_ICON: Record<string, string> = {
+  'En ligne': '💻',
+  Présentiel: '📍',
+  Visio: '🎥',
+};
+
 const SOCIAL_META: Record<string, { label: string; bg: string }> = {
   instagram: { label: 'Instagram', bg: '#DD2A7B' },
   tiktok: { label: 'TikTok', bg: '#140E1F' },
@@ -146,7 +154,7 @@ export default function CoachDetailView({ coach, previewMode = false }: { coach:
               <View style={styles.modalitiesWrap}>
                 {coach.modalities.map((m) => (
                   <View key={m} style={styles.modalityPill}>
-                    <Text weight="extrabold" color={colors.tagText} style={{ fontSize: 12 }}>
+                    <Text weight="extrabold" color={colors.textMuted} style={{ fontSize: 12 }}>
                       {m}
                     </Text>
                   </View>
@@ -181,10 +189,10 @@ export default function CoachDetailView({ coach, previewMode = false }: { coach:
                           ) : null}
                         </View>
                         <Text weight="bold" color={colors.textMuted} style={{ fontSize: 11.5, marginTop: 3 }}>
-                          {o.mode} · {o.duration}
+                          {MODE_ICON[o.mode] ?? ''} {o.mode} · {o.duration}
                         </Text>
                       </View>
-                      <Text weight="black" style={{ fontSize: 15 }}>
+                      <Text weight="black" color={colors.pink} style={{ fontSize: 15 }}>
                         {o.price}
                         <Text weight="bold" color={colors.textMuted} style={{ fontSize: 11 }}>
                           {o.per}
@@ -211,9 +219,9 @@ export default function CoachDetailView({ coach, previewMode = false }: { coach:
             <>
               <SectionTitle>Diplômes & certifications</SectionTitle>
               {coach.diplomas.length > 0 ? (
-                <View style={[styles.credBlock, { backgroundColor: colors.indigoBg }]}>
-                  <Text weight="extrabold" color={colors.indigoText} style={{ fontSize: 12, marginBottom: 8 }}>
-                    Diplômes d’État
+                <View style={styles.credBlock}>
+                  <Text weight="extrabold" color={colors.ink} style={{ fontSize: 12, marginBottom: 8 }}>
+                    🎓 Diplômes d’État
                   </Text>
                   {coach.diplomas.map((d) => (
                     <View key={d.label} style={styles.credRow}>
@@ -226,9 +234,9 @@ export default function CoachDetailView({ coach, previewMode = false }: { coach:
                 </View>
               ) : null}
               {coach.certifs.length > 0 ? (
-                <View style={[styles.credBlock, { backgroundColor: colors.warningBg, marginTop: spacing.sm }]}>
-                  <Text weight="extrabold" color={colors.warning} style={{ fontSize: 12, marginBottom: 8 }}>
-                    Certifications
+                <View style={[styles.credBlock, { marginTop: spacing.sm }]}>
+                  <Text weight="extrabold" color={colors.ink} style={{ fontSize: 12, marginBottom: 8 }}>
+                    🛡️ Certifications
                   </Text>
                   {coach.certifs.map((c) => (
                     <View key={c.label} style={styles.credRow}>
@@ -342,10 +350,10 @@ const styles = StyleSheet.create({
   body: { padding: spacing.lg },
   tagsRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 8 },
   modalitiesWrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  modalityPill: { backgroundColor: colors.tagBg, paddingHorizontal: 12, paddingVertical: 8, borderRadius: radius.pill },
+  modalityPill: { backgroundColor: colors.bgTint2, paddingHorizontal: 12, paddingVertical: 8, borderRadius: radius.pill },
   offer: { borderWidth: 1.5, borderColor: colors.border, borderRadius: radius.lg, padding: spacing.md, marginBottom: spacing.sm },
   recoTag: { backgroundColor: colors.pink, paddingHorizontal: 7, paddingVertical: 3, borderRadius: radius.pill },
-  credBlock: { backgroundColor: colors.successBg, borderRadius: radius.lg, padding: spacing.md },
+  credBlock: { backgroundColor: colors.bgTint, borderRadius: radius.lg, padding: spacing.md },
   credRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: 6 },
   socialBtn: { flex: 1, borderRadius: radius.md, padding: spacing.md },
   gymChip: { backgroundColor: '#fff', borderRadius: radius.pill, paddingHorizontal: 16, paddingVertical: 12, marginRight: spacing.sm },

@@ -61,7 +61,7 @@ export default function EquipmentTabs({ groups, initialGroup }: { groups: Equipm
               </Text>
             </View>
             <View style={styles.qtyPill}>
-              <Text weight="black" color={colors.equipText} style={{ fontSize: 12.5 }}>
+              <Text weight="black" color={colors.textMuted} style={{ fontSize: 12.5 }}>
                 ×{it.qty}
               </Text>
             </View>
@@ -85,7 +85,7 @@ const styles = StyleSheet.create({
   tabInactive: { backgroundColor: '#fff', borderWidth: 1.5, borderColor: colors.border },
   list: { backgroundColor: colors.bgTint, borderRadius: radius.lg, paddingHorizontal: spacing.md },
   row: { flexDirection: 'row', alignItems: 'center', paddingVertical: spacing.md, borderBottomWidth: 1, borderBottomColor: colors.border },
-  iconDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: colors.pink },
-  qtyPill: { backgroundColor: colors.equipBg, paddingHorizontal: 10, paddingVertical: 5, borderRadius: radius.pill },
+  iconDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: colors.border },
+  qtyPill: { backgroundColor: colors.bgTint2, paddingHorizontal: 10, paddingVertical: 5, borderRadius: radius.pill },
   moreBtn: { alignItems: 'center', paddingVertical: spacing.md },
 });
