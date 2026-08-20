@@ -39,7 +39,7 @@ export interface GymFormula {
 // so members know what they're walking into before they even open the
 // fiche. Kept as a closed set (rather than free text) so every gym stays
 // classified consistently.
-export type GymCategory = 'salle' | 'independante' | 'studio' | 'musculation' | 'feminin' | 'crossfit' | 'hyrox';
+export type GymCategory = 'salle' | 'independante' | 'studio' | 'halterophilie' | 'feminin' | 'crossfit' | 'hyrox';
 
 export interface Gym {
   id: string;

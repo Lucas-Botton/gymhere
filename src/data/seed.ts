@@ -15,7 +15,7 @@ export const GYM_CATEGORY_LABELS: Record<GymCategory, string> = {
   salle: 'Salle de sport',
   independante: 'Salle de sport indépendante',
   studio: 'Studio de coaching',
-  musculation: 'Club de musculation',
+  halterophilie: 'Club d’haltérophilie',
   feminin: 'Salle 100% féminine',
   crossfit: 'Box de CrossFit',
   hyrox: 'Salle HYROX',
@@ -383,7 +383,7 @@ const RAW_GYMS: Omit<Gym, 'distanceKm'>[] = [
     services: [], formulas: [], groups: [], coachIds: [], gallery: PHOTOS.slice(),
   },
   {
-    id: 'haltero-club-lyonnais', name: 'Haltéro Club Lyonnais', category: 'musculation', certified: false, sponsored: false,
+    id: 'haltero-club-lyonnais', name: 'Haltéro Club Lyonnais', category: 'halterophilie', certified: false, sponsored: false,
     photo: PHOTOS[1], tags: ['Powerlifting', 'Club historique'],
     address: '53 Rue de Belfort, 4e', quartier: 'Croix-Rousse', lat: 45.775, lng: 4.829,
     hours: '7j/7 7h–23h', hoursColor: '#140E1F', hoursSub: 'Badge d’accès',
