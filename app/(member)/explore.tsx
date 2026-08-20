@@ -114,7 +114,7 @@ export default function Explore() {
           style={[
             styles.pillBtn,
             styles.pillBtnGoal,
-            activeGoal && { backgroundColor: activeGoal.colors[0] + '1A', borderColor: activeGoal.colors[0] },
+            activeGoal && { backgroundColor: colors.pink + '1A', borderColor: colors.pink },
           ]}
           hitSlop={4}
         >
@@ -176,8 +176,7 @@ export default function Explore() {
               {activeGoal && recoGyms.length > 0 ? (
                 <View style={{ marginBottom: spacing.lg }}>
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 7, marginBottom: spacing.sm }}>
-                    <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: activeGoal.colors[0] }} />
-                    <Text weight="black" color={activeGoal.colors[0]} style={{ fontSize: 15.5 }}>
+                    <Text weight="black" color={colors.ink} style={{ fontSize: 15.5 }}>
                       {activeGoal.emoji} Pour ton objectif
                     </Text>
                   </View>

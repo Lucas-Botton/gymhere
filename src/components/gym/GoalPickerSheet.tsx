@@ -25,7 +25,7 @@ export default function GoalPickerSheet({ visible, onClose }: { visible: boolean
                 setGoal(g.key);
                 onClose();
               }}
-              style={[styles.row, active && { backgroundColor: g.colors[0], borderColor: g.colors[0] }]}
+              style={[styles.row, active && { backgroundColor: colors.pink, borderColor: colors.pink }]}
             >
               <Text style={{ fontSize: 22 }}>{g.emoji}</Text>
               <Text weight="extrabold" color={active ? '#fff' : colors.ink} style={{ fontSize: 14.5, flex: 1, marginLeft: spacing.md }}>

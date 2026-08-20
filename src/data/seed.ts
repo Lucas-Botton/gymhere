@@ -11,14 +11,12 @@ export const ME_LOCATION = { lat: 45.76, lng: 4.83 };
 // Personalization only ever RE-ORDERS results, never filters — but since we
 // don't have equipment data for real gyms yet, there's no honest basis to
 // recommend specific ones per objective. Left empty until that data exists.
-// Color-blocking per objectif (DESIGN-V2-SPECS.md §6.1): each goal carries
-// its own accent, used on its banner/reco row and its chip when active.
 export const GOALS: Goal[] = [
-  { key: 'masse', label: 'Prise de masse', emoji: '💪', gymIds: [], specs: ['Prise de masse', 'Force athlétique', 'Transformation physique'], colors: ['#FF1F6B', '#FF1F6B'] },
-  { key: 'perte', label: 'Perte de poids', emoji: '🔥', gymIds: [], specs: ['Perte de poids', 'Transformation physique'], colors: ['#FF1F6B', '#C6FF3D'] },
-  { key: 'hyrox', label: 'HYROX / Cross-training', emoji: '⚡', gymIds: [], specs: ['HYROX', 'Cross-training', 'Prépa physique'], colors: ['#C81FFF', '#C81FFF'] },
-  { key: 'force', label: 'Force athlétique', emoji: '🏋️', gymIds: [], specs: ['Force athlétique', 'Prise de masse'], colors: ['#4D5BFF', '#4D5BFF'] },
-  { key: 'forme', label: 'Remise en forme', emoji: '✨', gymIds: [], specs: ['Perte de poids', 'Sport santé'], colors: ['#00E5C0', '#00E5C0'] },
+  { key: 'masse', label: 'Prise de masse', emoji: '💪', gymIds: [], specs: ['Prise de masse', 'Force athlétique', 'Transformation physique'] },
+  { key: 'perte', label: 'Perte de poids', emoji: '🔥', gymIds: [], specs: ['Perte de poids', 'Transformation physique'] },
+  { key: 'hyrox', label: 'HYROX / Cross-training', emoji: '⚡', gymIds: [], specs: ['HYROX', 'Cross-training', 'Prépa physique'] },
+  { key: 'force', label: 'Force athlétique', emoji: '🏋️', gymIds: [], specs: ['Force athlétique', 'Prise de masse'] },
+  { key: 'forme', label: 'Remise en forme', emoji: '✨', gymIds: [], specs: ['Perte de poids', 'Sport santé'] },
 ];
 
 export const MUSCLES = ['Pectoraux', 'Dos', 'Épaules', 'Biceps', 'Triceps', 'Quadriceps', 'Ischios', 'Fessiers', 'Mollets', 'Abdos/Core', 'Cardio', 'Fonctionnel'];
