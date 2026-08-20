@@ -445,6 +445,10 @@ const RAW_GYMS: Omit<Gym, 'distanceKm'>[] = [
   // by-appointment by design (20-25 min, one-on-one), so "Sur
   // rendez-vous" is the honest hours label rather than a guessed
   // schedule for the studios where specific hours weren't confirmed.
+  // Re-checked: BodyHit Lyon 4 Croix-Rousse, Lyon 2 Confluence and Lyon 6
+  // Brotteaux have each closed (bodyhit.fr itself shows a "Fermeture
+  // club" page for all three) — only Bellecour is still listed as an
+  // active club, so that's the only BodyHit kept here.
   {
     id: 'bodyhit-bellecour', name: 'BodyHit Lyon Bellecour', category: 'ems', certified: false, sponsored: false,
     photo: PHOTOS[0], tags: ['Électrostimulation', 'Coaching individuel'],
@@ -454,34 +458,10 @@ const RAW_GYMS: Omit<Gym, 'distanceKm'>[] = [
     services: [], formulas: [], groups: [], coachIds: [], gallery: PHOTOS.slice(),
   },
   {
-    id: 'bodyhit-croixrousse', name: 'BodyHit Lyon Croix-Rousse', category: 'ems', certified: false, sponsored: false,
-    photo: PHOTOS[1], tags: ['Électrostimulation', 'Coaching individuel'],
-    address: '1 Place Commandant Arnaud, 4e', quartier: 'Croix-Rousse', lat: 45.774, lng: 4.826,
-    hours: 'Sur rendez-vous', hoursColor: '#140E1F', hoursSub: '',
-    website: 'https://bodyhit.fr',
-    services: [], formulas: [], groups: [], coachIds: [], gallery: PHOTOS.slice(),
-  },
-  {
-    id: 'bodyhit-confluence', name: 'BodyHit Lyon Confluence', category: 'ems', certified: false, sponsored: false,
-    photo: PHOTOS[2], tags: ['Électrostimulation', 'Coaching individuel'],
-    address: '4 Rue Charles Baudelaire, 2e', quartier: 'Confluence', lat: 45.739, lng: 4.817,
-    hours: 'Sur rendez-vous', hoursColor: '#140E1F', hoursSub: '',
-    website: 'https://bodyhit.fr',
-    services: [], formulas: [], groups: [], coachIds: [], gallery: PHOTOS.slice(),
-  },
-  {
-    id: 'bodyhit-brotteaux', name: 'BodyHit Lyon Brotteaux', category: 'ems', certified: false, sponsored: false,
-    photo: PHOTOS[3], tags: ['Électrostimulation', 'Coaching individuel'],
-    address: '114 bis Rue de Sèze, 6e', quartier: 'Brotteaux', lat: 45.766, lng: 4.849,
-    hours: 'Lun–Ven 8h–14h, 17h–21h', hoursColor: '#140E1F', hoursSub: 'Sam 11h–16h · Dim fermé',
-    phone: '06 21 26 25 22', website: 'https://bodyhit.fr',
-    services: [], formulas: [], groups: [], coachIds: [], gallery: PHOTOS.slice(),
-  },
-  {
     id: 'ironbodyfit-partdieu', name: 'Iron Bodyfit Lyon Part-Dieu', category: 'ems', certified: false, sponsored: false,
     photo: PHOTOS[0], tags: ['Électrostimulation', 'Coaching individuel'],
     address: '140 Cours Lafayette, 3e', quartier: 'Part-Dieu', lat: 45.761, lng: 4.851,
-    hours: 'Sur rendez-vous', hoursColor: '#140E1F', hoursSub: '',
+    hours: 'Lun–Ven 10h30–14h, 16h30–20h', hoursColor: '#140E1F', hoursSub: 'Sam 9h–13h · Dim fermé',
     phone: '07 69 83 76 95', website: 'https://ironbodyfit-lyon.fr',
     services: [], formulas: [], groups: [], coachIds: [], gallery: PHOTOS.slice(),
   },
@@ -491,6 +471,23 @@ const RAW_GYMS: Omit<Gym, 'distanceKm'>[] = [
     address: '61 Allée d’Italie, 7e', quartier: 'Gerland', lat: 45.729, lng: 4.828,
     hours: 'Sur rendez-vous', hoursColor: '#140E1F', hoursSub: '',
     website: 'https://ironbodyfit.com',
+    services: [], formulas: [], groups: [], coachIds: [], gallery: PHOTOS.slice(),
+  },
+  {
+    // Owner-confirmed: shares Gymnass's address (co-located).
+    id: 'ironbodyfit-vaise', name: 'Iron Bodyfit Lyon Vaise', category: 'ems', certified: false, sponsored: false,
+    photo: PHOTOS[2], tags: ['Électrostimulation', 'Coaching individuel'],
+    address: '24 Rue Laporte, 9e', quartier: 'Vaise', lat: 45.7716, lng: 4.8032,
+    hours: 'Sur rendez-vous', hoursColor: '#140E1F', hoursSub: '',
+    website: 'https://ironbodyfit.com',
+    services: [], formulas: [], groups: [], coachIds: [], gallery: PHOTOS.slice(),
+  },
+  {
+    id: 'vo2max', name: 'Vo2 Max', category: 'independante', certified: false, sponsored: false,
+    photo: PHOTOS[3], tags: ['Musculation', 'Cross-training'],
+    address: '9 Avenue Leclerc, 7e', quartier: 'Jean Macé', lat: 45.744, lng: 4.843,
+    hours: 'Ouvert 7j/7', hoursColor: '#0E9E86', hoursSub: '',
+    phone: '04 37 28 90 14', website: 'https://vo2max-lyon.com',
     services: [], formulas: [], groups: [], coachIds: [], gallery: PHOTOS.slice(),
   },
 ];
