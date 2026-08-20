@@ -11,7 +11,6 @@ import Animated, {
   withDelay,
   withRepeat,
   withSequence,
-  interpolate,
   Easing,
   runOnJS,
 } from 'react-native-reanimated';
@@ -73,29 +72,15 @@ function AnimatedCounter({ target, reduceMotion }: { target: number; reduceMotio
   );
 }
 
-function GymPin({ delay, reduceMotion }: { delay: number; reduceMotion: boolean }) {
-  const enter = useSharedValue(reduceMotion ? 1 : 0);
-  const haloScale = useSharedValue(1);
-  const haloOpacity = useSharedValue(0.55);
-
-  useEffect(() => {
-    if (reduceMotion) return;
-    enter.value = withDelay(delay, withTiming(1, { duration: 380, easing: Easing.out(Easing.cubic) }));
-    const haloDelay = delay + 380;
-    haloScale.value = withDelay(haloDelay, withRepeat(withSequence(withTiming(1, { duration: 0 }), withTiming(3, { duration: 2400, easing: Easing.out(Easing.ease) })), -1, false));
-    haloOpacity.value = withDelay(haloDelay, withRepeat(withSequence(withTiming(0.55, { duration: 0 }), withTiming(0, { duration: 2400, easing: Easing.out(Easing.ease) })), -1, false));
-  }, [reduceMotion]);
-
-  const dotStyle = useAnimatedStyle(() => ({
-    opacity: enter.value,
-    transform: [{ translateY: interpolate(enter.value, [0, 1], [-14, 0]) }, { scale: interpolate(enter.value, [0, 1], [0.6, 1]) }],
-  }));
-  const haloStyle = useAnimatedStyle(() => ({ opacity: haloOpacity.value, transform: [{ scale: haloScale.value }] }));
-
+// Deliberately NOT animated: react-native-maps snapshots a Marker's
+// children to composite them onto the native map, and that snapshot
+// mechanism doesn't reliably pick up Reanimated's UI-thread-driven style
+// updates — the pin/halo entrance never actually appeared on device, it
+// just rendered nothing. A plain static view is what actually shows up.
+function GymPin() {
   return (
     <View style={styles.pinWrap}>
-      <Animated.View style={[styles.pinHalo, haloStyle]} pointerEvents="none" />
-      <Animated.View style={[styles.pinDot, dotStyle]} />
+      <View style={styles.pinDot} />
     </View>
   );
 }
@@ -114,8 +99,10 @@ function MeOverlay({ reduceMotion }: { reduceMotion: boolean }) {
 
     floatY.value = withRepeat(withSequence(withTiming(-4, { duration: 1300, easing: Easing.inOut(Easing.sin) }), withTiming(4, { duration: 1300, easing: Easing.inOut(Easing.sin) })), -1, true);
 
-    // Radar sector: 1.5 turns, then fades.
-    sectorRotate.value = withTiming(540, { duration: 1300, easing: Easing.out(Easing.cubic) });
+    // Radar sector: 1.5 turns at a constant sweep speed, then fades. A
+    // decelerating easing here read as "spins fast then freezes" — a
+    // sweep needs even angular speed, so this one stays linear.
+    sectorRotate.value = withTiming(540, { duration: 1300, easing: Easing.linear });
     sectorOpacity.value = withDelay(1300, withTiming(0, { duration: 400 }));
 
     // Two concentric pulses, staggered.
@@ -170,9 +157,7 @@ export default function OnboardingMap() {
     };
   }, []);
 
-  const gymsShown = GYMS.filter((g) => g.priceFrom != null)
-    .slice(0, 8)
-    .sort((a, b) => a.distanceKm - b.distanceKm);
+  const gymsShown = GYMS.filter((g) => g.priceFrom != null).slice(0, 8);
 
   return (
     <View style={styles.mapCard}>
@@ -187,9 +172,9 @@ export default function OnboardingMap() {
         rotateEnabled={false}
         pitchEnabled={false}
       >
-        {gymsShown.map((g, i) => (
-          <Marker key={g.id} coordinate={{ latitude: g.lat, longitude: g.lng }} anchor={{ x: 0.5, y: 0.5 }} tracksViewChanges={!reduceMotion}>
-            <GymPin delay={300 + i * 120} reduceMotion={reduceMotion} />
+        {gymsShown.map((g) => (
+          <Marker key={g.id} coordinate={{ latitude: g.lat, longitude: g.lng }} anchor={{ x: 0.5, y: 0.5 }} tracksViewChanges={false}>
+            <GymPin />
           </Marker>
         ))}
       </MapView>
@@ -228,7 +213,6 @@ const styles = StyleSheet.create({
   badgeDotRing: { position: 'absolute', width: 10, height: 10, borderRadius: 5, backgroundColor: PIN_MINT },
   badgeDotCore: { width: 7, height: 7, borderRadius: 3.5, backgroundColor: PIN_MINT },
   pinWrap: { width: 18, height: 18, alignItems: 'center', justifyContent: 'center' },
-  pinHalo: { position: 'absolute', width: 18, height: 18, borderRadius: 9, borderWidth: 1.5, borderColor: PIN_MINT },
   pinDot: {
     width: 18,
     height: 18,
