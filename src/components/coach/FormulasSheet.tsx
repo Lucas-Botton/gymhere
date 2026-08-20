@@ -65,6 +65,11 @@ export default function FormulasSheet({ visible, onClose }: { visible: boolean; 
             <Chip key={m} label={m} active={mode === m} onPress={() => setMode(m)} />
           ))}
         </View>
+        <Text weight="semibold" color={colors.textLight} style={{ fontSize: 11, marginTop: 6, lineHeight: 15 }}>
+          {mode === 'En ligne'
+            ? 'En ligne : pas de créneau à fixer, le client démarre dès validation.'
+            : 'Présentiel et Visio auront leurs créneaux dans "Mes disponibilités".'}
+        </Text>
         <TextInput
           value={desc}
           onChangeText={setDesc}

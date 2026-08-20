@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { View, StyleSheet, TextInput, Pressable, ScrollView } from 'react-native';
 import BottomSheet from '../ui/BottomSheet';
 import Text from '../ui/Text';
@@ -7,35 +7,70 @@ import { Chip } from '../ui/primitives';
 import { colors, radius, spacing } from '../../theme';
 import { useApp } from '../../store/app';
 import { useKeyboardScrollFix } from '../../lib/useKeyboardScrollFix';
-import { ServiceKey, WeekDay } from '../../types';
+import { SlotMode, WeekDay } from '../../types';
 
-const SERVICES: ServiceKey[] = ['Présentiel salle', 'Visio', 'Téléphone'];
 const DAYS: WeekDay[] = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
 
 export default function AvailabilitySheet({ visible, onClose }: { visible: boolean; onClose: () => void }) {
+  const offers = useApp((s) => s.coachDraft.offers);
   const availability = useApp((s) => s.coachDraft.availability);
   const addSlot = useApp((s) => s.addSlot);
   const removeSlot = useApp((s) => s.removeSlot);
-  const [service, setService] = useState<ServiceKey>('Présentiel salle');
+  const [service, setService] = useState<SlotMode | null>(null);
   const [day, setDay] = useState<WeekDay>('Lun');
   const [from, setFrom] = useState('18:00');
   const [to, setTo] = useState('20:00');
   const kb = useKeyboardScrollFix();
 
-  const daySlots = availability[service]?.[day] ?? [];
+  // Only the modes a formule actually uses show up here — no point letting
+  // a coach set "Visio" slots if nothing they offer happens by video, and
+  // "En ligne" never needs a calendar at all (it's request-based).
+  const usedModes = useMemo(() => {
+    const set = new Set<SlotMode>();
+    offers.forEach((o) => {
+      if (o.mode !== 'En ligne') set.add(o.mode as SlotMode);
+    });
+    return [...set];
+  }, [offers]);
+
+  useEffect(() => {
+    if (visible && (!service || !usedModes.includes(service))) {
+      setService(usedModes[0] ?? null);
+    }
+  }, [visible, usedModes]);
+
+  const daySlots = service ? availability[service]?.[day] ?? [] : [];
+
+  if (usedModes.length === 0) {
+    return (
+      <BottomSheet visible={visible} onClose={onClose} title="Mes disponibilités">
+        <View style={{ paddingHorizontal: spacing.xl, paddingBottom: spacing.xl, alignItems: 'center' }}>
+          <Text style={{ fontSize: 32, marginBottom: spacing.sm }}>🗓️</Text>
+          <Text weight="black" style={{ fontSize: 15, textAlign: 'center' }}>
+            Ajoute d’abord une formule
+          </Text>
+          <Text weight="semibold" color={colors.textMuted} style={{ fontSize: 13, textAlign: 'center', marginTop: 6, lineHeight: 19 }}>
+            Une formule en présentiel ou en visio, pour que tu puisses lui associer des créneaux ici.
+          </Text>
+        </View>
+      </BottomSheet>
+    );
+  }
 
   return (
     <BottomSheet visible={visible} onClose={onClose} title="Mes disponibilités">
       <ScrollView {...kb.scrollProps} style={{ flex: 1, paddingHorizontal: spacing.xl }} contentContainerStyle={{ paddingBottom: kb.contentPaddingBottom(spacing.xl) }}>
-        <View style={{ flexDirection: 'row', gap: 8, marginBottom: spacing.lg }}>
-          {SERVICES.map((s) => (
-            <Chip key={s} label={s} active={service === s} onPress={() => setService(s)} />
-          ))}
-        </View>
+        {usedModes.length > 1 ? (
+          <View style={{ flexDirection: 'row', gap: 8, marginBottom: spacing.lg }}>
+            {usedModes.map((s) => (
+              <Chip key={s} label={s} active={service === s} onPress={() => setService(s)} />
+            ))}
+          </View>
+        ) : null}
 
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: spacing.md }}>
           {DAYS.map((d) => {
-            const count = availability[service]?.[d]?.length ?? 0;
+            const count = (service ? availability[service]?.[d]?.length : 0) ?? 0;
             const on = day === d;
             return (
               <Pressable key={d} onPress={() => setDay(d)} style={[styles.dayTab, on && { backgroundColor: colors.pink }]}>
@@ -60,7 +95,7 @@ export default function AvailabilitySheet({ visible, onClose }: { visible: boole
               <Text weight="extrabold" style={{ fontSize: 13.5 }}>
                 {r.from} – {r.to}
               </Text>
-              <Pressable onPress={() => removeSlot(service, day, i)}>
+              <Pressable onPress={() => service && removeSlot(service, day, i)}>
                 <Text weight="black" color={colors.danger}>
                   ✕
                 </Text>
@@ -77,7 +112,7 @@ export default function AvailabilitySheet({ visible, onClose }: { visible: boole
           <Text weight="bold">→</Text>
           <TextInput value={to} onChangeText={setTo} placeholder="20:00" placeholderTextColor={colors.textLight} style={[styles.input, { flex: 1 }]} {...kb.inputProps} />
         </View>
-        <Button label="Ajouter ce créneau" variant="outline" onPress={() => addSlot(service, day, from, to)} style={{ marginTop: spacing.md }} />
+        <Button label="Ajouter ce créneau" variant="outline" onPress={() => service && addSlot(service, day, from, to)} style={{ marginTop: spacing.md }} />
       </ScrollView>
     </BottomSheet>
   );

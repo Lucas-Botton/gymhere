@@ -12,7 +12,7 @@ import { useApp } from '../../store/app';
 import { colors, radius, spacing } from '../../theme';
 import { BOOKING_CONFIG, bookingDays } from '../../lib/booking-config';
 import { useFindCoach } from '../../lib/coaches';
-import { ServiceKey } from '../../types';
+import { SlotMode } from '../../types';
 
 const GENERIC_SLOTS = ['07:00', '09:30', '12:00', '17:30', '19:00', '20:30'];
 
@@ -46,13 +46,13 @@ export default function BookingSheet() {
   const slotsForDay = useMemo(() => {
     if (!activeDay) return [];
     if (sheet.targetType === 'coach' && sheet.serviceKey) {
-      const ranges = coach?.availability[sheet.serviceKey as ServiceKey]?.[activeDay.wk] ?? [];
+      const ranges = coach?.availability[sheet.serviceKey as SlotMode]?.[activeDay.wk] ?? [];
       return ranges.map((r) => `${r.from}–${r.to}`);
     }
     return GENERIC_SLOTS;
   }, [activeDay, coach, sheet.serviceKey, sheet.targetType]);
 
-  const canSubmit = cfg.mode === 'request' ? true : !!slot;
+  const canSubmit = sheet.mode === 'request' ? true : !!slot;
 
   const submit = () => {
     addBooking({
@@ -60,9 +60,9 @@ export default function BookingSheet() {
       targetId: sheet.targetId,
       targetName: sheet.targetName,
       kind: sheet.kind,
-      mode: cfg.mode,
-      date: cfg.mode === 'slot' ? activeDay?.iso ?? null : null,
-      slot: cfg.mode === 'slot' ? slot : null,
+      mode: sheet.mode,
+      date: sheet.mode === 'slot' ? activeDay?.iso ?? null : null,
+      slot: sheet.mode === 'slot' ? slot : null,
       message,
     });
     setDone(true);
@@ -109,7 +109,7 @@ export default function BookingSheet() {
             {sheet.serviceKey ? ` · dispos réelles du coach` : ''}
           </Text>
 
-          {cfg.mode === 'slot' ? (
+          {sheet.mode === 'slot' ? (
             <>
               <Text weight="extrabold" style={{ fontSize: 13, marginBottom: spacing.sm }}>
                 Choisis une date

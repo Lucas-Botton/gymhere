@@ -28,6 +28,13 @@ export default function MaFiche() {
   const completion = computeCompletion(draft);
   const firstName = (user?.name ?? draft.name ?? 'toi').split(' ')[0];
 
+  // Formules and disponibilités are two halves of the same thing (a
+  // formule in présentiel/visio is unbookable without matching créneaux),
+  // so flag it here rather than let a coach discover the gap via a client
+  // complaint.
+  const slotModesNeeded = [...new Set(draft.offers.filter((o) => o.mode !== 'En ligne').map((o) => o.mode as 'Présentiel' | 'Visio'))];
+  const missingAvailability = slotModesNeeded.filter((m) => !Object.values(draft.availability[m] ?? {}).some((v) => v && v.length > 0));
+
   const publishToggle = (v: boolean) => {
     if (v && coachPlan !== 'actif') {
       router.push('/coach-subscription');
@@ -128,9 +135,14 @@ export default function MaFiche() {
 
         <SectionRow label="Ma présentation" sub={draft.bio ? 'Bio, zone et spécialités renseignées' : 'Bio, photo, zone, spécialités'} onPress={() => setSheet('presentation')} />
         <SectionRow label="Mes formules" sub={`${draft.offers.length} formule${draft.offers.length !== 1 ? 's' : ''}`} onPress={() => setSheet('formulas')} />
+        <SectionRow
+          label="Mes disponibilités"
+          sub={missingAvailability.length > 0 ? `⚠️ Ajoute tes créneaux (${missingAvailability.join(', ')})` : 'Créneaux par formule et par jour'}
+          warn={missingAvailability.length > 0}
+          onPress={() => setSheet('availability')}
+        />
         <SectionRow label="Diplômes d’État" sub={`${draft.diplomas.length} diplôme${draft.diplomas.length !== 1 ? 's' : ''}`} onPress={() => setSheet('diplomas')} />
         <SectionRow label="Certifications" sub={`${draft.certifs.length} certification${draft.certifs.length !== 1 ? 's' : ''}`} onPress={() => setSheet('certifs')} />
-        <SectionRow label="Mes disponibilités" sub="Créneaux par service et par jour" onPress={() => setSheet('availability')} />
         <SectionRow label="Salles où j’interviens" sub={`${draft.gymIds.length} salle${draft.gymIds.length !== 1 ? 's' : ''}`} onPress={() => setSheet('gyms')} />
         <SectionRow label="Réseaux sociaux" sub="Instagram, TikTok, YouTube, LinkedIn" onPress={() => setSheet('socials')} />
         <SectionRow label="Galerie photos" sub={`${draft.galleryCount} photo${draft.galleryCount !== 1 ? 's' : ''}`} onPress={() => setSheet('gallery')} last />
@@ -148,14 +160,14 @@ export default function MaFiche() {
   );
 }
 
-function SectionRow({ label, sub, onPress, last }: { label: string; sub: string; onPress: () => void; last?: boolean }) {
+function SectionRow({ label, sub, onPress, last, warn }: { label: string; sub: string; onPress: () => void; last?: boolean; warn?: boolean }) {
   return (
     <Pressable onPress={onPress} style={[styles.row, last && { borderBottomWidth: 0 }]}>
       <View style={{ flex: 1 }}>
         <Text weight="extrabold" style={{ fontSize: 14 }}>
           {label}
         </Text>
-        <Text weight="semibold" color={colors.textMuted} style={{ fontSize: 11.5, marginTop: 2 }}>
+        <Text weight="semibold" color={warn ? colors.warning : colors.textMuted} style={{ fontSize: 11.5, marginTop: 2 }}>
           {sub}
         </Text>
       </View>

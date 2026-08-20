@@ -14,7 +14,7 @@ import {
   Report,
   ReportReason,
   Review,
-  ServiceKey,
+  SlotMode,
   TargetType,
   WeekDay,
 } from '../types';
@@ -24,9 +24,8 @@ function uid() {
 }
 
 const emptyAvailability: Availability = {
-  'Présentiel salle': {},
+  Présentiel: {},
   Visio: {},
-  Téléphone: {},
 };
 
 const defaultCoachDraft: CoachDraft = {
@@ -124,8 +123,8 @@ interface AppState {
   updateCoachDraft: (partial: Partial<CoachDraft>) => void;
   addCredential: (kind: 'diplomas' | 'certifs', label: string) => void;
   removeCredential: (kind: 'diplomas' | 'certifs', label: string) => void;
-  addSlot: (service: ServiceKey, day: WeekDay, from: string, to: string) => void;
-  removeSlot: (service: ServiceKey, day: WeekDay, index: number) => void;
+  addSlot: (service: SlotMode, day: WeekDay, from: string, to: string) => void;
+  removeSlot: (service: SlotMode, day: WeekDay, index: number) => void;
   togglePublished: () => void;
   coachPlan: 'gratuit' | 'actif';
   activateCoachPlan: () => void;

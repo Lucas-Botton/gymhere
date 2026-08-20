@@ -7,8 +7,12 @@ export type BookingMode = 'slot' | 'request';
 export type BookingStatus = 'en_attente' | 'confirme' | 'accepte' | 'refuse';
 export type TargetType = 'gym' | 'coach';
 export type ReportReason = 'horaires' | 'tarifs' | 'coordonnees' | 'indisponible' | 'autre';
-export type ServiceKey = 'Présentiel salle' | 'Visio' | 'Téléphone';
 export type FormuleMode = 'Présentiel' | 'Visio' | 'En ligne';
+// The two formule modes that need a real calendar — 'En ligne' is
+// inherently request-based (no fixed slot), so it's excluded. Kept as a
+// derived subset (not a separate hand-maintained enum) so availability
+// can never drift out of sync with the modes formules actually use.
+export type SlotMode = Exclude<FormuleMode, 'En ligne'>;
 
 export interface EquipmentItem {
   name: string;
@@ -102,7 +106,7 @@ export interface TimeRange {
   from: string;
   to: string;
 }
-export type Availability = Record<ServiceKey, Partial<Record<WeekDay, TimeRange[]>>>;
+export type Availability = Record<SlotMode, Partial<Record<WeekDay, TimeRange[]>>>;
 
 export interface Coach {
   id: string;

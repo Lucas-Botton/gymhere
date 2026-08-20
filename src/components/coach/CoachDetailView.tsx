@@ -19,7 +19,7 @@ import { useSession } from '../../store/session';
 import { useBookingSheet } from '../../store/booking';
 import { useReportSheet } from '../../store/report';
 import { bookingActionVerb } from '../../lib/booking-config';
-import { Coach, ServiceKey } from '../../types';
+import { Coach, SlotMode } from '../../types';
 
 // Session formats are told apart by icon, not color (gymhere color logic:
 // category info is neutral — only brand/action and status carry a hue).
@@ -51,8 +51,10 @@ export default function CoachDetailView({ coach, previewMode = false }: { coach:
 
   const chooseOffer = (idx: number) => {
     const o = coach.offers[idx];
-    const online = o.mode === 'En ligne';
-    const serviceKey: ServiceKey | null = o.mode === 'Visio' ? 'Visio' : o.mode === 'Présentiel' ? 'Présentiel salle' : null;
+    // 'En ligne' formules are request-based (no fixed slot); Présentiel and
+    // Visio both need a real créneau, and the mode string doubles directly
+    // as the availability key — no separate mapping to keep in sync.
+    const slotMode: SlotMode | null = o.mode === 'En ligne' ? null : (o.mode as SlotMode);
     requireAuth(`réserver "${o.name}" avec ${coach.name}`, () =>
       openBooking({
         kind: 'formule',
@@ -60,9 +62,9 @@ export default function CoachDetailView({ coach, previewMode = false }: { coach:
         targetId: coach.id,
         targetName: coach.name,
         sub: o.name,
-        mode: online ? 'request' : 'slot',
+        mode: slotMode ? 'slot' : 'request',
         coachId: coach.id,
-        serviceKey,
+        serviceKey: slotMode,
       })
     );
   };
@@ -70,11 +72,6 @@ export default function CoachDetailView({ coach, previewMode = false }: { coach:
   const contact = () =>
     requireAuth(`${bookingActionVerb('contact')} ${coach.name}`, () =>
       openBooking({ kind: 'contact', targetType: 'coach', targetId: coach.id, targetName: coach.name, mode: 'request', coachId: coach.id })
-    );
-
-  const appel = () =>
-    requireAuth(`${bookingActionVerb('appel')} ${coach.name}`, () =>
-      openBooking({ kind: 'appel', targetType: 'coach', targetId: coach.id, targetName: coach.name, mode: 'slot', coachId: coach.id, serviceKey: 'Visio' })
     );
 
   const socialEntries = Object.entries(coach.socials).filter(([, v]) => !!v);
@@ -335,7 +332,6 @@ export default function CoachDetailView({ coach, previewMode = false }: { coach:
       {!previewMode ? (
         <>
           <SafeAreaView edges={['bottom']} style={styles.ctaBar}>
-            <Button label="Appel découverte" variant="outline" onPress={appel} style={{ flex: 1 }} />
             <Button label="Contacter" onPress={contact} style={{ flex: 1 }} />
           </SafeAreaView>
           <ShareSheet visible={shareOpen} onClose={() => setShareOpen(false)} targetName={coach.name} />
