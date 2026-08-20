@@ -160,7 +160,6 @@ export default function CoachDetailView({ coach, previewMode = false }: { coach:
               <SectionTitle>Formules d’accompagnement</SectionTitle>
               {coach.offers.map((o, i) => {
                 const open = openOfferIdx === i;
-                const tagColor = o.mode === 'Présentiel' ? colors.pink : o.mode === 'Visio' ? colors.blue : colors.mintText;
                 return (
                   <Tap
                     key={o.name}
@@ -181,7 +180,7 @@ export default function CoachDetailView({ coach, previewMode = false }: { coach:
                             </View>
                           ) : null}
                         </View>
-                        <Text weight="bold" color={tagColor} style={{ fontSize: 11.5, marginTop: 3 }}>
+                        <Text weight="bold" color={colors.textMuted} style={{ fontSize: 11.5, marginTop: 3 }}>
                           {o.mode} · {o.duration}
                         </Text>
                       </View>

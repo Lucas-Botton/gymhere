@@ -11,7 +11,7 @@ import Glass from '../src/components/ui/Glass';
 import BottomSheet from '../src/components/ui/BottomSheet';
 import { GYMS, ME_LOCATION } from '../src/data/seed';
 import { IconLocationPin, IconChevronDown, IconBack, IconChevronRight } from '../src/components/ui/icons';
-import { colors, radius, shadow, spacing } from '../src/theme';
+import { colors, displayFont, radius, shadow, spacing } from '../src/theme';
 import { useSession } from '../src/store/session';
 import { useLocationStore } from '../src/store/location';
 
@@ -215,7 +215,7 @@ export default function Onboarding() {
             <View style={{ flex: 1, justifyContent: 'center' }}>
               <Text style={{ fontSize: 48 }}>🚀</Text>
               <Text weight="black" color="#fff" style={{ fontSize: 25, letterSpacing: -0.5, marginTop: 12, lineHeight: 29 }}>
-                <Text weight="regular" color="#fff" style={{ fontSize: 25 }}>
+                <Text color="#fff" style={{ fontFamily: displayFont.regular, fontSize: 25 }}>
                   gym
                 </Text>
                 here démarre à Lyon

@@ -2,6 +2,7 @@ import React from 'react';
 import { View } from 'react-native';
 import Svg, { Path, Circle } from 'react-native-svg';
 import Text from './Text';
+import { displayFont } from '../../theme';
 
 export function PinMark({ size = 64, color = '#fff', dot = '#FF1F6B' }: { size?: number; color?: string; dot?: string }) {
   return (
@@ -16,13 +17,12 @@ export function PinMark({ size = 64, color = '#fff', dot = '#FF1F6B' }: { size?:
 }
 
 export function Wordmark({ size = 22, color = '#fff' }: { size?: number; color?: string }) {
-  // "gym" (Nunito) and "here" (Gabarito, via weight="black") don't share the
-  // same baseline metrics at equal fontSize, so a naive row leaves "here"
-  // sitting visibly higher than "gym" — align on text baseline, which reads
-  // each font's own metrics, instead of naively centering the two boxes.
+  // "gym" and "here" must share a font family (Gabarito, just a different
+  // weight) — mixing in Nunito for "gym" gives the two runs different
+  // baseline metrics at the same fontSize, which visibly misaligns them.
   return (
-    <View style={{ flexDirection: 'row', alignItems: 'baseline' }}>
-      <Text weight="regular" color={color} style={{ fontSize: size, letterSpacing: -0.4 }}>
+    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+      <Text color={color} style={{ fontFamily: displayFont.regular, fontSize: size, letterSpacing: -0.4 }}>
         gym
       </Text>
       <Text weight="black" color={color} style={{ fontSize: size, letterSpacing: -0.4 }}>

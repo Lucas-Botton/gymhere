@@ -5,7 +5,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import MaskedView from '@react-native-masked-view/masked-view';
 import { PinMark } from '../src/components/ui/Logo';
 import Text from '../src/components/ui/Text';
-import { colors } from '../src/theme';
+import { colors, displayFont } from '../src/theme';
 import { useSession } from '../src/store/session';
 
 // Ported 1:1 from the mockup source (Jimmy.dc.html, the real splash markup,
@@ -22,7 +22,7 @@ function Spinner() {
   return <Animated.View style={[styles.spinner, { transform: [{ rotate: spin }] }]} />;
 }
 
-const HERE_TEXT_STYLE = { fontSize: 27, lineHeight: 33, letterSpacing: -1.2 };
+const HERE_TEXT_STYLE = { fontSize: 27, letterSpacing: -1.2 };
 
 export default function Splash() {
   const opacity = useRef(new Animated.Value(0)).current;
@@ -62,7 +62,7 @@ export default function Splash() {
 
       <Animated.View style={[styles.bottomWrap, { opacity, transform: [{ translateY: rise }] }]}>
         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-          <Text weight="regular" color="#fff" style={[HERE_TEXT_STYLE, { marginTop: -3 }]}>
+          <Text color="#fff" style={[HERE_TEXT_STYLE, { fontFamily: displayFont.regular }]}>
             gym
           </Text>
           <MaskedView maskElement={<Text weight="black" color="#000" style={HERE_TEXT_STYLE}>here</Text>}>

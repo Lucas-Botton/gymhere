@@ -35,7 +35,6 @@ export default function RoleChoice() {
 
         <Pressable onPress={chooseMember} style={[{ marginTop: spacing.xl }, shadow.glowPink]}>
           <LinearGradient colors={['#FF6B6B', colors.pink]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.card}>
-            <View style={styles.decoCircleLight} />
             <IconDumbbell size={30} color="#fff" />
             <Text weight="black" color="#fff" style={{ fontSize: 20, marginTop: spacing.md }}>
               Je m’entraîne
@@ -54,7 +53,6 @@ export default function RoleChoice() {
 
         <Pressable onPress={chooseCoach} style={[{ marginTop: spacing.md }, shadow.glowViolet]}>
           <View style={[styles.card, styles.coachCard]}>
-            <View style={styles.decoCirclePurple} />
             <LinearGradient colors={[colors.violet, colors.blue]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.coachIconBox}>
               <IconBolt size={20} color="#fff" />
             </LinearGradient>
@@ -81,24 +79,6 @@ const styles = StyleSheet.create({
   wrap: { flex: 1, padding: spacing.xl, paddingTop: spacing.xl },
   card: { borderRadius: radius.xxl, padding: spacing.xl, overflow: 'hidden' },
   coachCard: { backgroundColor: '#fff', borderWidth: 1.5, borderColor: colors.border },
-  decoCircleLight: {
-    position: 'absolute',
-    right: -14,
-    top: -14,
-    width: 110,
-    height: 110,
-    borderRadius: 55,
-    backgroundColor: 'rgba(255,255,255,0.14)',
-  },
-  decoCirclePurple: {
-    position: 'absolute',
-    right: -14,
-    top: -14,
-    width: 110,
-    height: 110,
-    borderRadius: 55,
-    backgroundColor: 'rgba(139,92,255,0.13)',
-  },
   coachIconBox: { width: 40, height: 40, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
   linkRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: spacing.md },
 });
