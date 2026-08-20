@@ -1,4 +1,4 @@
-import { Gym } from '../types';
+import { Gym, GymCategory } from '../types';
 
 export function normalize(str: string): string {
   return str
@@ -41,6 +41,7 @@ export function gymEquipHit(g: Gym, needle: string): boolean {
 }
 
 export interface FiltersInput {
+  categories: GymCategory[];
   equipItems: string[];
   muscles: string[];
   brands: string[];
@@ -59,6 +60,7 @@ export function gymDistanceKm(g: Gym, coords: { lat: number; lng: number } | nul
 
 export function gymPassesFilters(g: Gym, f: FiltersInput, coords: { lat: number; lng: number } | null = null): boolean {
   return (
+    (f.categories.length === 0 || f.categories.includes(g.category)) &&
     (f.minRating === 0 || (g.googleRating ?? 0) >= f.minRating) &&
     (g.priceFrom == null || g.priceFrom <= f.priceMax) &&
     gymDistanceKm(g, coords) <= f.distance &&
@@ -70,7 +72,9 @@ export function gymPassesFilters(g: Gym, f: FiltersInput, coords: { lat: number;
 }
 
 export function activeFilterCount(f: FiltersInput): number {
-  return f.brands.length + f.services.length + f.muscles.length + f.equipItems.length + (f.minRating > 0 ? 1 : 0);
+  return (
+    f.categories.length + f.brands.length + f.services.length + f.muscles.length + f.equipItems.length + (f.minRating > 0 ? 1 : 0)
+  );
 }
 
 export interface SearchResult {

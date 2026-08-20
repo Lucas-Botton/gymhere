@@ -3,7 +3,7 @@
 // ratings, prices, equipment inventories, or customer reviews for any real
 // business — those fields are simply omitted/empty until verified data is
 // available, and the UI is built to handle that gracefully.
-import { Coach, Gym, GymCategory, Goal } from '../types';
+import { Coach, Gym, GymCategory } from '../types';
 import { haversineKm } from '../lib/filters';
 
 export const ME_LOCATION = { lat: 45.76, lng: 4.83 };
@@ -21,17 +21,6 @@ export const GYM_CATEGORY_LABELS: Record<GymCategory, string> = {
   hyrox: 'Salle HYROX',
   ems: 'Salle d’électrostimulation',
 };
-
-// Personalization only ever RE-ORDERS results, never filters — but since we
-// don't have equipment data for real gyms yet, there's no honest basis to
-// recommend specific ones per objective. Left empty until that data exists.
-export const GOALS: Goal[] = [
-  { key: 'masse', label: 'Prise de masse', emoji: '💪', gymIds: [], specs: ['Prise de masse', 'Force athlétique', 'Transformation physique'] },
-  { key: 'perte', label: 'Perte de poids', emoji: '🔥', gymIds: [], specs: ['Perte de poids', 'Transformation physique'] },
-  { key: 'hyrox', label: 'HYROX / Cross-training', emoji: '⚡', gymIds: [], specs: ['HYROX', 'Cross-training', 'Prépa physique'] },
-  { key: 'force', label: 'Force athlétique', emoji: '🏋️', gymIds: [], specs: ['Force athlétique', 'Prise de masse'] },
-  { key: 'forme', label: 'Remise en forme', emoji: '✨', gymIds: [], specs: ['Perte de poids', 'Sport santé'] },
-];
 
 export const MUSCLES = ['Pectoraux', 'Dos', 'Épaules', 'Biceps', 'Triceps', 'Quadriceps', 'Ischios', 'Fessiers', 'Mollets', 'Abdos/Core', 'Cardio', 'Fonctionnel'];
 export const BRANDS = ['Technogym', 'Hammer Strength', 'Eleiko', 'Panatta', 'Concept2', 'Assault'];

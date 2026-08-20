@@ -10,6 +10,7 @@ import {
   ChatMessage,
   ChatThread,
   CoachDraft,
+  GymCategory,
   Report,
   ReportReason,
   Review,
@@ -62,6 +63,7 @@ const seedInbox: InboxEntry[] = [
 ];
 
 interface Filters {
+  categories: GymCategory[];
   equipItems: string[];
   muscles: string[];
   brands: string[];
@@ -72,6 +74,7 @@ interface Filters {
 }
 
 const defaultFilters: Filters = {
+  categories: [],
   equipItems: [],
   muscles: [],
   brands: [],
@@ -86,11 +89,6 @@ interface AppState {
   favCoaches: string[];
   toggleFavGym: (id: string) => void;
   toggleFavCoach: (id: string) => void;
-
-  goal: string | null;
-  goalDismissed: boolean;
-  setGoal: (key: string | null) => void;
-  dismissGoal: () => void;
 
   filters: Filters;
   setFilters: (partial: Partial<Filters>) => void;
@@ -148,11 +146,6 @@ export const useApp = create<AppState>()(
         set((s) => ({ favGyms: s.favGyms.includes(id) ? s.favGyms.filter((x) => x !== id) : [...s.favGyms, id] })),
       toggleFavCoach: (id) =>
         set((s) => ({ favCoaches: s.favCoaches.includes(id) ? s.favCoaches.filter((x) => x !== id) : [...s.favCoaches, id] })),
-
-      goal: null,
-      goalDismissed: false,
-      setGoal: (key) => set({ goal: key }),
-      dismissGoal: () => set({ goalDismissed: true }),
 
       filters: defaultFilters,
       setFilters: (partial) => set((s) => ({ filters: { ...s.filters, ...partial } })),
@@ -318,8 +311,6 @@ export const useApp = create<AppState>()(
       partialize: (s) => ({
         favGyms: s.favGyms,
         favCoaches: s.favCoaches,
-        goal: s.goal,
-        goalDismissed: s.goalDismissed,
         bookings: s.bookings,
         reviews: s.reviews,
         reports: s.reports,

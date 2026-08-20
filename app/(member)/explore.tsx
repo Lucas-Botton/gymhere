@@ -13,10 +13,9 @@ import { IconBell, IconExplore, IconFilter, IconList, IconMap, IconStar } from '
 import { GymCardFeatured, GymCardCompact } from '../../src/components/gym/GymCards';
 import GymMap from '../../src/components/gym/GymMap';
 import FiltersSheet from '../../src/components/gym/FiltersSheet';
-import GoalPickerSheet from '../../src/components/gym/GoalPickerSheet';
 import SearchOverlay from '../../src/components/gym/SearchOverlay';
 import { colors, radius, shadow, shadowBleed, spacing } from '../../src/theme';
-import { GYMS, GOALS } from '../../src/data/seed';
+import { GYMS } from '../../src/data/seed';
 import { activeFilterCount, gymDistanceKm, gymPassesFilters } from '../../src/lib/filters';
 import { useApp } from '../../src/store/app';
 import { useSession } from '../../src/store/session';
@@ -24,11 +23,10 @@ import { useLocationStore } from '../../src/store/location';
 
 export default function Explore() {
   const { city } = useSession();
-  const { filters, goal, goalDismissed, dismissGoal } = useApp();
+  const { filters } = useApp();
   const coords = useLocationStore((s) => s.coords);
   const [mapView, setMapView] = useState(false);
   const [filtersOpen, setFiltersOpen] = useState(false);
-  const [goalOpen, setGoalOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const unread = useApp((s) => s.notifications.filter((n) => !n.read).length);
 
@@ -43,9 +41,6 @@ export default function Explore() {
     [filtered, coords]
   );
   const filterCount = activeFilterCount(filters);
-
-  const activeGoal = GOALS.find((g) => g.key === goal) ?? null;
-  const recoGyms = activeGoal ? filtered.filter((g) => activeGoal.gymIds.includes(g.id)).slice(0, 3) : [];
 
   return (
     <View style={{ flex: 1, backgroundColor: '#fff' }}>
@@ -109,17 +104,6 @@ export default function Explore() {
             </Text>
           </Tap>
         </View>
-        <Pressable
-          onPress={() => setGoalOpen(true)}
-          style={[
-            styles.pillBtn,
-            styles.pillBtnGoal,
-            activeGoal && { backgroundColor: colors.pink + '1A', borderColor: colors.pink },
-          ]}
-          hitSlop={4}
-        >
-          <Text style={{ fontSize: 16 }}>{activeGoal?.emoji ?? '🎯'}</Text>
-        </Pressable>
         <Pressable onPress={() => setFiltersOpen(true)} style={styles.pillBtn} hitSlop={4}>
           <IconFilter size={15} color={colors.ink} />
           <Text weight="extrabold" color={colors.ink} numberOfLines={1} style={{ fontSize: 12.5 }}>
@@ -147,52 +131,6 @@ export default function Explore() {
           contentContainerStyle={styles.listContent}
           ListHeaderComponent={
             <>
-              {!goal && !goalDismissed ? (
-                <View style={[styles.goalBanner, shadow.glowViolet]}>
-                  <GradientBlock kind="pinkViolet" style={styles.goalIcon}>
-                    <Text style={{ fontSize: 18 }}>🎯</Text>
-                  </GradientBlock>
-                  <View style={{ flex: 1 }}>
-                    <Text weight="extrabold" color="#fff" style={{ fontSize: 13.5 }}>
-                      C’est quoi ton objectif ?
-                    </Text>
-                    <Text weight="semibold" color="rgba(255,255,255,0.85)" style={{ fontSize: 11.5, marginTop: 2 }}>
-                      On met en avant les salles adaptées, sans rien te cacher.
-                    </Text>
-                  </View>
-                  <Pressable onPress={() => setGoalOpen(true)} style={styles.goalBannerBtn}>
-                    <Text weight="black" color={colors.pink} style={{ fontSize: 12 }}>
-                      Choisir
-                    </Text>
-                  </Pressable>
-                  <Pressable onPress={dismissGoal} hitSlop={8} style={{ marginLeft: 6 }}>
-                    <Text weight="black" color="rgba(255,255,255,0.8)">
-                      ✕
-                    </Text>
-                  </Pressable>
-                </View>
-              ) : null}
-
-              {activeGoal && recoGyms.length > 0 ? (
-                <View style={{ marginBottom: spacing.lg }}>
-                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 7, marginBottom: spacing.sm }}>
-                    <Text weight="black" color={colors.ink} style={{ fontSize: 15.5 }}>
-                      {activeGoal.emoji} Pour ton objectif
-                    </Text>
-                  </View>
-                  <ScrollView
-                    horizontal
-                    showsHorizontalScrollIndicator={false}
-                    contentContainerStyle={{ paddingVertical: shadowBleed, paddingLeft: shadowBleed, paddingRight: spacing.md }}
-                    style={{ marginVertical: -shadowBleed, marginLeft: -shadowBleed }}
-                  >
-                    {recoGyms.map((g) => (
-                      <GymCardFeatured key={g.id} gym={g} />
-                    ))}
-                  </ScrollView>
-                </View>
-              ) : null}
-
               {sponsored.length > 0 ? (
                 <View style={{ marginBottom: spacing.lg }}>
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: spacing.sm }}>
@@ -228,7 +166,6 @@ export default function Explore() {
       )}
 
       <FiltersSheet visible={filtersOpen} onClose={() => setFiltersOpen(false)} />
-      <GoalPickerSheet visible={goalOpen} onClose={() => setGoalOpen(false)} />
       <SearchOverlay visible={searchOpen} onClose={() => setSearchOpen(false)} />
     </View>
   );
@@ -278,18 +215,5 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
     backgroundColor: '#fff',
   },
-  pillBtnGoal: { width: 40, paddingHorizontal: 0 },
-  pillBtnActive: { backgroundColor: colors.bgTint2, borderColor: '#EEDCF0' },
   listContent: { paddingHorizontal: spacing.lg, paddingBottom: spacing.xxl },
-  goalBanner: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-    backgroundColor: colors.ink,
-    borderRadius: radius.lg,
-    padding: spacing.md,
-    marginBottom: spacing.lg,
-  },
-  goalIcon: { width: 40, height: 40, borderRadius: radius.md, alignItems: 'center', justifyContent: 'center' },
-  goalBannerBtn: { backgroundColor: '#fff', paddingHorizontal: 12, paddingVertical: 8, borderRadius: radius.pill },
 });

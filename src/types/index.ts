@@ -199,14 +199,6 @@ export interface UserProfile {
   createdAt: string;
 }
 
-export interface Goal {
-  key: string;
-  label: string;
-  emoji: string;
-  gymIds: string[];
-  specs: string[];
-}
-
 // Fiche coach en cours d'édition côté "Espace coach" (avant publication/paiement)
 export interface CoachDraft {
   name: string;

@@ -8,10 +8,13 @@ import { Chip } from '../ui/primitives';
 import { colors, spacing } from '../../theme';
 import { useApp } from '../../store/app';
 import { useLocationStore } from '../../store/location';
-import { BRANDS, SERVICES } from '../../data/seed';
+import { BRANDS, SERVICES, GYM_CATEGORY_LABELS } from '../../data/seed';
 import { GYMS } from '../../data/seed';
 import { gymPassesFilters, POPULAR_EQUIPMENT } from '../../lib/filters';
 import { useKeyboardScrollFix } from '../../lib/useKeyboardScrollFix';
+import { GymCategory } from '../../types';
+
+const GYM_CATEGORIES = Object.keys(GYM_CATEGORY_LABELS) as GymCategory[];
 
 export default function FiltersSheet({ visible, onClose }: { visible: boolean; onClose: () => void }) {
   const stored = useApp((s) => s.filters);
@@ -30,6 +33,10 @@ export default function FiltersSheet({ visible, onClose }: { visible: boolean; o
 
   const toggle = (key: 'brands' | 'services' | 'equipItems', value: string) => {
     setLocal((s) => ({ ...s, [key]: s[key].includes(value) ? s[key].filter((x) => x !== value) : [...s[key], value] }));
+  };
+
+  const toggleCategory = (value: GymCategory) => {
+    setLocal((s) => ({ ...s, categories: s.categories.includes(value) ? s.categories.filter((x) => x !== value) : [...s.categories, value] }));
   };
 
   const addEquipDraft = () => {
@@ -55,6 +62,14 @@ export default function FiltersSheet({ visible, onClose }: { visible: boolean; o
   return (
     <BottomSheet visible={visible} onClose={onClose} title="Filtres">
       <ScrollView {...kb.scrollProps} style={{ flex: 1, paddingHorizontal: spacing.xl }} contentContainerStyle={{ paddingBottom: kb.contentPaddingBottom(spacing.lg) }}>
+        <Section label="Type de salle">
+          <View style={styles.wrapRow}>
+            {GYM_CATEGORIES.map((c) => (
+              <Chip key={c} label={GYM_CATEGORY_LABELS[c]} active={local.categories.includes(c)} onPress={() => toggleCategory(c)} />
+            ))}
+          </View>
+        </Section>
+
         <Section label="Matériel spécifique">
           <Text weight="semibold" color={colors.textMuted} style={{ fontSize: 12, marginBottom: spacing.sm, marginTop: -4 }}>
             Sélectionne plusieurs machines, ou tape la tienne.

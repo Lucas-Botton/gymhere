@@ -6,7 +6,7 @@ import Text from '../ui/Text';
 import Tap from '../ui/Tap';
 import Glass from '../ui/Glass';
 import GradientBlock, { GradientKey } from '../ui/GradientBlock';
-import { CertifiedBadge, GymRatingMeta, Tag } from '../ui/primitives';
+import { CertifiedBadge, StarRating, Tag } from '../ui/primitives';
 import { IconHeart } from '../ui/icons';
 import { colors, radius, shadow, spacing } from '../../theme';
 import { Gym } from '../../types';
@@ -63,25 +63,24 @@ export function GymCardFeatured({ gym }: { gym: Gym }) {
               {gym.certified ? <CertifiedBadge /> : null}
             </View>
             <Text weight="extrabold" color={colors.textLight} style={{ fontSize: 10.5, textTransform: 'uppercase', letterSpacing: 0.3, marginTop: 2 }} numberOfLines={1}>
-              {GYM_CATEGORY_LABELS[gym.category]}
+              {GYM_CATEGORY_LABELS[gym.category]} · {distanceLabel(distanceKm)}
             </Text>
-            <Text weight="bold" color={colors.textMuted} style={{ fontSize: 12.5, marginTop: 3 }}>
-              <GymRatingMeta gym={gym} distance={distanceLabel(distanceKm)} />
-            </Text>
+            {gym.googleRating != null ? (
+              <Text weight="bold" color={colors.textMuted} style={{ fontSize: 12.5, marginTop: 3 }}>
+                <StarRating rating={gym.googleRating} size={11} /> {gym.googleRating}
+                {gym.googleReviews != null ? ` · ${gym.googleReviews} avis Google` : ''}
+              </Text>
+            ) : null}
             <View style={styles.tagsRow}>
               {gym.tags.slice(0, 3).map((t) => (
                 <Tag key={t} label={t} />
               ))}
             </View>
-            <Text weight="bold" color={colors.textMuted} style={{ fontSize: 12.5, marginTop: spacing.sm }}>
-              {gym.priceFrom != null ? (
-                <>
-                  dès <Text weight="black" color={colors.pink} style={{ fontSize: 21 }}>{gym.priceFrom}€</Text>/mois
-                </>
-              ) : (
-                'Tarifs sur place'
-              )}
-            </Text>
+            {gym.priceFrom != null ? (
+              <Text weight="bold" color={colors.textMuted} style={{ fontSize: 12.5, marginTop: spacing.sm }}>
+                dès <Text weight="black" color={colors.pink} style={{ fontSize: 21 }}>{gym.priceFrom}€</Text>/mois
+              </Text>
+            ) : null}
           </View>
         </View>
       </Tap>
@@ -104,20 +103,25 @@ export function GymCardCompact({ gym }: { gym: Gym }) {
           {gym.certified ? <CertifiedBadge size={13} /> : null}
         </View>
         <Text weight="extrabold" color={colors.textLight} style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: 0.3, marginTop: 1 }} numberOfLines={1}>
-          {GYM_CATEGORY_LABELS[gym.category]}
+          {GYM_CATEGORY_LABELS[gym.category]} · {distanceLabel(distanceKm)}
         </Text>
-        <Text weight="bold" color={colors.textMuted} style={{ fontSize: 11.5, marginTop: 2 }} numberOfLines={1}>
-          <GymRatingMeta gym={gym} distance={distanceLabel(distanceKm)} />
-        </Text>
+        {gym.googleRating != null ? (
+          <Text weight="bold" color={colors.textMuted} style={{ fontSize: 11.5, marginTop: 2 }} numberOfLines={1}>
+            <StarRating rating={gym.googleRating} size={10.5} /> {gym.googleRating}
+            {gym.googleReviews != null ? ` · ${gym.googleReviews} avis Google` : ''}
+          </Text>
+        ) : null}
         <View style={[styles.tagsRow, { marginTop: 4 }]}>
           {gym.tags.slice(0, 2).map((t) => (
             <Tag key={t} label={t} />
           ))}
         </View>
       </View>
-      <Text weight="black" color={gym.priceFrom != null ? colors.pink : colors.textLight} style={{ fontSize: gym.priceFrom != null ? 19 : 10.5 }}>
-        {gym.priceFrom != null ? `${gym.priceFrom}€` : 'Sur place'}
-      </Text>
+      {gym.priceFrom != null ? (
+        <Text weight="black" color={colors.pink} style={{ fontSize: 19 }}>
+          {gym.priceFrom}€
+        </Text>
+      ) : null}
     </Tap>
   );
 }
