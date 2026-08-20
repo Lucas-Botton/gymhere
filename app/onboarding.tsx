@@ -32,7 +32,7 @@ function PulseDot() {
   useEffect(() => {
     const loop = Animated.loop(
       Animated.parallel([
-        Animated.timing(scale, { toValue: 2.6, duration: 1500, easing: Easing.out(Easing.ease), useNativeDriver: true }),
+        Animated.timing(scale, { toValue: 2.2, duration: 1500, easing: Easing.out(Easing.ease), useNativeDriver: true }),
         Animated.timing(opacity, { toValue: 0, duration: 1500, easing: Easing.out(Easing.ease), useNativeDriver: true }),
       ])
     );
@@ -344,7 +344,7 @@ const styles = StyleSheet.create({
     bottom: 14,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 7,
+    gap: 11,
     paddingHorizontal: 12,
     paddingVertical: 7,
     borderRadius: radius.pill,

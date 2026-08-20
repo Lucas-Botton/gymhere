@@ -160,7 +160,7 @@ export default function CoachDetailView({ coach, previewMode = false }: { coach:
               <SectionTitle>Formules d’accompagnement</SectionTitle>
               {coach.offers.map((o, i) => {
                 const open = openOfferIdx === i;
-                const tagColor = o.mode === 'Présentiel' ? colors.pink : o.mode === 'Visio' ? colors.blue : colors.violet;
+                const tagColor = o.mode === 'Présentiel' ? colors.pink : o.mode === 'Visio' ? colors.blue : colors.mintText;
                 return (
                   <Tap
                     key={o.name}
@@ -227,8 +227,8 @@ export default function CoachDetailView({ coach, previewMode = false }: { coach:
                 </View>
               ) : null}
               {coach.certifs.length > 0 ? (
-                <View style={[styles.credBlock, { backgroundColor: '#F4F0FC', marginTop: spacing.sm }]}>
-                  <Text weight="extrabold" color={colors.tagText} style={{ fontSize: 12, marginBottom: 8 }}>
+                <View style={[styles.credBlock, { backgroundColor: colors.warningBg, marginTop: spacing.sm }]}>
+                  <Text weight="extrabold" color={colors.warning} style={{ fontSize: 12, marginBottom: 8 }}>
                     Certifications
                   </Text>
                   {coach.certifs.map((c) => (

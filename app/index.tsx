@@ -62,7 +62,7 @@ export default function Splash() {
 
       <Animated.View style={[styles.bottomWrap, { opacity, transform: [{ translateY: rise }] }]}>
         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-          <Text weight="regular" color="#fff" style={HERE_TEXT_STYLE}>
+          <Text weight="regular" color="#fff" style={[HERE_TEXT_STYLE, { marginTop: -3 }]}>
             gym
           </Text>
           <MaskedView maskElement={<Text weight="black" color="#000" style={HERE_TEXT_STYLE}>here</Text>}>
