@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import Text from '../../src/components/ui/Text';
 import GradientBlock from '../../src/components/ui/GradientBlock';
+import { IconChevronRight } from '../../src/components/ui/icons';
 import { colors, radius, shadow, spacing } from '../../src/theme';
 import { useApp, computeCompletion } from '../../src/store/app';
 import { useSession } from '../../src/store/session';
@@ -65,6 +66,47 @@ export default function MaFiche() {
             </Text>
           ) : null}
         </View>
+
+        {coachPlan === 'actif' ? (
+          <Pressable onPress={() => router.push('/coach-subscription')} style={[styles.planCard, styles.planCardActive]}>
+            <View style={styles.planIconBox}>
+              <Text style={{ fontSize: 16 }}>⭐</Text>
+            </View>
+            <View style={{ flex: 1 }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                <Text weight="black" style={{ fontSize: 13.5 }}>
+                  Abonnement
+                </Text>
+                <View style={styles.activePill}>
+                  <Text weight="black" color={colors.successDeep} style={{ fontSize: 9.5 }}>
+                    ACTIF
+                  </Text>
+                </View>
+              </View>
+              <Text weight="semibold" color={colors.textMuted} style={{ fontSize: 11.5, marginTop: 2 }}>
+                Formule, facturation, résiliation
+              </Text>
+            </View>
+            <IconChevronRight size={16} color={colors.textLight} />
+          </Pressable>
+        ) : (
+          <Pressable onPress={() => router.push('/coach-subscription')} style={[{ borderRadius: radius.lg, marginBottom: spacing.md }, shadow.glowPink]}>
+            <GradientBlock kind="pinkViolet" style={styles.planCard}>
+              <View style={[styles.planIconBox, { backgroundColor: 'rgba(255,255,255,0.22)' }]}>
+                <Text style={{ fontSize: 16 }}>⭐</Text>
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text weight="black" color="#fff" style={{ fontSize: 13.5 }}>
+                  Passer en formule Pro
+                </Text>
+                <Text weight="semibold" color="rgba(255,255,255,0.85)" style={{ fontSize: 11.5, marginTop: 2 }}>
+                  Publie ta fiche, reçois des demandes en illimité
+                </Text>
+              </View>
+              <IconChevronRight size={16} color="#fff" />
+            </GradientBlock>
+          </Pressable>
+        )}
 
         <View style={styles.publishRow}>
           <View style={{ flex: 1 }}>
@@ -129,6 +171,28 @@ const styles = StyleSheet.create({
   completionCard: { backgroundColor: '#fff', borderRadius: radius.lg, padding: spacing.md, marginBottom: spacing.md },
   barTrack: { height: 8, borderRadius: 4, backgroundColor: colors.border, overflow: 'hidden' },
   barFill: { height: 8, borderRadius: 4, backgroundColor: colors.pink },
+  planCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    borderRadius: radius.lg,
+    padding: spacing.md,
+  },
+  planCardActive: {
+    backgroundColor: '#fff',
+    borderWidth: 1.5,
+    borderColor: colors.border,
+    marginBottom: spacing.md,
+  },
+  planIconBox: {
+    width: 36,
+    height: 36,
+    borderRadius: 11,
+    backgroundColor: colors.bgTint2,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  activePill: { backgroundColor: colors.successBg, paddingHorizontal: 7, paddingVertical: 2, borderRadius: radius.pill },
   publishRow: {
     flexDirection: 'row',
     alignItems: 'center',

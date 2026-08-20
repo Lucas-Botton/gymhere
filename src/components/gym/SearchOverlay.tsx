@@ -9,11 +9,13 @@ import { IconClose, IconExplore } from '../ui/icons';
 import { colors, radius, spacing } from '../../theme';
 import { GYMS } from '../../data/seed';
 import { searchGyms, POPULAR_EQUIPMENT, POPULAR_ZONES } from '../../lib/filters';
+import { useKeyboardScrollFix } from '../../lib/useKeyboardScrollFix';
 
 export default function SearchOverlay({ visible, onClose }: { visible: boolean; onClose: () => void }) {
   const [query, setQuery] = useState('');
   const results = useMemo(() => searchGyms(query, GYMS), [query]);
   const insets = useSafeAreaInsets();
+  const kb = useKeyboardScrollFix();
 
   const go = (id: string, group: string | null) => {
     onClose();
@@ -33,6 +35,7 @@ export default function SearchOverlay({ visible, onClose }: { visible: boolean; 
               placeholder="Machine, marque, salle, quartier..."
               placeholderTextColor={colors.textLight}
               style={styles.input}
+              {...kb.inputProps}
             />
           </View>
           <Pressable onPress={onClose} style={styles.closeBtn} hitSlop={8}>
@@ -40,7 +43,11 @@ export default function SearchOverlay({ visible, onClose }: { visible: boolean; 
           </Pressable>
         </View>
 
-        <ScrollView contentContainerStyle={{ padding: spacing.xl }} keyboardShouldPersistTaps="handled">
+        <ScrollView
+          {...kb.scrollProps}
+          contentContainerStyle={{ padding: spacing.xl, paddingBottom: kb.contentPaddingBottom(spacing.xl) }}
+          keyboardShouldPersistTaps="handled"
+        >
           {query.trim().length === 0 ? (
             <>
               <Text weight="extrabold" style={{ fontSize: 13, marginBottom: spacing.sm }}>

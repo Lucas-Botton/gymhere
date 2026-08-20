@@ -6,11 +6,13 @@ import { colors, radius, spacing } from '../../theme';
 import { useApp } from '../../store/app';
 import { GYMS } from '../../data/seed';
 import { normalize } from '../../lib/filters';
+import { useKeyboardScrollFix } from '../../lib/useKeyboardScrollFix';
 
 export default function GymsSheet({ visible, onClose }: { visible: boolean; onClose: () => void }) {
   const gymIds = useApp((s) => s.coachDraft.gymIds);
   const update = useApp((s) => s.updateCoachDraft);
   const [query, setQuery] = useState('');
+  const kb = useKeyboardScrollFix();
 
   const toggle = (id: string) => update({ gymIds: gymIds.includes(id) ? gymIds.filter((x) => x !== id) : [...gymIds, id] });
 
@@ -18,15 +20,20 @@ export default function GymsSheet({ visible, onClose }: { visible: boolean; onCl
 
   return (
     <BottomSheet visible={visible} onClose={onClose} title="Salles où j’interviens">
-      <View style={{ paddingHorizontal: spacing.xl, paddingBottom: spacing.xl }}>
+      <ScrollView
+        {...kb.scrollProps}
+        style={{ paddingHorizontal: spacing.xl }}
+        contentContainerStyle={{ paddingBottom: kb.contentPaddingBottom(spacing.xl) }}
+      >
         <TextInput
           value={query}
           onChangeText={setQuery}
           placeholder="Rechercher une salle..."
           placeholderTextColor={colors.textLight}
           style={styles.input}
+          {...kb.inputProps}
         />
-        <ScrollView style={{ maxHeight: 360, marginTop: spacing.md }}>
+        <View style={{ marginTop: spacing.md }}>
           {results.map((g) => {
             const on = gymIds.includes(g.id);
             return (
@@ -42,8 +49,8 @@ export default function GymsSheet({ visible, onClose }: { visible: boolean; onCl
               </Pressable>
             );
           })}
-        </ScrollView>
-      </View>
+        </View>
+      </ScrollView>
     </BottomSheet>
   );
 }
