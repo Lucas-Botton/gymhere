@@ -19,6 +19,7 @@ export const GYM_CATEGORY_LABELS: Record<GymCategory, string> = {
   feminin: 'Salle 100% féminine',
   crossfit: 'Box de CrossFit',
   hyrox: 'Salle HYROX',
+  ems: 'Salle d’électrostimulation',
 };
 
 // Personalization only ever RE-ORDERS results, never filters — but since we
@@ -438,6 +439,58 @@ const RAW_GYMS: Omit<Gym, 'distanceKm'>[] = [
     address: '169-171 Avenue Lacassagne, 3e', quartier: 'Grange Blanche', lat: 45.748, lng: 4.865,
     hours: 'Lun–Ven 7h–21h', hoursColor: '#140E1F', hoursSub: 'Sam 9h30–16h',
     phone: '06 50 91 92 28', website: 'https://www.crossfit-secteur3.fr',
+    services: [], formulas: [], groups: [], coachIds: [], gallery: PHOTOS.slice(),
+  },
+  // Électrostimulation (EMS) studios — sessions are supervised and
+  // by-appointment by design (20-25 min, one-on-one), so "Sur
+  // rendez-vous" is the honest hours label rather than a guessed
+  // schedule for the studios where specific hours weren't confirmed.
+  {
+    id: 'bodyhit-bellecour', name: 'BodyHit Lyon Bellecour', category: 'ems', certified: false, sponsored: false,
+    photo: PHOTOS[0], tags: ['Électrostimulation', 'Coaching individuel'],
+    address: '39 Rue Thomassin, 2e', quartier: 'Bellecour', lat: 45.759, lng: 4.833,
+    hours: 'Sur rendez-vous', hoursColor: '#140E1F', hoursSub: '',
+    phone: '04 72 77 62 33', website: 'https://bodyhit.fr',
+    services: [], formulas: [], groups: [], coachIds: [], gallery: PHOTOS.slice(),
+  },
+  {
+    id: 'bodyhit-croixrousse', name: 'BodyHit Lyon Croix-Rousse', category: 'ems', certified: false, sponsored: false,
+    photo: PHOTOS[1], tags: ['Électrostimulation', 'Coaching individuel'],
+    address: '1 Place Commandant Arnaud, 4e', quartier: 'Croix-Rousse', lat: 45.774, lng: 4.826,
+    hours: 'Sur rendez-vous', hoursColor: '#140E1F', hoursSub: '',
+    website: 'https://bodyhit.fr',
+    services: [], formulas: [], groups: [], coachIds: [], gallery: PHOTOS.slice(),
+  },
+  {
+    id: 'bodyhit-confluence', name: 'BodyHit Lyon Confluence', category: 'ems', certified: false, sponsored: false,
+    photo: PHOTOS[2], tags: ['Électrostimulation', 'Coaching individuel'],
+    address: '4 Rue Charles Baudelaire, 2e', quartier: 'Confluence', lat: 45.739, lng: 4.817,
+    hours: 'Sur rendez-vous', hoursColor: '#140E1F', hoursSub: '',
+    website: 'https://bodyhit.fr',
+    services: [], formulas: [], groups: [], coachIds: [], gallery: PHOTOS.slice(),
+  },
+  {
+    id: 'bodyhit-brotteaux', name: 'BodyHit Lyon Brotteaux', category: 'ems', certified: false, sponsored: false,
+    photo: PHOTOS[3], tags: ['Électrostimulation', 'Coaching individuel'],
+    address: '114 bis Rue de Sèze, 6e', quartier: 'Brotteaux', lat: 45.766, lng: 4.849,
+    hours: 'Lun–Ven 8h–14h, 17h–21h', hoursColor: '#140E1F', hoursSub: 'Sam 11h–16h · Dim fermé',
+    phone: '06 21 26 25 22', website: 'https://bodyhit.fr',
+    services: [], formulas: [], groups: [], coachIds: [], gallery: PHOTOS.slice(),
+  },
+  {
+    id: 'ironbodyfit-partdieu', name: 'Iron Bodyfit Lyon Part-Dieu', category: 'ems', certified: false, sponsored: false,
+    photo: PHOTOS[0], tags: ['Électrostimulation', 'Coaching individuel'],
+    address: '140 Cours Lafayette, 3e', quartier: 'Part-Dieu', lat: 45.761, lng: 4.851,
+    hours: 'Sur rendez-vous', hoursColor: '#140E1F', hoursSub: '',
+    phone: '07 69 83 76 95', website: 'https://ironbodyfit-lyon.fr',
+    services: [], formulas: [], groups: [], coachIds: [], gallery: PHOTOS.slice(),
+  },
+  {
+    id: 'ironbodyfit-gerland', name: 'Iron Bodyfit Lyon Gerland', category: 'ems', certified: false, sponsored: false,
+    photo: PHOTOS[1], tags: ['Électrostimulation', 'Coaching individuel'],
+    address: '61 Allée d’Italie, 7e', quartier: 'Gerland', lat: 45.729, lng: 4.828,
+    hours: 'Sur rendez-vous', hoursColor: '#140E1F', hoursSub: '',
+    website: 'https://ironbodyfit.com',
     services: [], formulas: [], groups: [], coachIds: [], gallery: PHOTOS.slice(),
   },
 ];
