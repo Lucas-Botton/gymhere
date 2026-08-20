@@ -35,9 +35,16 @@ export interface GymFormula {
   highlight: boolean;
 }
 
+// What kind of place this is — shown as a small label under the gym name
+// so members know what they're walking into before they even open the
+// fiche. Kept as a closed set (rather than free text) so every gym stays
+// classified consistently.
+export type GymCategory = 'salle' | 'independante' | 'studio' | 'musculation' | 'feminin' | 'crossfit' | 'hyrox';
+
 export interface Gym {
   id: string;
   name: string;
+  category: GymCategory;
   certified: boolean;
   sponsored: boolean;
   // Google-sourced aggregate only — never gymhere's own reviews (see

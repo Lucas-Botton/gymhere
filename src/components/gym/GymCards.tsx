@@ -11,6 +11,7 @@ import { IconHeart } from '../ui/icons';
 import { colors, radius, shadow, spacing } from '../../theme';
 import { Gym } from '../../types';
 import { useApp } from '../../store/app';
+import { GYM_CATEGORY_LABELS } from '../../data/seed';
 import { distanceLabel } from '../../lib/filters';
 import { useGymDistanceKm } from '../../lib/useGymDistance';
 
@@ -61,6 +62,9 @@ export function GymCardFeatured({ gym }: { gym: Gym }) {
               </Text>
               {gym.certified ? <CertifiedBadge /> : null}
             </View>
+            <Text weight="extrabold" color={colors.textLight} style={{ fontSize: 10.5, textTransform: 'uppercase', letterSpacing: 0.3, marginTop: 2 }} numberOfLines={1}>
+              {GYM_CATEGORY_LABELS[gym.category]}
+            </Text>
             <Text weight="bold" color={colors.textMuted} style={{ fontSize: 12.5, marginTop: 3 }}>
               <GymRatingMeta gym={gym} distance={distanceLabel(distanceKm)} />
             </Text>
@@ -99,6 +103,9 @@ export function GymCardCompact({ gym }: { gym: Gym }) {
           </Text>
           {gym.certified ? <CertifiedBadge size={13} /> : null}
         </View>
+        <Text weight="extrabold" color={colors.textLight} style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: 0.3, marginTop: 1 }} numberOfLines={1}>
+          {GYM_CATEGORY_LABELS[gym.category]}
+        </Text>
         <Text weight="bold" color={colors.textMuted} style={{ fontSize: 11.5, marginTop: 2 }} numberOfLines={1}>
           <GymRatingMeta gym={gym} distance={distanceLabel(distanceKm)} />
         </Text>

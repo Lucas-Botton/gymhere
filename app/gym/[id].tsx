@@ -15,7 +15,7 @@ import EquipmentTabs from '../../src/components/gym/EquipmentTabs';
 import ShareSheet from '../../src/components/ui/ShareSheet';
 import BottomSheet from '../../src/components/ui/BottomSheet';
 import { colors, radius, shadow, shadowBleed, spacing } from '../../src/theme';
-import { findGym, COACHES } from '../../src/data/seed';
+import { findGym, COACHES, GYM_CATEGORY_LABELS } from '../../src/data/seed';
 import { useApp } from '../../src/store/app';
 import { useSession } from '../../src/store/session';
 import { useBookingSheet } from '../../src/store/booking';
@@ -101,6 +101,9 @@ export default function GymDetail() {
         <View style={styles.body}>
           <Text weight="black" style={{ fontSize: 22 }}>
             {gym.name}
+          </Text>
+          <Text weight="extrabold" color={colors.textLight} style={{ fontSize: 11.5, textTransform: 'uppercase', letterSpacing: 0.4, marginTop: 2 }}>
+            {GYM_CATEGORY_LABELS[gym.category]}
           </Text>
           <Text weight="bold" color={colors.textMuted} style={{ fontSize: 13, marginTop: 4 }}>
             <GymRatingMeta gym={gym} distance={distanceLabel(distanceKm)} starSize={12} />
