@@ -2,20 +2,16 @@ import React, { useEffect, useRef, useState } from 'react';
 import { View, StyleSheet, Pressable, Animated, Easing, TextInput, KeyboardAvoidingView, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
-import MapView, { Marker, PROVIDER_DEFAULT } from 'react-native-maps';
-import { LinearGradient } from 'expo-linear-gradient';
 import Text from '../src/components/ui/Text';
 import { Wordmark } from '../src/components/ui/Logo';
 import GradientBlock from '../src/components/ui/GradientBlock';
 import Glass from '../src/components/ui/Glass';
 import BottomSheet from '../src/components/ui/BottomSheet';
-import { GYMS, ME_LOCATION } from '../src/data/seed';
+import OnboardingMap from '../src/components/onboarding/OnboardingMap';
 import { IconLocationPin, IconChevronDown, IconBack, IconChevronRight } from '../src/components/ui/icons';
-import { colors, displayFont, radius, shadow, spacing } from '../src/theme';
+import { colors, displayFont, radius, spacing } from '../src/theme';
 import { useSession } from '../src/store/session';
 import { useLocationStore } from '../src/store/location';
-
-const MUTED_MAP_TYPE = Platform.OS === 'ios' ? 'mutedStandard' : 'standard';
 
 const CITIES = [
   { name: 'Lyon', live: true },
@@ -25,27 +21,6 @@ const CITIES = [
   { name: 'Lille', live: false },
   { name: 'Toulouse', live: false },
 ];
-
-function PulseDot() {
-  const scale = useRef(new Animated.Value(1)).current;
-  const opacity = useRef(new Animated.Value(0.9)).current;
-  useEffect(() => {
-    const loop = Animated.loop(
-      Animated.parallel([
-        Animated.timing(scale, { toValue: 2.2, duration: 1500, easing: Easing.out(Easing.ease), useNativeDriver: true }),
-        Animated.timing(opacity, { toValue: 0, duration: 1500, easing: Easing.out(Easing.ease), useNativeDriver: true }),
-      ])
-    );
-    loop.start();
-    return () => loop.stop();
-  }, []);
-  return (
-    <View style={{ width: 10, height: 10, alignItems: 'center', justifyContent: 'center' }}>
-      <Animated.View style={{ position: 'absolute', width: 10, height: 10, borderRadius: 5, backgroundColor: '#2FF0D6', transform: [{ scale }], opacity }} />
-      <View style={{ width: 7, height: 7, borderRadius: 3.5, backgroundColor: '#2FF0D6' }} />
-    </View>
-  );
-}
 
 function RadarRing({ delay }: { delay: number }) {
   const scale = useRef(new Animated.Value(0.7)).current;
@@ -125,43 +100,7 @@ export default function Onboarding() {
             </View>
 
             <View style={styles.mapCardShadow}>
-              <View style={styles.mapCard}>
-                <MapView
-                  provider={PROVIDER_DEFAULT}
-                  style={StyleSheet.absoluteFill}
-                  pointerEvents="none"
-                  mapType={MUTED_MAP_TYPE as any}
-                  initialRegion={{ latitude: ME_LOCATION.lat, longitude: ME_LOCATION.lng, latitudeDelta: 0.09, longitudeDelta: 0.09 }}
-                  scrollEnabled={false}
-                  zoomEnabled={false}
-                  rotateEnabled={false}
-                  pitchEnabled={false}
-                >
-                  {GYMS.filter((g) => g.priceFrom != null)
-                    .slice(0, 8)
-                    .map((g) => (
-                    <Marker key={g.id} coordinate={{ latitude: g.lat, longitude: g.lng }} anchor={{ x: 0.5, y: 0.5 }}>
-                      <View style={[styles.previewPin, shadow.card, g.sponsored && styles.previewPinSponsored]}>
-                        <Text weight="black" color={g.sponsored ? '#fff' : colors.ink} style={{ fontSize: 11 }}>
-                          {g.priceFrom}€
-                        </Text>
-                      </View>
-                    </Marker>
-                  ))}
-                </MapView>
-                <LinearGradient
-                  colors={['rgba(20,16,26,0.05)', 'rgba(20,16,26,0)', 'rgba(20,16,26,0.35)']}
-                  locations={[0, 0.3, 1]}
-                  style={StyleSheet.absoluteFill}
-                  pointerEvents="none"
-                />
-                <Glass variant="dark" intensity={40} style={styles.mapBadge}>
-                  <PulseDot />
-                  <Text weight="bold" color="#fff" style={{ fontSize: 11.5 }}>
-                    <Text weight="black" color="#fff" style={{ fontSize: 13.5 }}>{GYMS.length}</Text> salles actives
-                  </Text>
-                </Glass>
-              </View>
+              <OnboardingMap />
             </View>
 
             <Text weight="black" color="#fff" style={{ fontSize: 26, letterSpacing: -0.6, lineHeight: 30 }}>
@@ -319,35 +258,6 @@ const styles = StyleSheet.create({
     shadowRadius: 20,
     shadowOffset: { width: 0, height: 12 },
     elevation: 10,
-  },
-  mapCard: {
-    flex: 1,
-    borderRadius: radius.sheet,
-    overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.18)',
-  },
-  previewPin: {
-    height: 26,
-    paddingHorizontal: 10,
-    borderRadius: 13,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1.5,
-    borderColor: 'rgba(20,16,26,0.08)',
-  },
-  previewPinSponsored: { backgroundColor: colors.pink, borderColor: colors.pink },
-  mapBadge: {
-    position: 'absolute',
-    left: 14,
-    bottom: 14,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 11,
-    paddingHorizontal: 12,
-    paddingVertical: 7,
-    borderRadius: radius.pill,
   },
   ctaBtn: {
     marginTop: spacing.xl,
