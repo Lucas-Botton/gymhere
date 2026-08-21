@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { View, StyleSheet, Platform, AccessibilityInfo } from 'react-native';
-import MapView, { Marker, PROVIDER_DEFAULT } from 'react-native-maps';
+import MapView, { PROVIDER_DEFAULT } from 'react-native-maps';
 import { LinearGradient } from 'expo-linear-gradient';
 import Svg, { Path } from 'react-native-svg';
 import Animated, {
@@ -11,6 +11,7 @@ import Animated, {
   withDelay,
   withRepeat,
   withSequence,
+  withSpring,
   Easing,
   runOnJS,
 } from 'react-native-reanimated';
@@ -48,11 +49,13 @@ function bearingDeg(lat: number, lng: number) {
 
 const GYMS_SHOWN = GYMS.filter((g) => g.priceFrom != null).slice(0, 8);
 
-// Precomputed once: each pin's bearing (to sync with the sweep) and which
-// of the 3 reveal waves it belongs to, nearest gyms first.
+// Precomputed once: each pin's id/coords/bearing (to sync with the sweep)
+// and which of the 3 reveal waves it belongs to, nearest gyms first.
 const PINS_DATA = (() => {
   const withDist = GYMS_SHOWN.map((g) => ({
-    gym: g,
+    id: g.id,
+    lat: g.lat,
+    lng: g.lng,
     bearing: bearingDeg(g.lat, g.lng),
     dist: Math.hypot(g.lat - ME_LOCATION.lat, g.lng - ME_LOCATION.lng),
   }));
@@ -122,30 +125,29 @@ function AnimatedCounter({ target, reduceMotion }: { target: number; reduceMotio
   );
 }
 
-// Deliberately NOT Animated-driven: react-native-maps snapshots a Marker's
-// children to composite them onto the native map, and that snapshot is
-// only guaranteed to reflect real React re-renders — both Reanimated and
-// classic Animated (even non-native-driven) mutate native view props
-// outside that commit cycle and don't reliably get captured. So the
-// "reveal" pop-in below is a plain 2-stage state machine (small → full),
-// each stage a real re-render, timed to land inside the brief window the
-// parent flips tracksViewChanges back on for.
-function GymPin({ revealed }: { revealed: boolean }) {
-  const [stage, setStage] = useState(revealed ? 2 : 0);
+// A plain absolutely-positioned overlay, NOT a react-native-maps Marker.
+// Across three separate attempts, custom views rendered as Marker children
+// on this card proved unreliable — invisible on mount, or visible but
+// never picked up further style updates — almost certainly because this
+// card's real size isn't settled the moment the MapView mounts (unlike a
+// full-screen map). Since this card never pans or zooms, each pin's pixel
+// position can just be computed once (via `pointForCoordinate`, see
+// below) and the pin rendered as an ordinary View at that fixed spot —
+// completely sidestepping the Marker snapshot mechanism, with full,
+// reliable Reanimated support.
+function GymPin({ revealed, style }: { revealed: boolean; style: any }) {
+  const progress = useSharedValue(0);
   useEffect(() => {
-    if (!revealed || stage === 2) return;
-    setStage(1);
-    const t = setTimeout(() => setStage(2), 130);
-    return () => clearTimeout(t);
+    if (revealed) progress.value = withSpring(1, { damping: 14, stiffness: 160 });
   }, [revealed]);
-
-  const scale = stage === 0 ? 0.4 : stage === 1 ? 0.85 : 1;
-  const opacity = stage === 0 ? 0 : stage === 1 ? 0.75 : 1;
-
+  const pinStyle = useAnimatedStyle(() => ({
+    opacity: progress.value,
+    transform: [{ scale: 0.35 + progress.value * 0.65 }],
+  }));
   return (
-    <View style={[styles.pinWrap, { opacity, transform: [{ scale }] }]}>
+    <Animated.View style={[styles.pinWrap, style, pinStyle]} pointerEvents="none">
       <View style={styles.pinDot} />
-    </View>
+    </Animated.View>
   );
 }
 
@@ -158,7 +160,7 @@ function MeOverlay({
 }) {
   const floatY = useSharedValue(0);
   const sectorRotate = useSharedValue(0);
-  const sectorOpacity = useSharedValue(reduceMotion ? 0 : 0);
+  const sectorOpacity = useSharedValue(0);
   const lap = useSharedValue(0);
   const ring1Scale = useSharedValue(0.3);
   const ring1Opacity = useSharedValue(0);
@@ -196,7 +198,7 @@ function MeOverlay({
       for (let i = 0; i < PINS_DATA.length; i++) {
         const p = PINS_DATA[i];
         if (p.revealLap === lap.value && prev < p.bearing && val >= p.bearing) {
-          runOnJS(onReveal)(p.gym.id);
+          runOnJS(onReveal)(p.id);
         }
       }
     },
@@ -231,18 +233,15 @@ function MeOverlay({
 }
 
 export default function OnboardingMap() {
+  const mapRef = useRef<MapView>(null);
   const [reduceMotion, setReduceMotion] = useState(false);
-  // Unlike GymMap (full-screen, already sized when it mounts), this card
-  // sits inside a flex column with other siblings (header, title, buttons)
-  // that are still laying out when the MapView first mounts. A Marker with
-  // tracksViewChanges={false} from frame one can get its one-and-only
-  // native snapshot taken against that not-yet-final size and never
-  // recover — the pin silently stays blank forever. So we keep tracking on
-  // until onMapReady fires *and* a short buffer has passed for the marker
-  // views' own layout pass, then let per-pin reveals (below) take over.
-  const [pinsSettled, setPinsSettled] = useState(false);
+  // Gym pins are plain overlay Views (see GymPin above), positioned once
+  // this resolves. `pointForCoordinate` needs the MapView to already have
+  // its final on-screen size, so it's called after onMapReady plus a
+  // short buffer — the same margin of safety the rest of this card's
+  // layout-timing fixes have used.
+  const [pinPos, setPinPos] = useState<Record<string, { x: number; y: number }> | null>(null);
   const [revealed, setRevealed] = useState<Set<string>>(() => new Set());
-  const [trackedIds, setTrackedIds] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     let mounted = true;
@@ -255,28 +254,36 @@ export default function OnboardingMap() {
   }, []);
 
   useEffect(() => {
-    if (reduceMotion) setRevealed(new Set(PINS_DATA.map((p) => p.gym.id)));
+    if (reduceMotion) setRevealed(new Set(PINS_DATA.map((p) => p.id)));
   }, [reduceMotion]);
 
-  // Same brief-window trick as GymMap's selection swap: flip
-  // tracksViewChanges on just long enough to capture the pin's pop-in (two
-  // real re-renders via GymPin's stage state), then freeze it again.
   const revealPin = (id: string) => {
     setRevealed((prev) => (prev.has(id) ? prev : new Set(prev).add(id)));
-    setTrackedIds((prev) => new Set(prev).add(id));
-    setTimeout(() => {
-      setTrackedIds((prev) => {
-        if (!prev.has(id)) return prev;
-        const next = new Set(prev);
-        next.delete(id);
-        return next;
-      });
-    }, 350);
+  };
+
+  const onMapReady = () => {
+    setTimeout(async () => {
+      const map = mapRef.current;
+      if (!map) return;
+      try {
+        const entries = await Promise.all(
+          PINS_DATA.map(async (p) => {
+            const pt = await map.pointForCoordinate({ latitude: p.lat, longitude: p.lng });
+            return [p.id, pt] as const;
+          })
+        );
+        setPinPos(Object.fromEntries(entries));
+      } catch {
+        // Decorative card — if the native bridge isn't ready yet, pins
+        // simply stay hidden rather than crashing anything.
+      }
+    }, 250);
   };
 
   return (
     <View style={styles.mapCard}>
       <MapView
+        ref={mapRef}
         provider={PROVIDER_DEFAULT}
         style={StyleSheet.absoluteFill}
         pointerEvents="none"
@@ -286,14 +293,8 @@ export default function OnboardingMap() {
         zoomEnabled={false}
         rotateEnabled={false}
         pitchEnabled={false}
-        onMapReady={() => setTimeout(() => setPinsSettled(true), 300)}
-      >
-        {PINS_DATA.map((p) => (
-          <Marker key={p.gym.id} coordinate={{ latitude: p.gym.lat, longitude: p.gym.lng }} anchor={{ x: 0.5, y: 0.5 }} tracksViewChanges={!pinsSettled || trackedIds.has(p.gym.id)}>
-            <GymPin revealed={revealed.has(p.gym.id)} />
-          </Marker>
-        ))}
-      </MapView>
+        onMapReady={onMapReady}
+      />
 
       {/* Duotone brand wash, fused with the map underneath. */}
       <LinearGradient
@@ -305,6 +306,14 @@ export default function OnboardingMap() {
         pointerEvents="none"
       />
       <LinearGradient colors={['transparent', 'rgba(14,10,22,0.35)']} style={StyleSheet.absoluteFill} pointerEvents="none" />
+
+      {pinPos
+        ? PINS_DATA.map((p) => {
+            const pos = pinPos[p.id];
+            if (!pos) return null;
+            return <GymPin key={p.id} revealed={revealed.has(p.id)} style={{ position: 'absolute', left: pos.x - 9, top: pos.y - 9 }} />;
+          })
+        : null}
 
       <MeOverlay reduceMotion={reduceMotion} onReveal={revealPin} />
 
