@@ -47,21 +47,25 @@ function bearingDeg(lat: number, lng: number) {
   return deg;
 }
 
-const GYMS_SHOWN = GYMS.filter((g) => g.priceFrom != null).slice(0, 8);
+// No gym in the seed data has `priceFrom` (or even `price`) populated —
+// filtering on it here silently produced an empty list, which was the
+// actual reason nothing ever rendered through four rounds of "fixing" the
+// Marker/positioning mechanism instead. The 8 closest gyms is both a
+// filter that always yields real pins and the right thing to show here.
+const GYMS_SHOWN = [...GYMS].sort((a, b) => a.distanceKm - b.distanceKm).slice(0, 8);
 
 // Precomputed once: each pin's id/coords/bearing (to sync with the sweep)
-// and which of the 3 reveal waves it belongs to, nearest gyms first.
+// and which of the 3 reveal waves it belongs to, nearest gyms first
+// (GYMS_SHOWN is already distance-sorted).
 const PINS_DATA = (() => {
-  const withDist = GYMS_SHOWN.map((g) => ({
+  const groupSize = Math.max(1, Math.ceil(GYMS_SHOWN.length / REVEAL_LAPS));
+  return GYMS_SHOWN.map((g, i) => ({
     id: g.id,
     lat: g.lat,
     lng: g.lng,
     bearing: bearingDeg(g.lat, g.lng),
-    dist: Math.hypot(g.lat - ME_LOCATION.lat, g.lng - ME_LOCATION.lng),
+    revealLap: Math.floor(i / groupSize),
   }));
-  withDist.sort((a, b) => a.dist - b.dist);
-  const groupSize = Math.max(1, Math.ceil(withDist.length / REVEAL_LAPS));
-  return withDist.map((p, i) => ({ ...p, revealLap: Math.floor(i / groupSize) }));
 })();
 
 // The sweep's soft "comet tail": instead of one flat wedge, several thin
