@@ -146,6 +146,15 @@ function MeOverlay({ reduceMotion }: { reduceMotion: boolean }) {
 
 export default function OnboardingMap() {
   const [reduceMotion, setReduceMotion] = useState(false);
+  // Unlike GymMap (full-screen, already sized when it mounts), this card
+  // sits inside a flex column with other siblings (header, title, buttons)
+  // that are still laying out when the MapView first mounts. A Marker with
+  // tracksViewChanges={false} from frame one can get its one-and-only
+  // native snapshot taken against that not-yet-final size and never
+  // recover — the pin silently stays blank forever. So we keep tracking on
+  // until onMapReady fires *and* a short buffer has passed for the marker
+  // views' own layout pass, then freeze for performance.
+  const [pinsSettled, setPinsSettled] = useState(false);
 
   useEffect(() => {
     let mounted = true;
@@ -171,9 +180,10 @@ export default function OnboardingMap() {
         zoomEnabled={false}
         rotateEnabled={false}
         pitchEnabled={false}
+        onMapReady={() => setTimeout(() => setPinsSettled(true), 300)}
       >
         {gymsShown.map((g) => (
-          <Marker key={g.id} coordinate={{ latitude: g.lat, longitude: g.lng }} anchor={{ x: 0.5, y: 0.5 }} tracksViewChanges={false}>
+          <Marker key={g.id} coordinate={{ latitude: g.lat, longitude: g.lng }} anchor={{ x: 0.5, y: 0.5 }} tracksViewChanges={!pinsSettled}>
             <GymPin />
           </Marker>
         ))}
