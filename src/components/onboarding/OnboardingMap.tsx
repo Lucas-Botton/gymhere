@@ -1,5 +1,5 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { View, StyleSheet, Platform, AccessibilityInfo } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, StyleSheet, Platform, AccessibilityInfo, LayoutChangeEvent } from 'react-native';
 import MapView, { PROVIDER_DEFAULT } from 'react-native-maps';
 import { LinearGradient } from 'expo-linear-gradient';
 import Svg, { Path } from 'react-native-svg';
@@ -35,10 +35,10 @@ const RADAR_SIZE = 340;
 const LAP_MS = 3800; // one full, unhurried sweep — a slow authoritative radar, not a frantic one
 const REVEAL_LAPS = 3; // pins are found in 3 waves (closest first), not all at once
 
-// Compass bearing (0-360, clockwise from north) from "me" to a gym. The
-// map never rotates (rotateEnabled=false, north stays up), so a plain
-// planar approximation is directionally accurate enough for this
-// decorative card — no need for real geodesic math over a few km of Lyon.
+// Compass bearing (0-360, clockwise from north) from "me" to a gym. Only
+// used to pick which curated slot (see PIN_SLOTS below) a pin lands in —
+// this card is a decorative showcase, not a real map, so exact geographic
+// placement isn't the goal; keeping the general direction right is.
 function bearingDeg(lat: number, lng: number) {
   const dLat = lat - ME_LOCATION.lat;
   const dLng = lng - ME_LOCATION.lng;
@@ -54,18 +54,53 @@ function bearingDeg(lat: number, lng: number) {
 // filter that always yields real pins and the right thing to show here.
 const GYMS_SHOWN = [...GYMS].sort((a, b) => a.distanceKm - b.distanceKm).slice(0, 8);
 
-// Precomputed once: each pin's id/coords/bearing (to sync with the sweep)
-// and which of the 3 reveal waves it belongs to, nearest gyms first
-// (GYMS_SHOWN is already distance-sorted).
+// Precomputed once: each pin's id/bearing (to sync with the sweep, and to
+// pick a slot below) and which of the 3 reveal waves it belongs to,
+// nearest gyms first (GYMS_SHOWN is already distance-sorted).
 const PINS_DATA = (() => {
   const groupSize = Math.max(1, Math.ceil(GYMS_SHOWN.length / REVEAL_LAPS));
   return GYMS_SHOWN.map((g, i) => ({
     id: g.id,
-    lat: g.lat,
-    lng: g.lng,
     bearing: bearingDeg(g.lat, g.lng),
     revealLap: Math.floor(i / groupSize),
   }));
+})();
+
+// Curated, evenly-aired layout (fraction of the card's width/height) —
+// real Lyon gyms near "me" happen to cluster tightly to one side, which
+// reads as lopsided and cramped on a small card. Weighted toward the
+// right/center, kept light on the far left (that's west Lyon) and clear
+// of the bottom-left counter badge. Pins are matched to slots by angular
+// order (both measured from the card's center) rather than 1:1 by real
+// bearing, so a gym roughly east of "me" still lands broadly on the
+// right — just spread out nicely instead of bunched up.
+const PIN_SLOTS: { x: number; y: number }[] = [
+  { x: 0.64, y: 0.13 },
+  { x: 0.85, y: 0.27 },
+  { x: 0.88, y: 0.55 },
+  { x: 0.74, y: 0.78 },
+  { x: 0.48, y: 0.87 },
+  { x: 0.27, y: 0.72 },
+  { x: 0.16, y: 0.40 },
+  { x: 0.34, y: 0.17 },
+];
+
+const SLOT_BY_ID: Record<string, { x: number; y: number }> = (() => {
+  const slotAngles = PIN_SLOTS.map((s) => {
+    const dx = s.x - 0.5;
+    const dy = s.y - 0.5;
+    let a = (Math.atan2(dx, -dy) * 180) / Math.PI;
+    if (a < 0) a += 360;
+    return { slot: s, angle: a };
+  }).sort((a, b) => a.angle - b.angle);
+
+  const byBearing = [...PINS_DATA].sort((a, b) => a.bearing - b.bearing);
+
+  const map: Record<string, { x: number; y: number }> = {};
+  byBearing.forEach((p, i) => {
+    map[p.id] = slotAngles[i % slotAngles.length].slot;
+  });
+  return map;
 })();
 
 // The sweep's soft "comet tail": instead of one flat wedge, several thin
@@ -129,16 +164,13 @@ function AnimatedCounter({ target, reduceMotion }: { target: number; reduceMotio
   );
 }
 
-// A plain absolutely-positioned overlay, NOT a react-native-maps Marker.
-// Across three separate attempts, custom views rendered as Marker children
-// on this card proved unreliable — invisible on mount, or visible but
-// never picked up further style updates — almost certainly because this
-// card's real size isn't settled the moment the MapView mounts (unlike a
-// full-screen map). Since this card never pans or zooms, each pin's pixel
-// position can just be computed once (via `pointForCoordinate`, see
-// below) and the pin rendered as an ordinary View at that fixed spot —
-// completely sidestepping the Marker snapshot mechanism, with full,
-// reliable Reanimated support.
+// A plain absolutely-positioned overlay, NOT a react-native-maps Marker —
+// custom views rendered as Marker children on this card proved unreliable
+// across several attempts (this card's real size isn't settled the
+// moment the MapView mounts, unlike a full-screen map). Since positions
+// here are curated slots rather than real projected coordinates anyway,
+// there's no need for the map's native bridge at all: just an ordinary
+// View at a fixed spot, with full, reliable Reanimated support.
 function GymPin({ revealed, style }: { revealed: boolean; style: any }) {
   const progress = useSharedValue(0);
   useEffect(() => {
@@ -237,14 +269,11 @@ function MeOverlay({
 }
 
 export default function OnboardingMap() {
-  const mapRef = useRef<MapView>(null);
   const [reduceMotion, setReduceMotion] = useState(false);
-  // Gym pins are plain overlay Views (see GymPin above), positioned once
-  // this resolves. `pointForCoordinate` needs the MapView to already have
-  // its final on-screen size, so it's called after onMapReady plus a
-  // short buffer — the same margin of safety the rest of this card's
-  // layout-timing fixes have used.
-  const [pinPos, setPinPos] = useState<Record<string, { x: number; y: number }> | null>(null);
+  // Pin slots are fractions of the card's own size, so the only thing
+  // needed to turn them into pixels is the card's measured width/height —
+  // a plain onLayout, no map projection or native bridge call involved.
+  const [cardSize, setCardSize] = useState<{ w: number; h: number } | null>(null);
   const [revealed, setRevealed] = useState<Set<string>>(() => new Set());
 
   useEffect(() => {
@@ -265,29 +294,14 @@ export default function OnboardingMap() {
     setRevealed((prev) => (prev.has(id) ? prev : new Set(prev).add(id)));
   };
 
-  const onMapReady = () => {
-    setTimeout(async () => {
-      const map = mapRef.current;
-      if (!map) return;
-      try {
-        const entries = await Promise.all(
-          PINS_DATA.map(async (p) => {
-            const pt = await map.pointForCoordinate({ latitude: p.lat, longitude: p.lng });
-            return [p.id, pt] as const;
-          })
-        );
-        setPinPos(Object.fromEntries(entries));
-      } catch {
-        // Decorative card — if the native bridge isn't ready yet, pins
-        // simply stay hidden rather than crashing anything.
-      }
-    }, 250);
+  const onCardLayout = (e: LayoutChangeEvent) => {
+    const { width, height } = e.nativeEvent.layout;
+    setCardSize({ w: width, h: height });
   };
 
   return (
-    <View style={styles.mapCard}>
+    <View style={styles.mapCard} onLayout={onCardLayout}>
       <MapView
-        ref={mapRef}
         provider={PROVIDER_DEFAULT}
         style={StyleSheet.absoluteFill}
         pointerEvents="none"
@@ -297,7 +311,6 @@ export default function OnboardingMap() {
         zoomEnabled={false}
         rotateEnabled={false}
         pitchEnabled={false}
-        onMapReady={onMapReady}
       />
 
       {/* Duotone brand wash, fused with the map underneath. */}
@@ -311,11 +324,12 @@ export default function OnboardingMap() {
       />
       <LinearGradient colors={['transparent', 'rgba(14,10,22,0.35)']} style={StyleSheet.absoluteFill} pointerEvents="none" />
 
-      {pinPos
+      {cardSize
         ? PINS_DATA.map((p) => {
-            const pos = pinPos[p.id];
-            if (!pos) return null;
-            return <GymPin key={p.id} revealed={revealed.has(p.id)} style={{ position: 'absolute', left: pos.x - 9, top: pos.y - 9 }} />;
+            const slot = SLOT_BY_ID[p.id];
+            const x = slot.x * cardSize.w;
+            const y = slot.y * cardSize.h;
+            return <GymPin key={p.id} revealed={revealed.has(p.id)} style={{ position: 'absolute', left: x - 9, top: y - 9 }} />;
           })
         : null}
 
