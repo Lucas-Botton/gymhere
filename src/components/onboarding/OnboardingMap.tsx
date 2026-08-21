@@ -33,7 +33,7 @@ const MUTED_MAP_TYPE = Platform.OS === 'ios' ? 'mutedStandard' : 'standard';
 const PIN_MINT = '#2FF0D6'; // exact match to the badge's own pulsing dot below
 const RADAR_SIZE = 340;
 const LAP_MS = 3800; // one full, unhurried sweep — a slow authoritative radar, not a frantic one
-const REVEAL_LAPS = 3; // pins are found in 3 waves (closest first), not all at once
+const WAVE_SIZES = [1, 2, 2, 2, 1]; // 8 pins found in small batches, 1-2 per lap, not all at once
 
 // Compass bearing (0-360, clockwise from north) from "me" to a gym. Only
 // used to pick which curated slot (see PIN_SLOTS below) a pin lands in —
@@ -54,26 +54,11 @@ function bearingDeg(lat: number, lng: number) {
 // filter that always yields real pins and the right thing to show here.
 const GYMS_SHOWN = [...GYMS].sort((a, b) => a.distanceKm - b.distanceKm).slice(0, 8);
 
-// Precomputed once: each pin's id/bearing (to sync with the sweep, and to
-// pick a slot below) and which of the 3 reveal waves it belongs to,
-// nearest gyms first (GYMS_SHOWN is already distance-sorted).
-const PINS_DATA = (() => {
-  const groupSize = Math.max(1, Math.ceil(GYMS_SHOWN.length / REVEAL_LAPS));
-  return GYMS_SHOWN.map((g, i) => ({
-    id: g.id,
-    bearing: bearingDeg(g.lat, g.lng),
-    revealLap: Math.floor(i / groupSize),
-  }));
-})();
-
 // Curated, evenly-aired layout (fraction of the card's width/height) —
 // real Lyon gyms near "me" happen to cluster tightly to one side, which
 // reads as lopsided and cramped on a small card. Weighted toward the
 // right/center, kept light on the far left (that's west Lyon) and clear
-// of the bottom-left counter badge. Pins are matched to slots by angular
-// order (both measured from the card's center) rather than 1:1 by real
-// bearing, so a gym roughly east of "me" still lands broadly on the
-// right — just spread out nicely instead of bunched up.
+// of the bottom-left counter badge.
 const PIN_SLOTS: { x: number; y: number }[] = [
   { x: 0.64, y: 0.13 },
   { x: 0.85, y: 0.27 },
@@ -85,7 +70,15 @@ const PIN_SLOTS: { x: number; y: number }[] = [
   { x: 0.34, y: 0.17 },
 ];
 
-const SLOT_BY_ID: Record<string, { x: number; y: number }> = (() => {
+// Precomputed once: each pin's drawn slot, that slot's own angle from the
+// card's center (NOT the gym's real geographic bearing — the radar sweep
+// is compared against this so a pin only reveals the moment the sweep
+// visually passes over where it's actually drawn), and which wave it's
+// found in. Slots are matched to gyms by angular order versus real
+// bearing order, so a gym roughly east of "me" still lands broadly on
+// the right — spread out nicely rather than bunched up — while wave
+// order keeps the closest real gyms found first.
+const PINS_DATA = (() => {
   const slotAngles = PIN_SLOTS.map((s) => {
     const dx = s.x - 0.5;
     const dy = s.y - 0.5;
@@ -94,13 +87,22 @@ const SLOT_BY_ID: Record<string, { x: number; y: number }> = (() => {
     return { slot: s, angle: a };
   }).sort((a, b) => a.angle - b.angle);
 
-  const byBearing = [...PINS_DATA].sort((a, b) => a.bearing - b.bearing);
+  const byBearing = [...GYMS_SHOWN].sort((a, b) => bearingDeg(a.lat, a.lng) - bearingDeg(b.lat, b.lng));
 
-  const map: Record<string, { x: number; y: number }> = {};
-  byBearing.forEach((p, i) => {
-    map[p.id] = slotAngles[i % slotAngles.length].slot;
+  return byBearing.map((g, i) => {
+    const { slot, angle } = slotAngles[i % slotAngles.length];
+    const waveIndex = GYMS_SHOWN.indexOf(g); // position in the distance-sorted order
+    let revealLap = WAVE_SIZES.length - 1;
+    let cum = 0;
+    for (let w = 0; w < WAVE_SIZES.length; w++) {
+      cum += WAVE_SIZES[w];
+      if (waveIndex < cum) {
+        revealLap = w;
+        break;
+      }
+    }
+    return { id: g.id, slot, angle, revealLap };
   });
-  return map;
 })();
 
 // The sweep's soft "comet tail": instead of one flat wedge, several thin
@@ -221,11 +223,11 @@ function MeOverlay({
     ring2Scale.value = withDelay(650, withRepeat(withSequence(withTiming(0.3, { duration: 0 }), withTiming(3, { duration: 1300, easing: Easing.out(Easing.cubic) })), -1, false));
   }, [reduceMotion]);
 
-  // Every time the sweep crosses a pin's bearing, during that pin's
-  // assigned wave (closest gyms found on lap 0, then further out), reveal
-  // it. `sectorRotate` resets 0→360 each lap (a seamless-looking loop:
-  // 360deg and 0deg render identically), so a drop in value means a new
-  // lap just started.
+  // Every time the sweep visually passes over a pin's drawn slot, during
+  // that pin's assigned wave (closest real gyms found on lap 0, then
+  // further out, 1-2 at a time), reveal it. `sectorRotate` resets 0→360
+  // each lap (a seamless-looking loop: 360deg and 0deg render
+  // identically), so a drop in value means a new lap just started.
   useAnimatedReaction(
     () => sectorRotate.value,
     (val, prev) => {
@@ -233,7 +235,7 @@ function MeOverlay({
       if (val < prev) lap.value += 1;
       for (let i = 0; i < PINS_DATA.length; i++) {
         const p = PINS_DATA[i];
-        if (p.revealLap === lap.value && prev < p.bearing && val >= p.bearing) {
+        if (p.revealLap === lap.value && prev < p.angle && val >= p.angle) {
           runOnJS(onReveal)(p.id);
         }
       }
@@ -326,9 +328,8 @@ export default function OnboardingMap() {
 
       {cardSize
         ? PINS_DATA.map((p) => {
-            const slot = SLOT_BY_ID[p.id];
-            const x = slot.x * cardSize.w;
-            const y = slot.y * cardSize.h;
+            const x = p.slot.x * cardSize.w;
+            const y = p.slot.y * cardSize.h;
             return <GymPin key={p.id} revealed={revealed.has(p.id)} style={{ position: 'absolute', left: x - 9, top: y - 9 }} />;
           })
         : null}
