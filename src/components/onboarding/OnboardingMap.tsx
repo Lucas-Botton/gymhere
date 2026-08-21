@@ -71,9 +71,9 @@ const PIN_SLOTS: { x: number; y: number }[] = [
 ];
 
 // How many seconds into the very first lap the first pin(s) should
-// reveal — fast enough that the "radar finds gyms" idea reads instantly,
-// not so instant it fires before the sector has even faded in.
-const FIRST_REVEAL_SEC = 2.3;
+// reveal — right at the start, just after the sector has faded in
+// (~400ms), so the "radar finds gyms" idea reads instantly.
+const FIRST_REVEAL_SEC = 0.5;
 
 // Precomputed once: each pin's drawn slot, that slot's own angle from the
 // card's center (NOT the gym's real geographic bearing — the radar sweep
