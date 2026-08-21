@@ -70,14 +70,20 @@ const PIN_SLOTS: { x: number; y: number }[] = [
   { x: 0.34, y: 0.17 },
 ];
 
+// How many seconds into the very first lap the first pin(s) should
+// reveal — fast enough that the "radar finds gyms" idea reads instantly,
+// not so instant it fires before the sector has even faded in.
+const FIRST_REVEAL_SEC = 2.3;
+
 // Precomputed once: each pin's drawn slot, that slot's own angle from the
 // card's center (NOT the gym's real geographic bearing — the radar sweep
 // is compared against this so a pin only reveals the moment the sweep
 // visually passes over where it's actually drawn), and which wave it's
-// found in. Slots are matched to gyms by angular order versus real
-// bearing order, so a gym roughly east of "me" still lands broadly on
-// the right — spread out nicely rather than bunched up — while wave
-// order keeps the closest real gyms found first.
+// found in. Wave order keeps the closest real gyms found first; within
+// that, slots are handed out in angular order starting from whichever
+// slot lands around FIRST_REVEAL_SEC, so the very first pin always shows
+// up quickly instead of at the mercy of wherever its slot happened to
+// fall in the sweep.
 const PINS_DATA = (() => {
   const slotAngles = PIN_SLOTS.map((s) => {
     const dx = s.x - 0.5;
@@ -87,21 +93,35 @@ const PINS_DATA = (() => {
     return { slot: s, angle: a };
   }).sort((a, b) => a.angle - b.angle);
 
-  const byBearing = [...GYMS_SHOWN].sort((a, b) => bearingDeg(a.lat, a.lng) - bearingDeg(b.lat, b.lng));
+  const firstRevealAngle = (FIRST_REVEAL_SEC / (LAP_MS / 1000)) * 360;
+  let startIdx = 0;
+  let bestDelta = Infinity;
+  slotAngles.forEach((s, i) => {
+    const delta = Math.abs(s.angle - firstRevealAngle);
+    if (delta < bestDelta) {
+      bestDelta = delta;
+      startIdx = i;
+    }
+  });
+  const orderedSlots = [...slotAngles.slice(startIdx), ...slotAngles.slice(0, startIdx)];
 
-  return byBearing.map((g, i) => {
-    const { slot, angle } = slotAngles[i % slotAngles.length];
-    const waveIndex = GYMS_SHOWN.indexOf(g); // position in the distance-sorted order
+  const withWave = GYMS_SHOWN.map((g, distIdx) => {
     let revealLap = WAVE_SIZES.length - 1;
     let cum = 0;
     for (let w = 0; w < WAVE_SIZES.length; w++) {
       cum += WAVE_SIZES[w];
-      if (waveIndex < cum) {
+      if (distIdx < cum) {
         revealLap = w;
         break;
       }
     }
-    return { id: g.id, slot, angle, revealLap };
+    return { g, revealLap, bearing: bearingDeg(g.lat, g.lng) };
+  });
+  withWave.sort((a, b) => a.revealLap - b.revealLap || a.bearing - b.bearing);
+
+  return withWave.map((entry, i) => {
+    const { slot, angle } = orderedSlots[i % orderedSlots.length];
+    return { id: entry.g.id, slot, angle, revealLap: entry.revealLap };
   });
 })();
 
