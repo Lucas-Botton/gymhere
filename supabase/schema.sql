@@ -35,8 +35,18 @@ create table if not exists public.gyms (
   services jsonb not null default '[]', -- [{name, icon, tint, color}]
   formulas jsonb not null default '[]', -- [{name, sub, price, highlight}]
   tags text[] not null default '{}',
+  -- Self-service back-office (free tier): every gym starts
+  -- as an unclaimed skeleton fiche seeded by gymhere; owner_id is set the
+  -- moment a real gym manager claims it and can then edit it directly.
+  -- pending_review lets the claim go live immediately for the owner (no
+  -- dead time) while still flagging it for a quick manual quality check —
+  -- it is NOT a paywall, just a light spam/abuse guard.
+  owner_id uuid references public.users(id) on delete set null,
+  claimed_at timestamptz,
+  pending_review boolean not null default false,
   created_at timestamptz not null default now()
 );
+create index if not exists gyms_owner_id_idx on public.gyms(owner_id);
 
 -- ========== GYM EQUIPMENT (la signature gymhere) ==========
 create table if not exists public.gym_equipment (
@@ -224,6 +234,16 @@ create policy "reviews are public" on public.reviews for select using (true);
 create policy "users select own" on public.users for select using (auth.uid() = id);
 create policy "users update own" on public.users for update using (auth.uid() = id);
 create policy "users insert own" on public.users for insert with check (auth.uid() = id);
+
+-- Gyms : la salle revendiquée est gérée par son owner_id. Deux policies
+-- "for update" permissives se combinent en OR côté Postgres : la 1ère
+-- couvre l'édition normale par le propriétaire, la 2nde couvre
+-- uniquement la revendication d'une fiche encore non réclamée
+-- (owner_id null) — et son "with check" impose que la nouvelle valeur
+-- soit bien auth.uid(), donc personne ne peut réclamer une fiche au nom
+-- de quelqu'un d'autre ni reprendre une fiche déjà revendiquée.
+create policy "gym owner update" on public.gyms for update using (auth.uid() = owner_id) with check (auth.uid() = owner_id);
+create policy "gym claim when unclaimed" on public.gyms for update using (owner_id is null) with check (auth.uid() = owner_id);
 
 -- Coaches : le propriétaire (user_id) gère sa fiche
 create policy "coach owner all" on public.coaches for all using (auth.uid() = user_id) with check (auth.uid() = user_id);

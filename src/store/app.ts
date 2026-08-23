@@ -10,7 +10,9 @@ import {
   ChatMessage,
   ChatThread,
   CoachDraft,
+  Gym,
   GymCategory,
+  GymEditableFields,
   Report,
   ReportReason,
   Review,
@@ -131,6 +133,15 @@ interface AppState {
 
   inbox: InboxEntry[];
   decideInbox: (id: string, decision: 'accepted' | 'declined') => void;
+
+  // Self-service gym back-office (free tier): edits a claimed gym's owner
+  // makes are stored as a per-gym override on top of the seed data,
+  // never mutating src/data/seed.ts itself — mirrors how coachDraft
+  // never touches the seed coaches.
+  gymOverrides: Record<string, Partial<GymEditableFields>>;
+  updateGymOverride: (gymId: string, partial: Partial<GymEditableFields>) => void;
+  claimedGymIds: string[];
+  markGymClaimed: (gymId: string) => void;
 
   toast: string;
   showToast: (msg: string) => void;
@@ -298,6 +309,12 @@ export const useApp = create<AppState>()(
       inbox: seedInbox,
       decideInbox: (id, decision) => set((s) => ({ inbox: s.inbox.map((i) => (i.id === id ? { ...i, decided: decision } : i)) })),
 
+      gymOverrides: {},
+      updateGymOverride: (gymId, partial) =>
+        set((s) => ({ gymOverrides: { ...s.gymOverrides, [gymId]: { ...s.gymOverrides[gymId], ...partial } } })),
+      claimedGymIds: [],
+      markGymClaimed: (gymId) => set((s) => (s.claimedGymIds.includes(gymId) ? s : { claimedGymIds: [...s.claimedGymIds, gymId] })),
+
       toast: '',
       showToast: (msg) => {
         set({ toast: msg });
@@ -318,10 +335,20 @@ export const useApp = create<AppState>()(
         coachDraft: s.coachDraft,
         coachPlan: s.coachPlan,
         inbox: s.inbox,
+        gymOverrides: s.gymOverrides,
+        claimedGymIds: s.claimedGymIds,
       }),
     }
   )
 );
+
+// Merges a self-service owner's edits on top of the seed gym — never
+// mutates src/data/seed.ts, so a gym with no override behaves exactly as
+// it did before this feature existed.
+export function withGymOverride(gym: Gym, overrides: Record<string, Partial<GymEditableFields>>): Gym {
+  const o = overrides[gym.id];
+  return o ? { ...gym, ...o } : gym;
+}
 
 export function computeCompletion(draft: CoachDraft): number {
   let score = 0;

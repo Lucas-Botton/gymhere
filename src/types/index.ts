@@ -77,6 +77,26 @@ export interface Gym {
   groups: EquipmentGroup[];
   coachIds: string[];
   gallery: string[];
+  // Self-service back-office (free): absent/undefined ownerId means the
+  // fiche is still an unclaimed skeleton gymhere seeded. Once a gym
+  // manager claims it, ownerId is set and they can edit the fields below
+  // directly — see GYM_EDITABLE_FIELDS in store/app.ts.
+  ownerId?: string;
+  claimedAt?: string;
+  pendingReview?: boolean;
+}
+
+// The subset of Gym fields a claimed gym's owner can actually edit
+// themselves from the back-office — deliberately narrow for v1 (identity
+// fields like id/lat/lng/category/photo/tags stay gymhere-controlled for
+// now, to avoid a self-service fiche drifting off the map or into the
+// wrong category; the fields here are the ones that actually go stale
+// fast and matter most to a visiting member).
+export interface GymEditableFields {
+  hours: string;
+  hoursSub: string;
+  phone?: string;
+  website?: string;
 }
 
 export interface CoachCredential {

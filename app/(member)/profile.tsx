@@ -9,7 +9,7 @@ import Button from '../../src/components/ui/Button';
 import GradientBlock from '../../src/components/ui/GradientBlock';
 import { Avatar } from '../../src/components/ui/primitives';
 import BottomSheet from '../../src/components/ui/BottomSheet';
-import { IconBell, IconBolt, IconInbox, IconPencil, IconSettings } from '../../src/components/ui/icons';
+import { IconBell, IconBolt, IconDumbbell, IconInbox, IconPencil, IconSettings } from '../../src/components/ui/icons';
 import { colors, radius, shadow, spacing } from '../../src/theme';
 import { useSession } from '../../src/store/session';
 import { useApp } from '../../src/store/app';
@@ -17,7 +17,7 @@ import { useKeyboardScrollFix } from '../../src/lib/useKeyboardScrollFix';
 import { pickProfilePhoto } from '../../src/lib/imagePicker';
 
 export default function Profile() {
-  const { user, city, becomeCoach } = useSession();
+  const { user, city, becomeCoach, ownedGymId } = useSession();
   const setAvatarUrl = useSession((s) => s.setAvatarUrl);
 
   const changeAvatar = async () => {
@@ -122,6 +122,12 @@ export default function Profile() {
               tint={colors.bgTint2}
               icon={<IconBell size={15} color={colors.ink} />}
               onPress={() => router.push('/notifications')}
+            />
+            <Row
+              label={ownedGymId ? 'Ma salle' : 'Je gère une salle'}
+              tint={colors.bgTint2}
+              icon={<IconDumbbell size={15} color={colors.ink} />}
+              onPress={() => router.push(ownedGymId ? '/ma-salle' : '/claim-gym')}
             />
             <Row
               label="Réglages"

@@ -16,6 +16,11 @@ interface SessionState {
   role: Role | null;
   loggedIn: boolean;
   isCoach: boolean;
+  // Self-service gym back-office: the id of the gym this account manages,
+  // if any (one claimed gym per account, like one coach fiche per
+  // account). Separate from `role`/`isCoach` — managing a gym isn't a
+  // whole parallel app mode the way coach is, just an unlocked screen.
+  ownedGymId: string | null;
   user: UserProfile | null;
   authOpen: boolean;
   authActionLabel: string;
@@ -31,6 +36,7 @@ interface SessionState {
   setAvatarUrl: (uri: string) => void;
   becomeCoach: () => void;
   backToMember: () => void;
+  claimGym: (gymId: string) => void;
   syncFromSupabase: (user: { id: string; email?: string | null } | null) => void;
   resetOnboarding: () => void;
 }
@@ -43,6 +49,7 @@ export const useSession = create<SessionState>()(
       role: null,
       loggedIn: false,
       isCoach: false,
+      ownedGymId: null,
       user: null,
       authOpen: false,
       authActionLabel: '',
@@ -87,6 +94,7 @@ export const useSession = create<SessionState>()(
 
       becomeCoach: () => set({ isCoach: true, role: 'coach', loggedIn: true }),
       backToMember: () => set({ role: 'member' }),
+      claimGym: (gymId) => set({ ownedGymId: gymId, loggedIn: true }),
 
       // Appelé au démarrage quand un projet Supabase est branché, pour resynchroniser
       // la session locale avec la session Supabase réelle (voir app/_layout.tsx).
@@ -126,6 +134,7 @@ export const useSession = create<SessionState>()(
         role: s.role,
         loggedIn: s.loggedIn,
         isCoach: s.isCoach,
+        ownedGymId: s.ownedGymId,
         user: s.user,
       }),
     }

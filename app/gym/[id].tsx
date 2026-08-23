@@ -16,7 +16,7 @@ import ShareSheet from '../../src/components/ui/ShareSheet';
 import BottomSheet from '../../src/components/ui/BottomSheet';
 import { colors, radius, shadow, shadowBleed, spacing } from '../../src/theme';
 import { findGym, COACHES, GYM_CATEGORY_LABELS } from '../../src/data/seed';
-import { useApp } from '../../src/store/app';
+import { useApp, withGymOverride } from '../../src/store/app';
 import { useSession } from '../../src/store/session';
 import { useBookingSheet } from '../../src/store/booking';
 import { useReportSheet } from '../../src/store/report';
@@ -27,7 +27,9 @@ import { Review } from '../../src/types';
 
 export default function GymDetail() {
   const { id, group } = useLocalSearchParams<{ id: string; group?: string }>();
-  const gym = findGym(id);
+  const baseGym = findGym(id);
+  const gymOverrides = useApp((s) => s.gymOverrides);
+  const gym = baseGym ? withGymOverride(baseGym, gymOverrides) : baseGym;
   const [shareOpen, setShareOpen] = useState(false);
   const [reviewsOpen, setReviewsOpen] = useState(false);
   const allReviews = useApp((s) => s.reviews);
