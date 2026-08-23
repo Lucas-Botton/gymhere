@@ -9,7 +9,7 @@ import Button from '../../src/components/ui/Button';
 import GradientBlock from '../../src/components/ui/GradientBlock';
 import { Avatar } from '../../src/components/ui/primitives';
 import BottomSheet from '../../src/components/ui/BottomSheet';
-import { IconBell } from '../../src/components/ui/icons';
+import { IconBell, IconBolt, IconInbox, IconPencil, IconSettings } from '../../src/components/ui/icons';
 import { colors, radius, shadow, spacing } from '../../src/theme';
 import { useSession } from '../../src/store/session';
 import { useApp } from '../../src/store/app';
@@ -43,7 +43,7 @@ export default function Profile() {
               <Pressable onPress={changeAvatar} style={styles.avatarWrap}>
                 <Avatar size={66} gradient="blueMint" initial={(user?.name ?? 'A')[0]} uri={user?.avatarUrl} />
                 <View style={styles.editBadge}>
-                  <Text style={{ fontSize: 11 }}>✎</Text>
+                  <IconPencil size={11} color={colors.ink} />
                 </View>
               </Pressable>
               <View>
@@ -67,7 +67,7 @@ export default function Profile() {
           >
             <LinearGradient colors={['#140E1F', '#3A2150', '#5A2E66']} locations={[0, 0.65, 1]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={[styles.coachCard, shadow.card]}>
               <View style={styles.coachIconBox}>
-                <Text style={{ fontSize: 18 }}>⚡</Text>
+                <IconBolt size={18} color="#fff" />
               </View>
               <View style={{ flex: 1 }}>
                 <Text weight="black" color="#fff" style={{ fontSize: 14.5 }}>
@@ -107,20 +107,28 @@ export default function Profile() {
               label="Mes demandes"
               badge={bookings.length}
               tint={colors.bgTint2}
-              iconColor={colors.ink}
-              icon="▤"
+              icon={<IconInbox size={15} color={colors.ink} />}
               onPress={() => router.push('/requests')}
             />
-            <Row label="Modifier mon profil" tint={colors.bgTint2} iconColor={colors.ink} icon="✎" onPress={() => setEditOpen(true)} />
+            <Row
+              label="Modifier mon profil"
+              tint={colors.bgTint2}
+              icon={<IconPencil size={15} color={colors.ink} />}
+              onPress={() => setEditOpen(true)}
+            />
             <Row
               label="Notifications"
               badge={unread}
               tint={colors.bgTint2}
-              iconColor={colors.ink}
               icon={<IconBell size={15} color={colors.ink} />}
               onPress={() => router.push('/notifications')}
             />
-            <Row label="Réglages" tint={colors.bgTint2} iconColor={colors.ink} icon="⚙" onPress={() => router.push('/settings')} />
+            <Row
+              label="Réglages"
+              tint={colors.bgTint2}
+              icon={<IconSettings size={15} color={colors.ink} />}
+              onPress={() => router.push('/settings')}
+            />
           </View>
         </View>
       </ScrollView>
@@ -144,26 +152,16 @@ function Row({
   badge,
   icon,
   tint,
-  iconColor,
 }: {
   label: string;
   onPress: () => void;
   badge?: number;
   icon: React.ReactNode;
   tint: string;
-  iconColor: string;
 }) {
   return (
     <Pressable onPress={onPress} style={styles.row}>
-      <View style={[styles.rowIcon, { backgroundColor: tint }]}>
-        {typeof icon === 'string' ? (
-          <Text weight="black" color={iconColor} style={{ fontSize: 14 }}>
-            {icon}
-          </Text>
-        ) : (
-          icon
-        )}
-      </View>
+      <View style={[styles.rowIcon, { backgroundColor: tint }]}>{icon}</View>
       <Text weight="extrabold" style={{ fontSize: 14.5, flex: 1 }}>
         {label}
       </Text>

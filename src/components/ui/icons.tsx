@@ -190,3 +190,31 @@ export function IconClose({ size = 24, color = '#000' }: IconProps) {
     </Svg>
   );
 }
+
+export function IconPencil({ size = 24, color = '#000' }: IconProps) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      <Path
+        d="M4 20.5 4.6 16.6 15.6 5.6a1.8 1.8 0 0 1 2.5 0l1.3 1.3a1.8 1.8 0 0 1 0 2.5L8.4 20.4 4 20.5Z"
+        stroke={color}
+        strokeWidth={sw}
+        strokeLinejoin="round"
+        strokeLinecap="round"
+      />
+      <Path d="M14 7.5 16.5 10" stroke={color} strokeWidth={sw} strokeLinecap="round" />
+    </Svg>
+  );
+}
+
+export function IconSettings({ size = 24, color = '#000' }: IconProps) {
+  const teeth = [0, 60, 120, 180, 240, 300];
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      {teeth.map((deg) => (
+        <Rect key={deg} x="10.6" y="1.6" width="2.8" height="4.2" rx="1" fill={color} transform={`rotate(${deg} 12 12)`} />
+      ))}
+      <Circle cx="12" cy="12" r="7.4" stroke={color} strokeWidth={sw} />
+      <Circle cx="12" cy="12" r="2.6" fill={color} />
+    </Svg>
+  );
+}
