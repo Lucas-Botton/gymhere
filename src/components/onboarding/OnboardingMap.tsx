@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, StyleSheet, Platform, AccessibilityInfo, LayoutChangeEvent } from 'react-native';
 import MapView, { PROVIDER_DEFAULT } from 'react-native-maps';
 import { LinearGradient } from 'expo-linear-gradient';
-import Svg, { Path } from 'react-native-svg';
+import Svg, { Defs, RadialGradient as SvgRadialGradient, Stop, Rect } from 'react-native-svg';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -11,7 +11,6 @@ import Animated, {
   withDelay,
   withRepeat,
   withSequence,
-  withSpring,
   Easing,
   runOnJS,
 } from 'react-native-reanimated';
@@ -28,12 +27,16 @@ import { colors, radius } from '../../theme';
 // This is the brief's own fallback (option B): keep the existing native
 // map (already muted, already pointerEvents="none", never pans/zooms) and
 // deliver the actual visual goal — the duotone brand wash, on-brand pins,
-// and the radar entrance — as overlays on top of it.
+// and a premium "detecting" ambiance — as overlays on top of it.
+//
+// An earlier version of this ambiance used a rotating radar sector (a
+// spinning mint wedge, like a sonar/game HUD) — on reflection that read
+// as gadgety rather than premium. Replaced with a soft breathing glow
+// around "me" (same technique as the splash screen's halo) plus gentle
+// expanding rings — the Uber/Find My/Apple Maps language for "searching
+// nearby", not a video-game radar.
 const MUTED_MAP_TYPE = Platform.OS === 'ios' ? 'mutedStandard' : 'standard';
 const PIN_MINT = '#2FF0D6'; // exact match to the badge's own pulsing dot below
-const RADAR_SIZE = 340;
-const LAP_MS = 3800; // one full, unhurried sweep — a slow authoritative radar, not a frantic one
-const WAVE_SIZES = [1, 2, 2, 2, 1]; // 8 pins found in small batches, 1-2 per lap, not all at once
 
 // Compass bearing (0-360, clockwise from north) from "me" to a gym. Only
 // used to pick which curated slot (see PIN_SLOTS below) a pin lands in —
@@ -70,22 +73,12 @@ const PIN_SLOTS: { x: number; y: number }[] = [
   { x: 0.34, y: 0.17 },
 ];
 
-// How many seconds into the very first lap the first pin(s) should
-// reveal — right at the start, just after the sector has faded in
-// (~400ms), so the "radar finds gyms" idea reads instantly.
-const FIRST_REVEAL_SEC = 0.5;
-
-// Precomputed once: each pin's drawn slot, that slot's own angle from the
-// card's center (NOT the gym's real geographic bearing — the radar sweep
-// is compared against this so a pin only reveals the moment the sweep
-// visually passes over where it's actually drawn), and which wave it's
-// found in. Wave order keeps the closest real gyms found first; within
-// that, slots are handed out in angular order starting from whichever
-// slot lands around FIRST_REVEAL_SEC, so the very first pin always shows
-// up quickly instead of at the mercy of wherever its slot happened to
-// fall in the sweep.
+// Each pin's drawn slot, matched to a real gym by angular order (both
+// measured from the card's center) so a gym roughly east of "me" still
+// lands broadly on the right, just spread out nicely rather than bunched
+// up. Reveal order/timing is handled separately below, by REVEAL_DELAYS.
 const PINS_DATA = (() => {
-  const slotAngles = PIN_SLOTS.map((s) => {
+  const slotsByAngle = PIN_SLOTS.map((s) => {
     const dx = s.x - 0.5;
     const dy = s.y - 0.5;
     let a = (Math.atan2(dx, -dy) * 180) / Math.PI;
@@ -93,58 +86,18 @@ const PINS_DATA = (() => {
     return { slot: s, angle: a };
   }).sort((a, b) => a.angle - b.angle);
 
-  const firstRevealAngle = (FIRST_REVEAL_SEC / (LAP_MS / 1000)) * 360;
-  let startIdx = 0;
-  let bestDelta = Infinity;
-  slotAngles.forEach((s, i) => {
-    const delta = Math.abs(s.angle - firstRevealAngle);
-    if (delta < bestDelta) {
-      bestDelta = delta;
-      startIdx = i;
-    }
-  });
-  const orderedSlots = [...slotAngles.slice(startIdx), ...slotAngles.slice(0, startIdx)];
+  const byBearing = [...GYMS_SHOWN].sort((a, b) => bearingDeg(a.lat, a.lng) - bearingDeg(b.lat, b.lng));
 
-  const withWave = GYMS_SHOWN.map((g, distIdx) => {
-    let revealLap = WAVE_SIZES.length - 1;
-    let cum = 0;
-    for (let w = 0; w < WAVE_SIZES.length; w++) {
-      cum += WAVE_SIZES[w];
-      if (distIdx < cum) {
-        revealLap = w;
-        break;
-      }
-    }
-    return { g, revealLap, bearing: bearingDeg(g.lat, g.lng) };
-  });
-  withWave.sort((a, b) => a.revealLap - b.revealLap || a.bearing - b.bearing);
-
-  return withWave.map((entry, i) => {
-    const { slot, angle } = orderedSlots[i % orderedSlots.length];
-    return { id: entry.g.id, slot, angle, revealLap: entry.revealLap };
-  });
+  return byBearing.map((g, i) => ({ id: g.id, slot: slotsByAngle[i % slotsByAngle.length].slot }));
 })();
 
-// The sweep's soft "comet tail": instead of one flat wedge, several thin
-// slices with opacity ramping from ~0 (trailing edge) to ~0.5 (leading
-// edge, in the rotation's direction of travel). Pure static geometry —
-// precomputed once, the only thing that ever animates is the wrapping
-// view's `rotate` transform.
-const RADAR_SLICES = 8;
-const SLICE_SPAN = 42 / RADAR_SLICES;
-const SLICE_PATHS = (() => {
-  const r = RADAR_SIZE / 2;
-  const paths: { d: string; opacity: number }[] = [];
-  for (let i = 0; i < RADAR_SLICES; i++) {
-    const startDeg = -111 + i * SLICE_SPAN;
-    const endDeg = startDeg + SLICE_SPAN + 0.5; // slight overlap hides seams
-    const a1 = (startDeg * Math.PI) / 180;
-    const a2 = (endDeg * Math.PI) / 180;
-    const d = `M ${r} ${r} L ${r + r * Math.cos(a1)} ${r + r * Math.sin(a1)} A ${r} ${r} 0 0 1 ${r + r * Math.cos(a2)} ${r + r * Math.sin(a2)} Z`;
-    paths.push({ d, opacity: ((i + 1) / RADAR_SLICES) * 0.5 });
-  }
-  return paths;
-})();
+// A simple, hand-tuned stagger — closest real gyms first, the very first
+// one almost immediately (so the "finding gyms nearby" idea reads right
+// away), the rest trickling in over the following few seconds. Decoupled
+// from the ambient glow's own animation entirely; no geometry to keep in
+// sync, which is also just simpler.
+const REVEAL_DELAYS_MS = [450, 1400, 2100, 2850, 3600, 4400, 5250, 6100];
+const REVEAL_ORDER = GYMS_SHOWN.map((g) => g.id); // already distance-sorted
 
 function PulseDot() {
   const scale = useSharedValue(1);
@@ -192,15 +145,17 @@ function AnimatedCounter({ target, reduceMotion }: { target: number; reduceMotio
 // moment the MapView mounts, unlike a full-screen map). Since positions
 // here are curated slots rather than real projected coordinates anyway,
 // there's no need for the map's native bridge at all: just an ordinary
-// View at a fixed spot, with full, reliable Reanimated support.
+// View at a fixed spot, with full, reliable Reanimated support. The pop-in
+// itself is deliberately restrained — a soft settle, not a bouncy spring —
+// to match the calmer, more premium feel of the glow it's paired with.
 function GymPin({ revealed, style }: { revealed: boolean; style: any }) {
   const progress = useSharedValue(0);
   useEffect(() => {
-    if (revealed) progress.value = withSpring(1, { damping: 14, stiffness: 160 });
+    if (revealed) progress.value = withTiming(1, { duration: 550, easing: Easing.out(Easing.cubic) });
   }, [revealed]);
   const pinStyle = useAnimatedStyle(() => ({
     opacity: progress.value,
-    transform: [{ scale: 0.35 + progress.value * 0.65 }],
+    transform: [{ scale: 0.7 + progress.value * 0.3 }],
   }));
   return (
     <Animated.View style={[styles.pinWrap, style, pinStyle]} pointerEvents="none">
@@ -209,78 +164,86 @@ function GymPin({ revealed, style }: { revealed: boolean; style: any }) {
   );
 }
 
-function MeOverlay({
-  reduceMotion,
-  onReveal,
-}: {
-  reduceMotion: boolean;
-  onReveal: (id: string) => void;
-}) {
+// A soft radial-gradient glow, not a hard-edged ring — same technique as
+// the splash screen's halo (Svg + RadialGradient), reused here so the
+// whole app's "premium glow" language stays consistent. Transparent at
+// the very center and the outer edge, a soft bright band in between:
+// reads as a gentle pulse rather than a sonar ping. Mint, echoing the
+// gyms it's "finding" — the small halo right around "me" (below) stays
+// pink to match the position dot itself.
+const GLOW_SIZE = 220;
+function GlowPulse({ style }: { style: any }) {
+  return (
+    <Animated.View style={[styles.glowWrap, style]} pointerEvents="none">
+      <Svg width={GLOW_SIZE} height={GLOW_SIZE}>
+        <Defs>
+          <SvgRadialGradient id="pulse" cx="50%" cy="50%" r="50%">
+            <Stop offset="0%" stopColor={PIN_MINT} stopOpacity={0} />
+            <Stop offset="70%" stopColor={PIN_MINT} stopOpacity={0} />
+            <Stop offset="88%" stopColor={PIN_MINT} stopOpacity={0.5} />
+            <Stop offset="100%" stopColor={PIN_MINT} stopOpacity={0} />
+          </SvgRadialGradient>
+        </Defs>
+        <Rect x={0} y={0} width={GLOW_SIZE} height={GLOW_SIZE} fill="url(#pulse)" />
+      </Svg>
+    </Animated.View>
+  );
+}
+
+const HALO_SIZE = 80;
+function MeHalo({ style }: { style: any }) {
+  return (
+    <Animated.View style={[styles.meHaloWrap, style]} pointerEvents="none">
+      <Svg width={HALO_SIZE} height={HALO_SIZE}>
+        <Defs>
+          <SvgRadialGradient id="meHalo" cx="50%" cy="50%" r="50%">
+            <Stop offset="0%" stopColor={colors.pink} stopOpacity={0.5} />
+            <Stop offset="100%" stopColor={colors.pink} stopOpacity={0} />
+          </SvgRadialGradient>
+        </Defs>
+        <Rect x={0} y={0} width={HALO_SIZE} height={HALO_SIZE} fill="url(#meHalo)" />
+      </Svg>
+    </Animated.View>
+  );
+}
+
+function MeOverlay({ reduceMotion }: { reduceMotion: boolean }) {
   const floatY = useSharedValue(0);
-  const sectorRotate = useSharedValue(0);
-  const sectorOpacity = useSharedValue(0);
-  const lap = useSharedValue(0);
-  const ring1Scale = useSharedValue(0.3);
-  const ring1Opacity = useSharedValue(0);
-  const ring2Scale = useSharedValue(0.3);
-  const ring2Opacity = useSharedValue(0);
+  const haloScale = useSharedValue(1);
+  const haloOpacity = useSharedValue(0.55);
+  const pulse1Scale = useSharedValue(0.4);
+  const pulse1Opacity = useSharedValue(0);
+  const pulse2Scale = useSharedValue(0.4);
+  const pulse2Opacity = useSharedValue(0);
 
   useEffect(() => {
     if (reduceMotion) return;
 
     floatY.value = withRepeat(withSequence(withTiming(-4, { duration: 1300, easing: Easing.inOut(Easing.sin) }), withTiming(4, { duration: 1300, easing: Easing.inOut(Easing.sin) })), -1, true);
 
-    // Radar sector: fades in once, then sweeps forever at a constant,
-    // unhurried angular speed. A decelerating easing here reads as "spins
-    // fast then freezes" — a sweep needs even speed, so this stays linear.
-    sectorOpacity.value = withTiming(1, { duration: 400 });
-    sectorRotate.value = withRepeat(withTiming(360, { duration: LAP_MS, easing: Easing.linear }), -1, false);
+    // A slow, gentle breathing halo right around "me" — always present,
+    // never sharp or mechanical.
+    haloScale.value = withRepeat(withSequence(withTiming(1.12, { duration: 1900, easing: Easing.inOut(Easing.sin) }), withTiming(1, { duration: 1900, easing: Easing.inOut(Easing.sin) })), -1, false);
+    haloOpacity.value = withRepeat(withSequence(withTiming(0.85, { duration: 1900, easing: Easing.inOut(Easing.sin) }), withTiming(0.55, { duration: 1900, easing: Easing.inOut(Easing.sin) })), -1, false);
 
-    // Two concentric pulses around "me", looping.
-    ring1Opacity.value = withRepeat(withSequence(withTiming(0.5, { duration: 0 }), withTiming(0, { duration: 1300, easing: Easing.out(Easing.cubic) })), -1, false);
-    ring1Scale.value = withRepeat(withSequence(withTiming(0.3, { duration: 0 }), withTiming(3, { duration: 1300, easing: Easing.out(Easing.cubic) })), -1, false);
-    ring2Opacity.value = withDelay(650, withRepeat(withSequence(withTiming(0.5, { duration: 0 }), withTiming(0, { duration: 1300, easing: Easing.out(Easing.cubic) })), -1, false));
-    ring2Scale.value = withDelay(650, withRepeat(withSequence(withTiming(0.3, { duration: 0 }), withTiming(3, { duration: 1300, easing: Easing.out(Easing.cubic) })), -1, false));
+    // Two slow, soft pulses expanding outward and fading — an ambient
+    // "searching nearby" cue, not a directional sweep.
+    pulse1Opacity.value = withRepeat(withSequence(withTiming(0.55, { duration: 0 }), withTiming(0, { duration: 2600, easing: Easing.out(Easing.cubic) })), -1, false);
+    pulse1Scale.value = withRepeat(withSequence(withTiming(0.4, { duration: 0 }), withTiming(2.3, { duration: 2600, easing: Easing.out(Easing.quad) })), -1, false);
+    pulse2Opacity.value = withDelay(1300, withRepeat(withSequence(withTiming(0.55, { duration: 0 }), withTiming(0, { duration: 2600, easing: Easing.out(Easing.cubic) })), -1, false));
+    pulse2Scale.value = withDelay(1300, withRepeat(withSequence(withTiming(0.4, { duration: 0 }), withTiming(2.3, { duration: 2600, easing: Easing.out(Easing.quad) })), -1, false));
   }, [reduceMotion]);
 
-  // Every time the sweep visually passes over a pin's drawn slot, during
-  // that pin's assigned wave (closest real gyms found on lap 0, then
-  // further out, 1-2 at a time), reveal it. `sectorRotate` resets 0→360
-  // each lap (a seamless-looking loop: 360deg and 0deg render
-  // identically), so a drop in value means a new lap just started.
-  useAnimatedReaction(
-    () => sectorRotate.value,
-    (val, prev) => {
-      if (prev === null) return;
-      if (val < prev) lap.value += 1;
-      for (let i = 0; i < PINS_DATA.length; i++) {
-        const p = PINS_DATA[i];
-        if (p.revealLap === lap.value && prev < p.angle && val >= p.angle) {
-          runOnJS(onReveal)(p.id);
-        }
-      }
-    },
-    []
-  );
-
   const dotStyle = useAnimatedStyle(() => ({ transform: [{ translateY: floatY.value }] }));
-  const sectorStyle = useAnimatedStyle(() => ({ opacity: sectorOpacity.value, transform: [{ rotate: `${sectorRotate.value}deg` }] }));
-  const ring1Style = useAnimatedStyle(() => ({ opacity: ring1Opacity.value, transform: [{ scale: ring1Scale.value }] }));
-  const ring2Style = useAnimatedStyle(() => ({ opacity: ring2Opacity.value, transform: [{ scale: ring2Scale.value }] }));
+  const haloStyle = useAnimatedStyle(() => ({ opacity: haloOpacity.value, transform: [{ scale: haloScale.value }] }));
+  const pulse1Style = useAnimatedStyle(() => ({ opacity: pulse1Opacity.value, transform: [{ scale: pulse1Scale.value }] }));
+  const pulse2Style = useAnimatedStyle(() => ({ opacity: pulse2Opacity.value, transform: [{ scale: pulse2Scale.value }] }));
 
   return (
     <View style={styles.meOverlayWrap} pointerEvents="none">
-      {!reduceMotion ? (
-        <Animated.View style={[styles.radarSector, sectorStyle]}>
-          <Svg width={RADAR_SIZE} height={RADAR_SIZE}>
-            {SLICE_PATHS.map((s, i) => (
-              <Path key={i} d={s.d} fill={PIN_MINT} fillOpacity={s.opacity} />
-            ))}
-          </Svg>
-        </Animated.View>
-      ) : null}
-      {!reduceMotion ? <Animated.View style={[styles.meRing, ring1Style]} /> : null}
-      {!reduceMotion ? <Animated.View style={[styles.meRing, ring2Style]} /> : null}
+      {!reduceMotion ? <GlowPulse style={pulse1Style} /> : null}
+      {!reduceMotion ? <GlowPulse style={pulse2Style} /> : null}
+      {!reduceMotion ? <MeHalo style={haloStyle} /> : null}
       <Animated.View style={[styles.meDotWrap, dotStyle]}>
         <View style={styles.meDotBorder}>
           <GradientBlock kind="coralPink" style={styles.meDotCore} />
@@ -309,12 +272,13 @@ export default function OnboardingMap() {
   }, []);
 
   useEffect(() => {
-    if (reduceMotion) setRevealed(new Set(PINS_DATA.map((p) => p.id)));
+    if (reduceMotion) {
+      setRevealed(new Set(PINS_DATA.map((p) => p.id)));
+      return;
+    }
+    const timers = REVEAL_ORDER.map((id, i) => setTimeout(() => setRevealed((prev) => (prev.has(id) ? prev : new Set(prev).add(id))), REVEAL_DELAYS_MS[i % REVEAL_DELAYS_MS.length]));
+    return () => timers.forEach(clearTimeout);
   }, [reduceMotion]);
-
-  const revealPin = (id: string) => {
-    setRevealed((prev) => (prev.has(id) ? prev : new Set(prev).add(id)));
-  };
 
   const onCardLayout = (e: LayoutChangeEvent) => {
     const { width, height } = e.nativeEvent.layout;
@@ -354,7 +318,7 @@ export default function OnboardingMap() {
           })
         : null}
 
-      <MeOverlay reduceMotion={reduceMotion} onReveal={revealPin} />
+      <MeOverlay reduceMotion={reduceMotion} />
 
       <Glass variant="dark" intensity={40} style={styles.mapBadge}>
         <PulseDot />
@@ -391,8 +355,8 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   meOverlayWrap: { ...StyleSheet.absoluteFillObject, alignItems: 'center', justifyContent: 'center' },
-  radarSector: { position: 'absolute', width: RADAR_SIZE, height: RADAR_SIZE, marginLeft: -RADAR_SIZE / 2, marginTop: -RADAR_SIZE / 2, left: '50%', top: '50%' },
-  meRing: { position: 'absolute', width: 20, height: 20, borderRadius: 10, borderWidth: 2, borderColor: colors.pink },
+  glowWrap: { position: 'absolute', width: GLOW_SIZE, height: GLOW_SIZE, marginLeft: -GLOW_SIZE / 2, marginTop: -GLOW_SIZE / 2, left: '50%', top: '50%' },
+  meHaloWrap: { position: 'absolute', width: HALO_SIZE, height: HALO_SIZE, marginLeft: -HALO_SIZE / 2, marginTop: -HALO_SIZE / 2, left: '50%', top: '50%' },
   meDotWrap: { alignItems: 'center', justifyContent: 'center' },
   meDotBorder: { width: 20, height: 20, borderRadius: 10, backgroundColor: '#fff', alignItems: 'center', justifyContent: 'center' },
   meDotCore: { width: 14, height: 14, borderRadius: 7 },
