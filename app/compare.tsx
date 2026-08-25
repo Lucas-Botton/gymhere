@@ -6,10 +6,11 @@ import ScreenHeader from '../src/components/ui/ScreenHeader';
 import GradientBlock from '../src/components/ui/GradientBlock';
 import { Chip } from '../src/components/ui/primitives';
 import { colors, radius, shadow, spacing } from '../src/theme';
-import { GYMS } from '../src/data/seed';
+import { useApp } from '../src/store/app';
 import { normalize, gymBrands, gymServiceNames } from '../src/lib/filters';
 
 export default function Compare() {
+  const gyms = useApp((s) => s.gyms);
   const [ids, setIds] = useState<string[]>(['gymnass']);
   const [query, setQuery] = useState('');
 
@@ -18,8 +19,8 @@ export default function Compare() {
   };
 
   const q = normalize(query.trim());
-  const options = GYMS.filter((g) => q === '' || normalize(g.name).includes(q));
-  const selected = GYMS.filter((g) => ids.includes(g.id));
+  const options = gyms.filter((g) => q === '' || normalize(g.name).includes(q));
+  const selected = gyms.filter((g) => ids.includes(g.id));
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.bgTint }}>

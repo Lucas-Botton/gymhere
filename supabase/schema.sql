@@ -20,6 +20,7 @@ create table if not exists public.users (
 create table if not exists public.gyms (
   id text primary key,
   name text not null,
+  category text not null default 'salle', -- GymCategory union, see src/types/index.ts
   address text not null,
   quartier text not null,
   lat double precision not null,
@@ -29,6 +30,8 @@ create table if not exists public.gyms (
   sponsored boolean not null default false,
   hours text,
   hours_sub text,
+  phone text,
+  website text,
   price_min integer not null default 0,
   google_rating numeric(2,1), -- null = no verified figure, never 0 as a stand-in
   google_reviews integer, -- gymhere's own reviews live in the reviews table below
@@ -47,6 +50,13 @@ create table if not exists public.gyms (
   created_at timestamptz not null default now()
 );
 create index if not exists gyms_owner_id_idx on public.gyms(owner_id);
+-- `category`/`phone`/`website` were added after the table already existed
+-- on some projects (this one included) — `create table if not exists`
+-- above is a no-op in that case, so these ALTERs are what actually land
+-- the columns there too.
+alter table public.gyms add column if not exists category text not null default 'salle';
+alter table public.gyms add column if not exists phone text;
+alter table public.gyms add column if not exists website text;
 
 -- ========== GYM EQUIPMENT (la signature gymhere) ==========
 create table if not exists public.gym_equipment (

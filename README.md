@@ -66,10 +66,18 @@ Supabase est un service gratuit pour démarrer qui héberge la base de données,
 5. Dans **Authentication > Providers** du projet Supabase, active "Email" (OTP) et, si tu veux
    les boutons Google/Apple, configure ces deux providers avec leurs identifiants (Supabase
    explique pas à pas comment faire sur chaque page de provider).
-6. Relance `npx expo start`. La connexion (Google / Apple / e-mail) utilise alors vraiment
-   Supabase. Le catalogue salles/coachs reste pour l'instant celui de démo (`src/data/seed.ts`) ;
-   le remplacer par de vraies données revient à insérer des lignes dans les tables `gyms`,
-   `gym_equipment` et `coaches` plutôt que d'éditer ce fichier.
+6. Dans **Storage**, crée un bucket **public** nommé `photos` — c'est là que vont les photos
+   de profil/salle une fois uploadées pour de vrai (voir `src/lib/imagePicker.ts`).
+7. (Optionnel mais recommandé) Dans l'éditeur SQL, colle et exécute `supabase/seed_gyms.sql` —
+   ça insère les 50 salles du jeu de démo comme vraies salles "à revendiquer" dans la vraie base,
+   pour ne pas partir d'une app vide le temps que les salles s'inscrivent elles-mêmes.
+8. Relance `npx expo start`. La connexion (Google / Apple / e-mail) utilise alors vraiment
+   Supabase. **Les salles** sont désormais lues depuis la table `gyms` quand un projet est
+   branché (avec bascule silencieuse sur `src/data/seed.ts` si la requête échoue ou si aucun
+   projet n'est configuré) — voir `src/lib/gymsRepo.ts`. **Les coachs** restent pour l'instant
+   ceux de démo : un vrai coach est censé créer sa fiche depuis zéro via "Ma fiche pro" plutôt
+   qu'être pré-rempli, donc rien à seeder de ce côté ; brancher leur écriture vers la table
+   `coaches` est la suite logique de ce chantier.
 
 ## Structure du projet
 

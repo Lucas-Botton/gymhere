@@ -5,23 +5,29 @@ import Text from '../src/components/ui/Text';
 import ScreenHeader from '../src/components/ui/ScreenHeader';
 import GradientBlock from '../src/components/ui/GradientBlock';
 import { colors, radius, spacing } from '../src/theme';
-import { GYMS } from '../src/data/seed';
 import { normalize } from '../src/lib/filters';
 import { useApp } from '../src/store/app';
 import { useSession } from '../src/store/session';
+import { claimGymRemote } from '../src/lib/gymsRepo';
 
 export default function ClaimGym() {
   const [query, setQuery] = useState('');
+  const gyms = useApp((s) => s.gyms);
   const claimedGymIds = useApp((s) => s.claimedGymIds);
   const markGymClaimed = useApp((s) => s.markGymClaimed);
-  const { requireAuth, claimGym } = useSession();
+  const { requireAuth, claimGym, user } = useSession();
 
-  const results = query.trim() ? GYMS.filter((g) => normalize(g.name).includes(normalize(query))) : GYMS;
+  const results = query.trim() ? gyms.filter((g) => normalize(g.name).includes(normalize(query))) : gyms;
 
   const claim = (gymId: string, gymName: string) => {
     requireAuth(`revendiquer la fiche de "${gymName}"`, () => {
+      // Optimistic locally, then a best-effort real write — see
+      // claimGymRemote's own comment for why a failure here doesn't
+      // block the UI (no Supabase project configured yet is a valid,
+      // common case, not an error to surface).
       claimGym(gymId);
       markGymClaimed(gymId);
+      if (user?.id) claimGymRemote(gymId, user.id);
       router.replace('/ma-salle');
     });
   };

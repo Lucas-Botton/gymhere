@@ -552,8 +552,11 @@ export const COACHES: Coach[] = [
   },
 ];
 
-export function findGym(id: string | null | undefined) {
-  return GYMS.find((gg) => gg.id === id) ?? null;
+// `gyms` defaults to the static demo list so every existing call site keeps
+// working unchanged; screens that were migrated to live Supabase data pass
+// their own `useApp((s) => s.gyms)` explicitly to search the real list.
+export function findGym(id: string | null | undefined, gyms: typeof GYMS = GYMS) {
+  return gyms.find((gg) => gg.id === id) ?? null;
 }
 export function findCoach(id: string | null | undefined) {
   return COACHES.find((c) => c.id === id) ?? null;

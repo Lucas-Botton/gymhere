@@ -7,13 +7,14 @@ import GradientBlock from '../ui/GradientBlock';
 import { EquipBadge, Tag } from '../ui/primitives';
 import { IconClose, IconExplore } from '../ui/icons';
 import { colors, radius, spacing } from '../../theme';
-import { GYMS } from '../../data/seed';
+import { useApp } from '../../store/app';
 import { searchGyms, POPULAR_EQUIPMENT, POPULAR_ZONES } from '../../lib/filters';
 import { useKeyboardScrollFix } from '../../lib/useKeyboardScrollFix';
 
 export default function SearchOverlay({ visible, onClose }: { visible: boolean; onClose: () => void }) {
+  const gyms = useApp((s) => s.gyms);
   const [query, setQuery] = useState('');
-  const results = useMemo(() => searchGyms(query, GYMS), [query]);
+  const results = useMemo(() => searchGyms(query, gyms), [query, gyms]);
   const insets = useSafeAreaInsets();
   const kb = useKeyboardScrollFix();
 
@@ -81,7 +82,7 @@ export default function SearchOverlay({ visible, onClose }: { visible: boolean; 
             </Text>
           ) : (
             results.map((r) => {
-              const gym = GYMS.find((g) => g.id === r.id)!;
+              const gym = gyms.find((g) => g.id === r.id)!;
               return (
                 <Pressable key={r.id} onPress={() => go(r.id, r.activeGroup)} style={styles.resultRow}>
                   <GradientBlock kind={gym.photo as any} style={styles.resultPhoto} />

@@ -6,7 +6,6 @@ import Text from '../../src/components/ui/Text';
 import { Avatar, StarRating, Tag } from '../../src/components/ui/primitives';
 import { GymCardCompact } from '../../src/components/gym/GymCards';
 import { colors, radius, shadow, spacing } from '../../src/theme';
-import { GYMS } from '../../src/data/seed';
 import { useApp } from '../../src/store/app';
 import { useAllCoaches } from '../../src/lib/coaches';
 
@@ -14,9 +13,10 @@ export default function Favorites() {
   const [tab, setTab] = useState<'gyms' | 'coaches'>('gyms');
   const favGyms = useApp((s) => s.favGyms);
   const favCoaches = useApp((s) => s.favCoaches);
+  const allGyms = useApp((s) => s.gyms);
   const allCoaches = useAllCoaches();
 
-  const gyms = GYMS.filter((g) => favGyms.includes(g.id));
+  const gyms = allGyms.filter((g) => favGyms.includes(g.id));
   const coaches = allCoaches.filter((c) => favCoaches.includes(c.id));
 
   return (

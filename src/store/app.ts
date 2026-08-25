@@ -20,6 +20,7 @@ import {
   TargetType,
   WeekDay,
 } from '../types';
+import { GYMS } from '../data/seed';
 
 function uid() {
   return Math.random().toString(36).slice(2) + Date.now().toString(36);
@@ -86,6 +87,13 @@ const defaultFilters: Filters = {
 };
 
 interface AppState {
+  // Starts as the local demo dataset (identical behaviour to before this
+  // existed) and gets overwritten once, at app boot, if a real Supabase
+  // project answers — see fetchGyms() in lib/gymsRepo.ts and the effect in
+  // app/_layout.tsx. Never null: there's always something to render.
+  gyms: Gym[];
+  setGyms: (gyms: Gym[]) => void;
+
   favGyms: string[];
   favCoaches: string[];
   toggleFavGym: (id: string) => void;
@@ -150,6 +158,9 @@ interface AppState {
 export const useApp = create<AppState>()(
   persist(
     (set, get) => ({
+      gyms: GYMS,
+      setGyms: (gyms) => set({ gyms }),
+
       favGyms: [],
       favCoaches: [],
       toggleFavGym: (id) =>

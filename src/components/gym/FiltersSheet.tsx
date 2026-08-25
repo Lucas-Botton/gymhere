@@ -9,7 +9,6 @@ import { colors, spacing } from '../../theme';
 import { useApp } from '../../store/app';
 import { useLocationStore } from '../../store/location';
 import { BRANDS, SERVICES, GYM_CATEGORY_LABELS } from '../../data/seed';
-import { GYMS } from '../../data/seed';
 import { gymPassesFilters, POPULAR_EQUIPMENT } from '../../lib/filters';
 import { useKeyboardScrollFix } from '../../lib/useKeyboardScrollFix';
 import { GymCategory } from '../../types';
@@ -20,6 +19,7 @@ export default function FiltersSheet({ visible, onClose }: { visible: boolean; o
   const stored = useApp((s) => s.filters);
   const setFilters = useApp((s) => s.setFilters);
   const resetFilters = useApp((s) => s.resetFilters);
+  const gyms = useApp((s) => s.gyms);
 
   const [local, setLocal] = useState(stored);
   const [equipDraft, setEquipDraft] = useState('');
@@ -48,7 +48,7 @@ export default function FiltersSheet({ visible, onClose }: { visible: boolean; o
   };
 
   const coords = useLocationStore((s) => s.coords);
-  const matchCount = GYMS.filter((g) => gymPassesFilters(g, local, coords)).length;
+  const matchCount = gyms.filter((g) => gymPassesFilters(g, local, coords)).length;
 
   const apply = () => {
     setFilters(local);

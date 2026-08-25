@@ -27,7 +27,8 @@ import { Review } from '../../src/types';
 
 export default function GymDetail() {
   const { id, group } = useLocalSearchParams<{ id: string; group?: string }>();
-  const baseGym = findGym(id);
+  const liveGyms = useApp((s) => s.gyms);
+  const baseGym = findGym(id, liveGyms);
   const gymOverrides = useApp((s) => s.gymOverrides);
   const gym = baseGym ? withGymOverride(baseGym, gymOverrides) : baseGym;
   const [shareOpen, setShareOpen] = useState(false);

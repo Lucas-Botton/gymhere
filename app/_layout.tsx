@@ -25,7 +25,9 @@ import BookingSheet from '../src/components/booking/BookingSheet';
 import ReportSheet from '../src/components/report/ReportSheet';
 import Toast from '../src/components/ui/Toast';
 import { supabase, isSupabaseConfigured } from '../src/lib/supabase';
+import { fetchGyms } from '../src/lib/gymsRepo';
 import { useSession } from '../src/store/session';
+import { useApp } from '../src/store/app';
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
 
@@ -60,6 +62,15 @@ export default function RootLayout() {
     supabase.auth.getSession().then(({ data }) => sync(data.session?.user ?? null));
     const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => sync(session?.user ?? null));
     return () => sub.subscription.unsubscribe();
+  }, []);
+
+  // Real gyms, once — falls back silently to the local demo dataset
+  // (already the store's default) if Supabase isn't configured or the
+  // fetch fails, so this can never leave the app with nothing to show.
+  useEffect(() => {
+    fetchGyms().then((gyms) => {
+      if (gyms) useApp.getState().setGyms(gyms);
+    });
   }, []);
 
   if (!fontsLoaded) return null;

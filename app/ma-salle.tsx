@@ -6,9 +6,9 @@ import Button from '../src/components/ui/Button';
 import ScreenHeader from '../src/components/ui/ScreenHeader';
 import GradientBlock from '../src/components/ui/GradientBlock';
 import { colors, radius, spacing } from '../src/theme';
-import { GYMS } from '../src/data/seed';
 import { useApp, withGymOverride } from '../src/store/app';
 import { useSession } from '../src/store/session';
+import { updateGymRemote } from '../src/lib/gymsRepo';
 
 // Self-service gym back-office (free tier — see the pricing note): a
 // claimed gym's owner edits the fields that actually go stale fast
@@ -17,11 +17,12 @@ import { useSession } from '../src/store/session';
 // deliberately short rather than a full copy of the coach "Ma fiche".
 export default function MaSalle() {
   const ownedGymId = useSession((s) => s.ownedGymId);
+  const gyms = useApp((s) => s.gyms);
   const gymOverrides = useApp((s) => s.gymOverrides);
   const updateGymOverride = useApp((s) => s.updateGymOverride);
   const showToast = useApp((s) => s.showToast);
 
-  const baseGym = GYMS.find((g) => g.id === ownedGymId);
+  const baseGym = gyms.find((g) => g.id === ownedGymId);
   const gym = baseGym ? withGymOverride(baseGym, gymOverrides) : null;
 
   const [hours, setHours] = useState(gym?.hours ?? '');
@@ -45,6 +46,7 @@ export default function MaSalle() {
 
   const save = () => {
     updateGymOverride(gym.id, { hours, hoursSub, phone, website });
+    updateGymRemote(gym.id, { hours, hoursSub, phone, website });
     showToast('Fiche mise à jour');
   };
 
