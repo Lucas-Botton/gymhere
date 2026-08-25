@@ -18,6 +18,10 @@ export interface EquipmentItem {
   name: string;
   brand: string;
   qty: number;
+  // Only set for items fetched from Supabase (gym_equipment.id) — needed
+  // to target the right row for removal from the back-office. Absent for
+  // items that only ever existed in the local demo seed.
+  id?: string;
 }
 
 export interface EquipmentGroup {
@@ -86,17 +90,27 @@ export interface Gym {
   pendingReview?: boolean;
 }
 
-// The subset of Gym fields a claimed gym's owner can actually edit
-// themselves from the back-office — deliberately narrow for v1 (identity
-// fields like id/lat/lng/category/photo/tags stay gymhere-controlled for
-// now, to avoid a self-service fiche drifting off the map or into the
-// wrong category; the fields here are the ones that actually go stale
-// fast and matter most to a visiting member).
+// The subset of Gym fields a claimed gym's owner can edit themselves from
+// the back-office. Deliberately still excludes `id`, `lat`/`lng`,
+// `certified` and `sponsored`: coordinates need a map-picker UI (a real
+// geocoding safety net, not just a text field, to not risk a fiche
+// drifting off the map), while `certified`/`sponsored` are gymhere's own
+// trust badge and paid placement — a gym awarding those to itself would
+// undermine exactly what they're supposed to mean.
 export interface GymEditableFields {
+  name: string;
+  category: GymCategory;
+  address: string;
+  quartier: string;
   hours: string;
   hoursSub: string;
   phone?: string;
   website?: string;
+  priceFrom?: number;
+  tags: string[];
+  services: GymService[];
+  formulas: GymFormula[];
+  gallery: string[];
 }
 
 export interface CoachCredential {

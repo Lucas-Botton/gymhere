@@ -2,10 +2,11 @@ import { supabase, isSupabaseConfigured } from './supabase';
 import { GYMS } from '../data/seed';
 import { EquipmentGroup, Gym, GymCategory, GymEditableFields } from '../types';
 
-// The decorative side of a gym card (gradient key + gallery placeholders)
-// has no real photos yet — Supabase carries a real `photos` column for
-// when that exists, but until then we keep serving the same local
-// gradients the demo used, keyed by id, so nothing visually regresses.
+// The decorative side of a gym card (cover gradient) has no real photo
+// yet — Supabase carries a real `photos` column for the gallery, used
+// once a gym uploads real pictures via the back-office; until then we
+// keep serving the same local gradients the demo used, keyed by id, so
+// nothing visually regresses.
 const LOCAL_BY_ID = new Map(GYMS.map((g) => [g.id, g]));
 const FALLBACK_PHOTO = 'pinkViolet';
 
@@ -17,6 +18,7 @@ interface GymRow {
   quartier: string;
   lat: number;
   lng: number;
+  photos: string[] | null;
   certified: boolean;
   sponsored: boolean;
   hours: string | null;
@@ -34,6 +36,7 @@ interface GymRow {
 }
 
 interface EquipmentRow {
+  id: string;
   gym_id: string;
   groupe_musculaire: string;
   nom_machine: string;
@@ -46,7 +49,7 @@ function groupEquipment(rows: EquipmentRow[], gymId: string): EquipmentGroup[] {
   for (const r of rows) {
     if (r.gym_id !== gymId) continue;
     const g = byGroup.get(r.groupe_musculaire) ?? { group: r.groupe_musculaire, items: [] };
-    g.items.push({ name: r.nom_machine, brand: r.marque, qty: r.quantite });
+    g.items.push({ id: r.id, name: r.nom_machine, brand: r.marque, qty: r.quantite });
     byGroup.set(r.groupe_musculaire, g);
   }
   return [...byGroup.values()];
@@ -79,7 +82,10 @@ function mapRow(row: GymRow, equipment: EquipmentRow[]): Gym {
     formulas: row.formulas ?? [],
     groups: groupEquipment(equipment, row.id),
     coachIds: local?.coachIds ?? [],
-    gallery: local?.gallery ?? [FALLBACK_PHOTO],
+    // Real uploaded photos (URLs) take over the moment there are any;
+    // the gallery renderer (app/gym/[id].tsx) tells the two apart by
+    // whether each entry starts with "http".
+    gallery: row.photos && row.photos.length > 0 ? row.photos : local?.gallery ?? [FALLBACK_PHOTO],
     ownerId: row.owner_id ?? undefined,
     claimedAt: row.claimed_at ?? undefined,
   };
@@ -94,7 +100,7 @@ export async function fetchGyms(): Promise<Gym[] | null> {
   try {
     const [{ data: gymRows, error: gymErr }, { data: equipRows, error: equipErr }] = await Promise.all([
       supabase.from('gyms').select('*'),
-      supabase.from('gym_equipment').select('gym_id, groupe_musculaire, nom_machine, marque, quantite'),
+      supabase.from('gym_equipment').select('id, gym_id, groupe_musculaire, nom_machine, marque, quantite'),
     ]);
     if (gymErr || !gymRows) return null;
     const equipment = (equipRows ?? []) as EquipmentRow[];
@@ -104,11 +110,11 @@ export async function fetchGyms(): Promise<Gym[] | null> {
   }
 }
 
-// Best-effort real writes for the self-service back-office. Both resolve to
-// false (never throw) when Supabase isn't configured or the request fails —
-// callers keep the local optimistic update (gymOverrides / claimedGymIds)
-// either way, so a flaky network never blocks the UI, it just means the
-// edit hasn't made it to the shared database yet.
+// Best-effort real writes for the self-service back-office. All resolve to
+// false/null (never throw) when Supabase isn't configured or the request
+// fails — callers keep the local optimistic update (gymOverrides /
+// claimedGymIds / gyms array) either way, so a flaky network never blocks
+// the UI, it just means the edit hasn't made it to the shared database yet.
 
 export async function claimGymRemote(gymId: string, userId: string): Promise<boolean> {
   if (!isSupabaseConfigured || !supabase) return false;
@@ -119,10 +125,37 @@ export async function claimGymRemote(gymId: string, userId: string): Promise<boo
 export async function updateGymRemote(gymId: string, partial: Partial<GymEditableFields>): Promise<boolean> {
   if (!isSupabaseConfigured || !supabase) return false;
   const patch: Record<string, unknown> = {};
+  if (partial.name !== undefined) patch.name = partial.name;
+  if (partial.category !== undefined) patch.category = partial.category;
+  if (partial.address !== undefined) patch.address = partial.address;
+  if (partial.quartier !== undefined) patch.quartier = partial.quartier;
   if (partial.hours !== undefined) patch.hours = partial.hours;
   if (partial.hoursSub !== undefined) patch.hours_sub = partial.hoursSub;
   if (partial.phone !== undefined) patch.phone = partial.phone;
   if (partial.website !== undefined) patch.website = partial.website;
+  if (partial.priceFrom !== undefined) patch.price_min = partial.priceFrom ?? 0;
+  if (partial.tags !== undefined) patch.tags = partial.tags;
+  if (partial.services !== undefined) patch.services = partial.services;
+  if (partial.formulas !== undefined) patch.formulas = partial.formulas;
+  if (partial.gallery !== undefined) patch.photos = partial.gallery.filter((g) => g.startsWith('http'));
+  if (Object.keys(patch).length === 0) return true;
   const { error } = await supabase.from('gyms').update(patch).eq('id', gymId);
+  return !error;
+}
+
+export async function addEquipmentRemote(gymId: string, group: string, name: string, brand: string, qty: number): Promise<string | null> {
+  if (!isSupabaseConfigured || !supabase) return null;
+  const { data, error } = await supabase
+    .from('gym_equipment')
+    .insert({ gym_id: gymId, groupe_musculaire: group, nom_machine: name, marque: brand, quantite: qty })
+    .select('id')
+    .single();
+  if (error || !data) return null;
+  return data.id as string;
+}
+
+export async function removeEquipmentRemote(equipmentId: string): Promise<boolean> {
+  if (!isSupabaseConfigured || !supabase) return false;
+  const { error } = await supabase.from('gym_equipment').delete().eq('id', equipmentId);
   return !error;
 }

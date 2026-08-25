@@ -271,6 +271,16 @@ create policy "gym owner update" on public.gyms for update using (auth.uid() = o
 drop policy if exists "gym claim when unclaimed" on public.gyms;
 create policy "gym claim when unclaimed" on public.gyms for update using (owner_id is null) with check (auth.uid() = owner_id);
 
+-- Gym equipment ("machines") : gérées par le propriétaire de la salle
+-- parente — pas de owner_id directement sur cette table, donc la
+-- vérification passe par un lookup sur gyms.owner_id.
+drop policy if exists "gym_equipment owner write" on public.gym_equipment;
+create policy "gym_equipment owner write" on public.gym_equipment for all using (
+  exists (select 1 from public.gyms g where g.id = gym_id and g.owner_id = auth.uid())
+) with check (
+  exists (select 1 from public.gyms g where g.id = gym_id and g.owner_id = auth.uid())
+);
+
 -- Coaches : le propriétaire (user_id) gère sa fiche
 drop policy if exists "coach owner all" on public.coaches;
 create policy "coach owner all" on public.coaches for all using (auth.uid() = user_id) with check (auth.uid() = user_id);

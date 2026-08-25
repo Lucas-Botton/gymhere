@@ -150,6 +150,12 @@ interface AppState {
   updateGymOverride: (gymId: string, partial: Partial<GymEditableFields>) => void;
   claimedGymIds: string[];
   markGymClaimed: (gymId: string) => void;
+  // Equipment lives in a related table (gym_equipment), not a column on
+  // gyms, so it can't go through gymOverrides — these mutate the matching
+  // gym's `groups` directly inside `gyms`, immutably, for the same
+  // instant-feedback-then-best-effort-remote-write pattern.
+  addEquipmentLocal: (gymId: string, group: string, name: string, brand: string, qty: number, itemId?: string) => void;
+  removeEquipmentLocal: (gymId: string, group: string, index: number) => void;
 
   toast: string;
   showToast: (msg: string) => void;
@@ -325,6 +331,29 @@ export const useApp = create<AppState>()(
         set((s) => ({ gymOverrides: { ...s.gymOverrides, [gymId]: { ...s.gymOverrides[gymId], ...partial } } })),
       claimedGymIds: [],
       markGymClaimed: (gymId) => set((s) => (s.claimedGymIds.includes(gymId) ? s : { claimedGymIds: [...s.claimedGymIds, gymId] })),
+
+      addEquipmentLocal: (gymId, group, name, brand, qty, itemId) =>
+        set((s) => ({
+          gyms: s.gyms.map((g) => {
+            if (g.id !== gymId) return g;
+            const groups = [...g.groups];
+            const idx = groups.findIndex((gr) => gr.group === group);
+            const newItem = { id: itemId, name, brand, qty };
+            if (idx === -1) groups.push({ group, items: [newItem] });
+            else groups[idx] = { ...groups[idx], items: [...groups[idx].items, newItem] };
+            return { ...g, groups };
+          }),
+        })),
+      removeEquipmentLocal: (gymId, group, index) =>
+        set((s) => ({
+          gyms: s.gyms.map((g) => {
+            if (g.id !== gymId) return g;
+            const groups = g.groups
+              .map((gr) => (gr.group === group ? { ...gr, items: gr.items.filter((_, i) => i !== index) } : gr))
+              .filter((gr) => gr.items.length > 0);
+            return { ...g, groups };
+          }),
+        })),
 
       toast: '',
       showToast: (msg) => {

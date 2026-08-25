@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView, Pressable, Linking } from 'react-native';
+import { View, StyleSheet, ScrollView, Pressable, Linking, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router, useLocalSearchParams } from 'expo-router';
 import * as Haptics from 'expo-haptics';
@@ -116,9 +116,13 @@ export default function GymDetail() {
             <Text weight="extrabold" style={{ fontSize: 13, marginRight: spacing.md, alignSelf: 'center' }}>
               En images
             </Text>
-            {gym.gallery.map((g, i) => (
-              <GradientBlock key={i} kind={g as any} style={styles.galleryThumb} />
-            ))}
+            {gym.gallery.map((g, i) =>
+              g.startsWith('http') ? (
+                <Image key={i} source={{ uri: g }} style={styles.galleryThumb} />
+              ) : (
+                <GradientBlock key={i} kind={g} style={styles.galleryThumb} />
+              )
+            )}
             <Pressable onPress={() => router.push(`/immersive/${gym.id}`)} style={styles.immersiveBtn}>
               <Text weight="extrabold" color="#fff" style={{ fontSize: 11, textAlign: 'center' }}>
                 Visite{'\n'}360°

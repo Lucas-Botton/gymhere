@@ -25,6 +25,24 @@ export const GYM_CATEGORY_LABELS: Record<GymCategory, string> = {
 export const MUSCLES = ['Pectoraux', 'Dos', 'Épaules', 'Biceps', 'Triceps', 'Quadriceps', 'Ischios', 'Fessiers', 'Mollets', 'Abdos/Core', 'Cardio', 'Fonctionnel'];
 export const BRANDS = ['Technogym', 'Hammer Strength', 'Eleiko', 'Panatta', 'Concept2', 'Assault'];
 export const SERVICES = ['Ouvert 24/7', 'Sauna', 'Hammam', 'Parking', 'Espace femmes', 'Douches', 'Vestiaires', 'Cours collectifs', 'Coachs sur place', 'Accès PMR', 'Bar à protéines', 'Casiers'];
+
+// One icon/tint/color per SERVICES entry — the self-service back-office
+// picks a service by name only (see GymServicesSheet), never its styling,
+// so every gym's badges stay visually consistent with each other.
+export const SERVICE_PRESETS: Record<string, { icon: string; tint: string; color: string }> = {
+  'Ouvert 24/7': { icon: '24', tint: '#FFE9F1', color: '#FF1F6B' },
+  Sauna: { icon: '♨', tint: '#DEFAF3', color: '#0E9E86' },
+  Hammam: { icon: '♨', tint: '#DEFAF3', color: '#0E9E86' },
+  Parking: { icon: 'P', tint: '#F4F0FC', color: '#C81FFF' },
+  'Espace femmes': { icon: '♀', tint: '#FFE9F1', color: '#FF1F6B' },
+  Douches: { icon: '🚿', tint: '#EEF0FF', color: '#4D5BFF' },
+  Vestiaires: { icon: '⛝', tint: '#EEF0FF', color: '#4D5BFF' },
+  'Cours collectifs': { icon: '◎', tint: '#F4F0FC', color: '#C81FFF' },
+  'Coachs sur place': { icon: '★', tint: '#FFE9F1', color: '#FF1F6B' },
+  'Accès PMR': { icon: '♿', tint: '#DEFAF3', color: '#0E9E86' },
+  'Bar à protéines': { icon: '🥤', tint: '#F4F0FC', color: '#C81FFF' },
+  Casiers: { icon: '⛁', tint: '#EEF0FF', color: '#4D5BFF' },
+};
 export const SPECS = ['Transformation physique', 'Perte de poids', 'Prise de masse', 'Prépa physique', 'HYROX', 'Cross-training', 'Renforcement musculaire', 'Callisthénie', 'Course à pied', 'Mobilité & souplesse', 'Boxe & sports de combat', 'Pilates', 'Sport santé', 'Post-partum', 'Nutrition & rééquilibrage'];
 
 // Small palette of confirmed-service definitions reused across entries below.
