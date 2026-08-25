@@ -1,6 +1,10 @@
 -- gymhere · schema Supabase (PostgreSQL)
 -- A executer dans l'éditeur SQL de ton projet Supabase (Database > SQL editor).
 -- Reflète le modèle de données de HANDOFF.md section 9.
+-- Sans danger à relancer en entier sur une base déjà créée : les tables
+-- utilisent `if not exists`, les nouvelles colonnes des `alter ... add
+-- column if not exists`, et chaque policy est précédée d'un `drop policy
+-- if exists` — donc aucune erreur "already exists" à un prochain run.
 
 create extension if not exists "uuid-ossp";
 
@@ -232,17 +236,27 @@ alter table public.favorites enable row level security;
 alter table public.waitlist enable row level security;
 
 -- Lecture publique (exploration sans compte) sur le contenu des salles/coachs
+drop policy if exists "gyms are public" on public.gyms;
 create policy "gyms are public" on public.gyms for select using (true);
+drop policy if exists "gym_equipment is public" on public.gym_equipment;
 create policy "gym_equipment is public" on public.gym_equipment for select using (true);
+drop policy if exists "coaches are public" on public.coaches;
 create policy "coaches are public" on public.coaches for select using (published = true);
+drop policy if exists "coach_credentials are public" on public.coach_credentials;
 create policy "coach_credentials are public" on public.coach_credentials for select using (true);
+drop policy if exists "coach_formulas are public" on public.coach_formulas;
 create policy "coach_formulas are public" on public.coach_formulas for select using (true);
+drop policy if exists "coach_availability is public" on public.coach_availability;
 create policy "coach_availability is public" on public.coach_availability for select using (true);
+drop policy if exists "reviews are public" on public.reviews;
 create policy "reviews are public" on public.reviews for select using (true);
 
 -- Users : chacun ne voit / modifie que son propre profil
+drop policy if exists "users select own" on public.users;
 create policy "users select own" on public.users for select using (auth.uid() = id);
+drop policy if exists "users update own" on public.users;
 create policy "users update own" on public.users for update using (auth.uid() = id);
+drop policy if exists "users insert own" on public.users;
 create policy "users insert own" on public.users for insert with check (auth.uid() = id);
 
 -- Gyms : la salle revendiquée est gérée par son owner_id. Deux policies
@@ -252,39 +266,54 @@ create policy "users insert own" on public.users for insert with check (auth.uid
 -- (owner_id null) — et son "with check" impose que la nouvelle valeur
 -- soit bien auth.uid(), donc personne ne peut réclamer une fiche au nom
 -- de quelqu'un d'autre ni reprendre une fiche déjà revendiquée.
+drop policy if exists "gym owner update" on public.gyms;
 create policy "gym owner update" on public.gyms for update using (auth.uid() = owner_id) with check (auth.uid() = owner_id);
+drop policy if exists "gym claim when unclaimed" on public.gyms;
 create policy "gym claim when unclaimed" on public.gyms for update using (owner_id is null) with check (auth.uid() = owner_id);
 
 -- Coaches : le propriétaire (user_id) gère sa fiche
+drop policy if exists "coach owner all" on public.coaches;
 create policy "coach owner all" on public.coaches for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+drop policy if exists "coach owner sees own even unpublished" on public.coaches;
 create policy "coach owner sees own even unpublished" on public.coaches for select using (auth.uid() = user_id);
+drop policy if exists "coach_credentials owner write" on public.coach_credentials;
 create policy "coach_credentials owner write" on public.coach_credentials for insert with check (
   exists (select 1 from public.coaches c where c.id = coach_id and c.user_id = auth.uid()));
+drop policy if exists "coach_credentials owner delete" on public.coach_credentials;
 create policy "coach_credentials owner delete" on public.coach_credentials for delete using (
   exists (select 1 from public.coaches c where c.id = coach_id and c.user_id = auth.uid()));
+drop policy if exists "coach_formulas owner write" on public.coach_formulas;
 create policy "coach_formulas owner write" on public.coach_formulas for all using (
   exists (select 1 from public.coaches c where c.id = coach_id and c.user_id = auth.uid()));
+drop policy if exists "coach_availability owner write" on public.coach_availability;
 create policy "coach_availability owner write" on public.coach_availability for all using (
   exists (select 1 from public.coaches c where c.id = coach_id and c.user_id = auth.uid()));
 
 -- Bookings : l'utilisateur voit/crée ses propres demandes ; le coach/la salle ciblé(e) peut lire
+drop policy if exists "bookings owner all" on public.bookings;
 create policy "bookings owner all" on public.bookings for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
 
 -- Reviews : l'auteur peut créer/lire les siens (au delà de la lecture publique déjà ouverte)
+drop policy if exists "reviews owner insert" on public.reviews;
 create policy "reviews owner insert" on public.reviews for insert with check (auth.uid() = user_id);
 
 -- Reports : l'auteur peut créer/lire les siens ; pas de lecture publique
 -- (une vraie relecture admin viendra avec le passage hors mode démo, cf. feuille de route)
+drop policy if exists "reports owner all" on public.reports;
 create policy "reports owner all" on public.reports for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
 
 -- Messages : uniquement les deux participants du thread
+drop policy if exists "messages participants" on public.messages;
 create policy "messages participants" on public.messages for all using (auth.uid() = from_user or auth.uid() = to_user);
 
 -- Notifications : propriétaire uniquement
+drop policy if exists "notifications owner all" on public.notifications;
 create policy "notifications owner all" on public.notifications for all using (auth.uid() = user_id);
 
 -- Favorites : propriétaire uniquement
+drop policy if exists "favorites owner all" on public.favorites;
 create policy "favorites owner all" on public.favorites for all using (auth.uid() = user_id);
 
 -- Waitlist : insertion publique (capture d'email hors zone), pas de lecture publique
+drop policy if exists "waitlist public insert" on public.waitlist;
 create policy "waitlist public insert" on public.waitlist for insert with check (true);
