@@ -211,6 +211,14 @@ create table if not exists public.messages (
   created_at timestamptz not null default now()
 );
 create index if not exists messages_thread_id_idx on public.messages(thread_id);
+-- Live delivery while a chat screen is open (see subscribeToThread in
+-- lib/messagesRepo.ts) needs this table in the Realtime publication.
+-- Wrapped in a DO block since "add table" has no clean "if not exists" on
+-- every Postgres version — safe to re-run either way.
+do $$ begin
+  alter publication supabase_realtime add table public.messages;
+exception when duplicate_object then null;
+end $$;
 
 -- ========== NOTIFICATIONS ==========
 create table if not exists public.notifications (

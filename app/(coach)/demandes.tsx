@@ -88,7 +88,7 @@ export default function Demandes() {
                     <Pressable
                       onPress={() => {
                         respond(item.id, 'accepte');
-                        router.push({ pathname: '/coach-chat/[id]', params: { id: item.id, name: fromName, avatar: AVATAR_GRADIENTS[index % AVATAR_GRADIENTS.length] } });
+                        router.push({ pathname: '/coach-chat/[id]', params: { id: item.userId, name: fromName, avatar: AVATAR_GRADIENTS[index % AVATAR_GRADIENTS.length] } });
                       }}
                       style={styles.acceptBtn}
                     >

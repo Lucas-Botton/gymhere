@@ -26,6 +26,7 @@ import { GYMS } from '../data/seed';
 import { useSession } from './session';
 import { addBookingRemote, updateBookingStatusRemote } from '../lib/bookingsRepo';
 import { addReviewRemote } from '../lib/reviewsRepo';
+import { sendMessageRemote } from '../lib/messagesRepo';
 
 function uid() {
   return Math.random().toString(36).slice(2) + Date.now().toString(36);
@@ -133,6 +134,14 @@ interface AppState {
   threads: Record<string, ChatThread>;
   sendMessage: (threadId: string, text: string) => void;
   ensureThread: (threadId: string, seed: Omit<ChatThread, 'id' | 'messages'> & { messages?: ChatMessage[] }) => void;
+  // Fills in a still-empty thread with its real Supabase history (see
+  // fetchThreadMessages) — never overwrites messages already there, so a
+  // slow fetch can't clobber something sent locally in the meantime.
+  hydrateThread: (threadId: string, messages: ChatMessage[]) => void;
+  // Appends a message that arrived live from the other participant (see
+  // subscribeToThread) — local only, no remote write, since it already
+  // exists in the database.
+  receiveMessage: (threadId: string, message: ChatMessage) => void;
 
   coachDraft: CoachDraft;
   updateCoachDraft: (partial: Partial<CoachDraft>) => void;
@@ -298,6 +307,18 @@ export const useApp = create<AppState>()(
       threads: {},
       ensureThread: (threadId, seed) =>
         set((s) => (s.threads[threadId] ? s : { threads: { ...s.threads, [threadId]: { id: threadId, messages: seed.messages ?? [], ...seed } } })),
+      hydrateThread: (threadId, messages) =>
+        set((s) => {
+          const t = s.threads[threadId];
+          if (!t || t.messages.length > 0) return s;
+          return { threads: { ...s.threads, [threadId]: { ...t, messages } } };
+        }),
+      receiveMessage: (threadId, message) =>
+        set((s) => {
+          const t = s.threads[threadId];
+          if (!t) return s;
+          return { threads: { ...s.threads, [threadId]: { ...t, messages: [...t.messages, message] } } };
+        }),
       sendMessage: (threadId, text) => {
         const now = new Date();
         const hh = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
@@ -306,17 +327,9 @@ export const useApp = create<AppState>()(
           if (!t) return s;
           return { threads: { ...s.threads, [threadId]: { ...t, messages: [...t.messages, { from: 'me', text, time: hh }] } } };
         });
-        const replies = ['Super, on cale ça 💪', 'Parfait, je te prépare un premier plan.', 'Top ! Je reviens vers toi très vite.', 'Ça marche, à très vite 🙌'];
-        setTimeout(() => {
-          const now2 = new Date();
-          const hh2 = String(now2.getHours()).padStart(2, '0') + ':' + String(now2.getMinutes()).padStart(2, '0');
-          const reply = replies[Math.floor(Math.random() * replies.length)];
-          set((s) => {
-            const t = s.threads[threadId];
-            if (!t) return s;
-            return { threads: { ...s.threads, [threadId]: { ...t, messages: [...t.messages, { from: 'them', text: reply, time: hh2 }] } } };
-          });
-        }, 1100);
+        const myUserId = useSession.getState().user?.id;
+        const otherUserId = myUserId ? threadId.split(':').find((x) => x !== myUserId) : undefined;
+        if (myUserId && otherUserId) sendMessageRemote(threadId, myUserId, otherUserId, text);
       },
 
       coachDraft: defaultCoachDraft,

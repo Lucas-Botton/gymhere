@@ -35,7 +35,8 @@ le cahier des charges `HANDOFF.md` et la maquette `Jimmy.dc.html`.
 - Fiche coach complète : formules en accordéon, diplômes/certifications avec badge de vérification,
   réseaux sociaux, salles d'intervention.
 - Réservation (créneau réel ou demande simple selon le cas), confirmation, "Mes demandes".
-- Favoris (salles + coachs), Profil, Réglages, Notifications, Messagerie basique.
+- Favoris (salles + coachs), Profil, Réglages, Notifications, Messagerie (temps réel via Supabase
+  quand un projet est branché).
 - Espace coach : fiche éditable par sections, indicateur de complétion, **disponibilités réelles**
   par service et par jour (elles alimentent directement les créneaux réservables côté pratiquant),
   demandes reçues, avis, page d'abonnement (Stripe pas encore branché, prévu en V1.1).
@@ -79,6 +80,11 @@ Supabase est un service gratuit pour démarrer qui héberge la base de données,
    `coaches` et ses tables liées, et restaurée automatiquement sur un nouvel appareil — voir
    `src/lib/coachesRepo.ts`. Les 3 coachs de démo (`src/data/seed.ts`) restent affichés à côté
    des vrais coachs publiés : ce sont des profils de démonstration, jamais insérés en base.
+   **Réservations, avis et messagerie** sont également branchés pour de vrai : une demande créée
+   par un pratiquant est lisible par le coach/la salle ciblé(e) (voir `src/lib/bookingsRepo.ts`),
+   les avis publiés sont visibles par tout le monde (`src/lib/reviewsRepo.ts`), et la messagerie
+   utilise Supabase Realtime pour la livraison en direct pendant qu'une conversation est ouverte
+   (`src/lib/messagesRepo.ts`) — l'ancienne réponse automatique simulée a été retirée.
 
 ## Structure du projet
 
@@ -99,5 +105,4 @@ supabase/schema.sql  Schéma de base de données prêt à l'emploi pour Supabase
 1. Se promener dans l'app avec Expo Go et comparer à `Jimmy.dc.html` pour ajuster les derniers
    détails visuels.
 2. Créer le projet Supabase et y coller le contenu du dossier `assets/` avec de vraies photos.
-3. V1.1 : messagerie temps réel (déjà préparée dans le modèle de données), notifications push,
-   avis vérifiés, abonnement coach payant via Stripe.
+3. V1.1 : notifications push, avis vérifiés, abonnement coach payant via Stripe.

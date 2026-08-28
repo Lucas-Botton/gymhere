@@ -6,29 +6,37 @@ import ScreenHeader from '../../src/components/ui/ScreenHeader';
 import { Avatar } from '../../src/components/ui/primitives';
 import { colors, radius, spacing } from '../../src/theme';
 import { useApp } from '../../src/store/app';
+import { useSession } from '../../src/store/session';
+import { threadIdFor, fetchThreadMessages, subscribeToThread } from '../../src/lib/messagesRepo';
 
+// `id` here is the requester's real account id (Booking.userId), not the
+// booking id — same convention as app/chat/[id].tsx, so both sides derive
+// the exact same thread id from threadIdFor(myUserId, id).
 export default function CoachChat() {
   const { id, name, avatar } = useLocalSearchParams<{ id: string; name: string; avatar: string }>();
+  const myUserId = useSession((s) => s.user?.id) ?? 'me';
   const ensureThread = useApp((s) => s.ensureThread);
   const sendMessage = useApp((s) => s.sendMessage);
-  const thread = useApp((s) => s.threads[id ?? '']);
+  const threadId = id ? threadIdFor(myUserId, id) : '';
+  const thread = useApp((s) => s.threads[threadId]);
   const [text, setText] = useState('');
   const listRef = useRef<FlatList>(null);
 
   useEffect(() => {
-    if (id) {
-      ensureThread(id, {
-        name: name ?? 'Pratiquant',
-        avatarBg: avatar ?? 'pinkViolet',
-        role: 'Pratiquant',
-        messages: [{ from: 'them', text: 'Merci d’avoir accepté ma demande !', time: '09:00' }],
-      });
-    }
+    if (!id) return;
+    ensureThread(threadId, { name: name ?? 'Pratiquant', avatarBg: avatar ?? 'pinkViolet', role: 'Pratiquant', messages: [] });
+    fetchThreadMessages(threadId, myUserId).then((msgs) => {
+      if (msgs) useApp.getState().hydrateThread(threadId, msgs);
+    });
+    const unsubscribe = subscribeToThread(threadId, myUserId, (msg) => {
+      if (msg.from === 'them') useApp.getState().receiveMessage(threadId, msg);
+    });
+    return unsubscribe;
   }, [id]);
 
   const send = () => {
-    if (!text.trim() || !id) return;
-    sendMessage(id, text.trim());
+    if (!text.trim() || !threadId) return;
+    sendMessage(threadId, text.trim());
     setText('');
     setTimeout(() => listRef.current?.scrollToEnd({ animated: true }), 100);
   };

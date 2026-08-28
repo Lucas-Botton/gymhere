@@ -6,26 +6,31 @@ import ScreenHeader from '../../src/components/ui/ScreenHeader';
 import { Avatar } from '../../src/components/ui/primitives';
 import { colors, radius, spacing } from '../../src/theme';
 import { useApp } from '../../src/store/app';
+import { useSession } from '../../src/store/session';
 import { useFindCoach } from '../../src/lib/coaches';
+import { threadIdFor, fetchThreadMessages, subscribeToThread } from '../../src/lib/messagesRepo';
 
 export default function Chat() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const coach = useFindCoach(id);
+  const myUserId = useSession((s) => s.user?.id) ?? 'me';
   const ensureThread = useApp((s) => s.ensureThread);
   const sendMessage = useApp((s) => s.sendMessage);
-  const thread = useApp((s) => s.threads[id ?? '']);
+  const threadId = id ? threadIdFor(myUserId, id) : '';
+  const thread = useApp((s) => s.threads[threadId]);
   const [text, setText] = useState('');
   const listRef = useRef<FlatList>(null);
 
   useEffect(() => {
-    if (coach && id) {
-      ensureThread(id, {
-        name: coach.name,
-        avatarBg: coach.photo,
-        role: `Coach · ${coach.specs[0] ?? ''}`,
-        messages: [{ from: 'them', text: `Salut ! Merci pour ta demande 💪 Comment puis-je t’aider ?`, time: '09:00' }],
-      });
-    }
+    if (!coach || !id) return;
+    ensureThread(threadId, { name: coach.name, avatarBg: coach.photo, role: `Coach · ${coach.specs[0] ?? ''}`, messages: [] });
+    fetchThreadMessages(threadId, myUserId).then((msgs) => {
+      if (msgs) useApp.getState().hydrateThread(threadId, msgs);
+    });
+    const unsubscribe = subscribeToThread(threadId, myUserId, (msg) => {
+      if (msg.from === 'them') useApp.getState().receiveMessage(threadId, msg);
+    });
+    return unsubscribe;
   }, [id]);
 
   if (!coach) return null;
@@ -33,8 +38,8 @@ export default function Chat() {
   const goBack = () => router.back();
 
   const send = () => {
-    if (!text.trim() || !id) return;
-    sendMessage(id, text.trim());
+    if (!text.trim() || !threadId) return;
+    sendMessage(threadId, text.trim());
     setText('');
     setTimeout(() => listRef.current?.scrollToEnd({ animated: true }), 100);
   };
