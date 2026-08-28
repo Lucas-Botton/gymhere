@@ -76,7 +76,7 @@ create index if not exists gym_equipment_gym_id_idx on public.gym_equipment(gym_
 -- ========== COACHES ==========
 create table if not exists public.coaches (
   id uuid primary key default uuid_generate_v4(),
-  user_id uuid not null references public.users(id) on delete cascade,
+  user_id uuid not null unique references public.users(id) on delete cascade, -- one fiche per account, so upsert-by-user_id works
   name text not null,
   bio text not null default '',
   specialites text[] not null default '{}', -- max 3, enforced app-side
@@ -114,12 +114,27 @@ create table if not exists public.coach_formulas (
 create table if not exists public.coach_availability (
   id uuid primary key default uuid_generate_v4(),
   coach_id uuid not null references public.coaches(id) on delete cascade,
-  service text not null check (service in ('presentiel','visio','telephone')),
+  service text not null check (service in ('presentiel','visio')),
   jour text not null check (jour in ('Lun','Mar','Mer','Jeu','Ven','Sam','Dim')),
   heure_debut time not null,
   heure_fin time not null
 );
 create index if not exists coach_availability_coach_id_idx on public.coach_availability(coach_id);
+-- 'telephone' was dropped from SlotMode app-side a while back ('Présentiel'
+-- | 'Visio' only) but this check constraint — written before that — still
+-- allowed it. Re-created (not just re-added) since Postgres has no
+-- "alter check constraint" — drop needs the actual name, which differs
+-- between a fresh install (from the table definition above) and this
+-- already-created database (auto-generated at creation time), so both are
+-- covered explicitly below.
+alter table public.coach_availability drop constraint if exists coach_availability_service_check;
+alter table public.coach_availability add constraint coach_availability_service_check check (service in ('presentiel','visio'));
+-- coaches.user_id gained `unique` above; add it defensively too for a
+-- database where the table pre-dates that change (drop-then-add so this
+-- stays safe to run again, whether or not the inline `unique` already
+-- created a constraint of the same name).
+alter table public.coaches drop constraint if exists coaches_user_id_key;
+alter table public.coaches add constraint coaches_user_id_key unique (user_id);
 
 -- ========== BOOKINGS (demandes) ==========
 create table if not exists public.bookings (

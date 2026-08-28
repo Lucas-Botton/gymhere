@@ -74,10 +74,11 @@ Supabase est un service gratuit pour démarrer qui héberge la base de données,
 8. Relance `npx expo start`. La connexion (Google / Apple / e-mail) utilise alors vraiment
    Supabase. **Les salles** sont désormais lues depuis la table `gyms` quand un projet est
    branché (avec bascule silencieuse sur `src/data/seed.ts` si la requête échoue ou si aucun
-   projet n'est configuré) — voir `src/lib/gymsRepo.ts`. **Les coachs** restent pour l'instant
-   ceux de démo : un vrai coach est censé créer sa fiche depuis zéro via "Ma fiche pro" plutôt
-   qu'être pré-rempli, donc rien à seeder de ce côté ; brancher leur écriture vers la table
-   `coaches` est la suite logique de ce chantier.
+   projet n'est configuré) — voir `src/lib/gymsRepo.ts`. **Les coachs** aussi : chaque
+   modification de "Ma fiche pro" est synchronisée (best-effort, debounced) vers la table
+   `coaches` et ses tables liées, et restaurée automatiquement sur un nouvel appareil — voir
+   `src/lib/coachesRepo.ts`. Les 3 coachs de démo (`src/data/seed.ts`) restent affichés à côté
+   des vrais coachs publiés : ce sont des profils de démonstration, jamais insérés en base.
 
 ## Structure du projet
 

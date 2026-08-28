@@ -26,6 +26,7 @@ import ReportSheet from '../src/components/report/ReportSheet';
 import Toast from '../src/components/ui/Toast';
 import { supabase, isSupabaseConfigured } from '../src/lib/supabase';
 import { fetchGyms } from '../src/lib/gymsRepo';
+import { fetchPublishedCoaches, fetchMyCoachDraft } from '../src/lib/coachesRepo';
 import { useSession } from '../src/store/session';
 import { useApp } from '../src/store/app';
 
@@ -72,6 +73,28 @@ export default function RootLayout() {
       if (gyms) useApp.getState().setGyms(gyms);
     });
   }, []);
+
+  // Every real coach published from another device — merged with the demo
+  // COACHES by useAllCoaches() (lib/coaches.ts), never replacing them.
+  useEffect(() => {
+    fetchPublishedCoaches().then((coaches) => {
+      if (coaches) useApp.getState().setCoaches(coaches);
+    });
+  }, []);
+
+  // Restores a signed-in coach's own fiche from Supabase on a fresh
+  // device/reinstall. Guarded to only fill in a still-untouched local
+  // draft (empty name) so it can never clobber in-progress local edits
+  // with a stale remote copy.
+  const userId = useSession((s) => s.user?.id);
+  useEffect(() => {
+    if (!userId) return;
+    const draft = useApp.getState().coachDraft;
+    if (draft.name.trim().length > 0) return;
+    fetchMyCoachDraft(userId).then((remote) => {
+      if (remote) useApp.getState().updateCoachDraft(remote);
+    });
+  }, [userId]);
 
   if (!fontsLoaded) return null;
 

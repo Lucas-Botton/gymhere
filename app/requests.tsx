@@ -10,12 +10,13 @@ import ReviewSheet from '../src/components/booking/ReviewSheet';
 import { colors, radius, shadow, spacing } from '../src/theme';
 import { useApp } from '../src/store/app';
 import { Booking } from '../src/types';
-import { useMyCoachProfile, findCoachAlso } from '../src/lib/coaches';
+import { useMyCoachProfile, useAllCoaches, findCoachAlso } from '../src/lib/coaches';
 
 export default function Requests() {
   const bookings = useApp((s) => s.bookings);
   const reviews = useApp((s) => s.reviews);
   const myCoachProfile = useMyCoachProfile();
+  const allCoaches = useAllCoaches();
   const [reviewBooking, setReviewBooking] = useState<Booking | null>(null);
 
   const reviewedIds = new Set(reviews.map((r) => r.bookingId));
@@ -54,7 +55,7 @@ export default function Requests() {
                 {item.targetType === 'coach' ? (
                   <Pressable
                     onPress={() => {
-                      const coach = findCoachAlso(item.targetId, myCoachProfile);
+                      const coach = findCoachAlso(item.targetId, myCoachProfile, allCoaches);
                       if (coach) router.push({ pathname: '/chat/[id]', params: { id: coach.id } });
                     }}
                     style={styles.actionBtn}

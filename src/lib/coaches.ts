@@ -40,22 +40,34 @@ export function useMyCoachProfile(): Coach | null {
 }
 
 // Same lookup findCoach() does over the static seed list, but also checking
-// the current device's own published coach profile — this is what makes a
-// coach who signed up through the app actually findable/bookable, instead
-// of only ever the 3 demo profiles baked into seed.ts.
-export function findCoachAlso(id: string | null | undefined, mine: Coach | null): Coach | null {
-  if (id && mine && mine.id === id) return mine;
+// the current device's own published coach profile, and optionally a wider
+// list (e.g. useAllCoaches(), which also includes real coaches fetched from
+// Supabase) — this is what makes a coach who signed up through the app
+// actually findable/bookable, instead of only ever the 3 demo profiles
+// baked into seed.ts.
+export function findCoachAlso(id: string | null | undefined, mine: Coach | null, all?: Coach[]): Coach | null {
+  if (!id) return null;
+  if (mine && mine.id === id) return mine;
+  if (all) return all.find((c) => c.id === id) ?? null;
   return findSeedCoach(id);
+}
+
+// Every coach a member can see: the 3 demo profiles, every real coach
+// published via a real device (see fetchPublishedCoaches in
+// lib/coachesRepo.ts, hydrated in app/_layout.tsx), plus the signed-in
+// coach's own live draft — which always wins over a possibly-stale fetched
+// copy of the same id, since it reflects unsynced local edits.
+export function useAllCoaches(): Coach[] {
+  const mine = useMyCoachProfile();
+  const fetched = useApp((s) => s.coaches);
+  const base = [...COACHES, ...fetched.filter((c) => !mine || c.id !== mine.id)];
+  return mine ? [...base, mine] : base;
 }
 
 // Convenience hook for the common case: looking up exactly one coach by id
 // inside a component's render body.
 export function useFindCoach(id: string | null | undefined): Coach | null {
   const mine = useMyCoachProfile();
-  return findCoachAlso(id, mine);
-}
-
-export function useAllCoaches(): Coach[] {
-  const mine = useMyCoachProfile();
-  return mine ? [...COACHES, mine] : COACHES;
+  const all = useAllCoaches();
+  return findCoachAlso(id, mine, all);
 }

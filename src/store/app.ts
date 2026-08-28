@@ -9,6 +9,7 @@ import {
   BookingMode,
   ChatMessage,
   ChatThread,
+  Coach,
   CoachDraft,
   Gym,
   GymCategory,
@@ -94,6 +95,14 @@ interface AppState {
   gyms: Gym[];
   setGyms: (gyms: Gym[]) => void;
 
+  // Real published coaches fetched from Supabase (see fetchPublishedCoaches
+  // in lib/coachesRepo.ts, hydrated in app/_layout.tsx). Starts empty —
+  // unlike gyms, the 3 demo COACHES were never migrated into the coaches
+  // table, so useAllCoaches() (lib/coaches.ts) merges this with COACHES
+  // itself rather than this list replacing it.
+  coaches: Coach[];
+  setCoaches: (coaches: Coach[]) => void;
+
   favGyms: string[];
   favCoaches: string[];
   toggleFavGym: (id: string) => void;
@@ -166,6 +175,9 @@ export const useApp = create<AppState>()(
     (set, get) => ({
       gyms: GYMS,
       setGyms: (gyms) => set({ gyms }),
+
+      coaches: [],
+      setCoaches: (coaches) => set({ coaches }),
 
       favGyms: [],
       favCoaches: [],

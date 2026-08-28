@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, StyleSheet, ScrollView, Pressable, Switch } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
@@ -8,6 +8,7 @@ import { IconChevronRight } from '../../src/components/ui/icons';
 import { colors, radius, shadow, spacing } from '../../src/theme';
 import { useApp, computeCompletion } from '../../src/store/app';
 import { useSession } from '../../src/store/session';
+import { syncCoachDraftRemote } from '../../src/lib/coachesRepo';
 import PresentationSheet from '../../src/components/coach/PresentationSheet';
 import FormulasSheet from '../../src/components/coach/FormulasSheet';
 import CredentialsSheet from '../../src/components/coach/CredentialsSheet';
@@ -27,6 +28,19 @@ export default function MaFiche() {
 
   const completion = computeCompletion(draft);
   const firstName = (user?.name ?? draft.name ?? 'toi').split(' ')[0];
+
+  // Best-effort remote sync, debounced so a burst of edits (typing a bio,
+  // adding several créneaux) doesn't fire one write per keystroke. The
+  // local draft (already persisted via Zustand/AsyncStorage) stays the
+  // source of truth regardless of whether this succeeds.
+  useEffect(() => {
+    const userId = user?.id;
+    if (!userId) return;
+    const t = setTimeout(() => {
+      syncCoachDraftRemote(userId, draft, completion);
+    }, 900);
+    return () => clearTimeout(t);
+  }, [draft, completion, user?.id]);
 
   // Formules and disponibilités are two halves of the same thing (a
   // formule in présentiel/visio is unbookable without matching créneaux),
