@@ -28,6 +28,7 @@ import { supabase, isSupabaseConfigured } from '../src/lib/supabase';
 import { fetchGyms } from '../src/lib/gymsRepo';
 import { fetchPublishedCoaches, fetchMyCoachDraft } from '../src/lib/coachesRepo';
 import { fetchMyBookings } from '../src/lib/bookingsRepo';
+import { fetchReviews } from '../src/lib/reviewsRepo';
 import { useSession } from '../src/store/session';
 import { useApp } from '../src/store/app';
 
@@ -80,6 +81,15 @@ export default function RootLayout() {
   useEffect(() => {
     fetchPublishedCoaches().then((coaches) => {
       if (coaches) useApp.getState().setCoaches(coaches);
+    });
+  }, []);
+
+  // Every review, from every account — public, so fetched once for
+  // everyone regardless of sign-in state, and merged with whatever this
+  // device already has locally.
+  useEffect(() => {
+    fetchReviews().then((reviews) => {
+      if (reviews) useApp.getState().hydrateReviews(reviews);
     });
   }, []);
 

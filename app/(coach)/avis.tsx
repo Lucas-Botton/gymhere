@@ -2,17 +2,16 @@ import React from 'react';
 import { View, StyleSheet, FlatList } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Text from '../../src/components/ui/Text';
-import { Avatar } from '../../src/components/ui/primitives';
 import { colors, radius, spacing } from '../../src/theme';
-
-const DEMO_REVIEWS = [
-  { name: 'Thomas M.', stars: 5, text: 'Super accompagnement, à l’écoute et très pédagogue. Je recommande à 100%.' },
-  { name: 'Sarah B.', stars: 5, text: 'Programme HYROX au top, résultats visibles en un mois. Merci !' },
-  { name: 'Karim D.', stars: 4, text: 'Très ponctuel et motivant, bons conseils nutrition en plus.' },
-];
+import { useApp } from '../../src/store/app';
+import { useSession } from '../../src/store/session';
+import { Review } from '../../src/types';
 
 export default function Avis() {
-  const avg = (DEMO_REVIEWS.reduce((n, r) => n + r.stars, 0) / DEMO_REVIEWS.length).toFixed(1);
+  const userId = useSession((s) => s.user?.id);
+  const allReviews = useApp((s) => s.reviews);
+  const reviews = allReviews.filter((r) => r.targetType === 'coach' && r.targetId === userId);
+  const avg = reviews.length > 0 ? (reviews.reduce((n, r) => n + r.stars, 0) / reviews.length).toFixed(1) : '–';
 
   return (
     <View style={{ flex: 1, backgroundColor: '#fff' }}>
@@ -25,28 +24,40 @@ export default function Avis() {
             {avg}
           </Text>
           <Text weight="bold" color={colors.textMuted} style={{ fontSize: 12 }}>
-            {'★'.repeat(Math.round(Number(avg)))} · {DEMO_REVIEWS.length} avis
+            {reviews.length > 0 ? `${'★'.repeat(Math.round(Number(avg)))} · ${reviews.length} avis` : 'Aucun avis pour l’instant'}
           </Text>
         </View>
       </SafeAreaView>
       <FlatList
-        data={DEMO_REVIEWS}
-        keyExtractor={(r) => r.name}
+        data={reviews}
+        keyExtractor={(r) => r.id}
         contentContainerStyle={{ padding: spacing.lg }}
-        renderItem={({ item }) => (
-          <View style={styles.row}>
-            <Avatar size={38} initial={item.name[0]} gradient="pinkViolet" />
-            <View style={{ flex: 1, marginLeft: spacing.md }}>
-              <Text weight="extrabold" style={{ fontSize: 13.5 }}>
-                {item.name} · {'★'.repeat(item.stars)}
-              </Text>
-              <Text weight="semibold" color={colors.textMuted} style={{ fontSize: 12.5, marginTop: 3, lineHeight: 18 }}>
-                {item.text}
-              </Text>
-            </View>
-          </View>
-        )}
+        renderItem={({ item }) => <ReviewRow review={item} />}
+        ListEmptyComponent={
+          <Text weight="semibold" color={colors.textMuted} style={{ textAlign: 'center', marginTop: spacing.xl }}>
+            Tes premiers avis apparaîtront ici après tes séances.
+          </Text>
+        }
       />
+    </View>
+  );
+}
+
+function ReviewRow({ review }: { review: Review }) {
+  const date = new Date(review.createdAt).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
+  return (
+    <View style={styles.row}>
+      <Text weight="extrabold" style={{ fontSize: 13.5 }}>
+        {'★'.repeat(review.stars)} · Avis vérifié
+      </Text>
+      {review.comment ? (
+        <Text weight="semibold" color={colors.textMuted} style={{ fontSize: 12.5, marginTop: 3, lineHeight: 18 }}>
+          {review.comment}
+        </Text>
+      ) : null}
+      <Text weight="bold" color={colors.textLight} style={{ fontSize: 11, marginTop: 4 }}>
+        {date}
+      </Text>
     </View>
   );
 }
@@ -54,5 +65,5 @@ export default function Avis() {
 const styles = StyleSheet.create({
   header: { paddingHorizontal: spacing.lg, paddingTop: spacing.sm, paddingBottom: spacing.md },
   avgCard: { alignItems: 'center', backgroundColor: colors.bgTint, borderRadius: radius.lg, padding: spacing.lg, marginTop: spacing.md },
-  row: { flexDirection: 'row', marginBottom: spacing.lg },
+  row: { marginBottom: spacing.lg },
 });

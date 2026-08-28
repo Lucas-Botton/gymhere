@@ -25,6 +25,7 @@ import {
 import { GYMS } from '../data/seed';
 import { useSession } from './session';
 import { addBookingRemote, updateBookingStatusRemote } from '../lib/bookingsRepo';
+import { addReviewRemote } from '../lib/reviewsRepo';
 
 function uid() {
   return Math.random().toString(36).slice(2) + Date.now().toString(36);
@@ -115,8 +116,12 @@ interface AppState {
   // device/reinstall without duplicating anything already there.
   hydrateBookings: (remote: Booking[]) => void;
 
+  // Public: every review, from every account — see fetchReviews() in
+  // lib/reviewsRepo.ts, fetched once at boot in app/_layout.tsx and merged
+  // in below, on top of whatever this device already has locally.
   reviews: Review[];
   addReview: (input: { bookingId: string; targetType: TargetType; targetId: string; stars: number; criteria: Record<string, number>; tags: string[]; comment: string }) => void;
+  hydrateReviews: (remote: Review[]) => void;
 
   reports: Report[];
   addReport: (input: { targetType: TargetType; targetId: string; targetName: string; reason: ReportReason; message?: string }) => Report;
@@ -242,24 +247,28 @@ export const useApp = create<AppState>()(
       },
 
       reviews: [],
-      addReview: (input) =>
-        set((s) => ({
-          reviews: [
-            {
-              id: uid(),
-              userId: 'me',
-              targetType: input.targetType,
-              targetId: input.targetId,
-              bookingId: input.bookingId,
-              stars: input.stars,
-              criteria: input.criteria,
-              tags: input.tags,
-              comment: input.comment,
-              createdAt: new Date().toISOString(),
-            },
-            ...s.reviews,
-          ],
-        })),
+      addReview: (input) => {
+        const sessionUser = useSession.getState().user;
+        const review: Review = {
+          id: uid(),
+          userId: sessionUser?.id ?? 'me',
+          targetType: input.targetType,
+          targetId: input.targetId,
+          bookingId: input.bookingId,
+          stars: input.stars,
+          criteria: input.criteria,
+          tags: input.tags,
+          comment: input.comment,
+          createdAt: new Date().toISOString(),
+        };
+        set((s) => ({ reviews: [review, ...s.reviews] }));
+        addReviewRemote(review);
+      },
+      hydrateReviews: (remote) =>
+        set((s) => {
+          const localIds = new Set(s.reviews.map((r) => r.id));
+          return { reviews: [...s.reviews, ...remote.filter((r) => !localIds.has(r.id))] };
+        }),
 
       notifications: [
         {
