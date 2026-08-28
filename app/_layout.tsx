@@ -27,6 +27,7 @@ import Toast from '../src/components/ui/Toast';
 import { supabase, isSupabaseConfigured } from '../src/lib/supabase';
 import { fetchGyms } from '../src/lib/gymsRepo';
 import { fetchPublishedCoaches, fetchMyCoachDraft } from '../src/lib/coachesRepo';
+import { fetchMyBookings } from '../src/lib/bookingsRepo';
 import { useSession } from '../src/store/session';
 import { useApp } from '../src/store/app';
 
@@ -93,6 +94,16 @@ export default function RootLayout() {
     if (draft.name.trim().length > 0) return;
     fetchMyCoachDraft(userId).then((remote) => {
       if (remote) useApp.getState().updateCoachDraft(remote);
+    });
+  }, [userId]);
+
+  // Restores this account's booking history on a fresh device/reinstall —
+  // merges in anything remote not already known locally, never removes or
+  // overwrites what's already there.
+  useEffect(() => {
+    if (!userId) return;
+    fetchMyBookings(userId).then((remote) => {
+      if (remote) useApp.getState().hydrateBookings(remote);
     });
   }, [userId]);
 

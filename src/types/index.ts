@@ -172,6 +172,11 @@ export interface Booking {
   targetType: TargetType;
   targetId: string;
   targetName: string;
+  // Denormalized display name of the requester — only set on bookings
+  // fetched as an "incoming request" (see fetchIncomingCoachBookings in
+  // lib/bookingsRepo.ts); absent on a booking the requester made
+  // themselves, since they already know who they are.
+  fromName?: string;
   kind: BookingKind;
   mode: BookingMode;
   date: string | null;

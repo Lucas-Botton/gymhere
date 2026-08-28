@@ -7,6 +7,7 @@ import {
   Booking,
   BookingKind,
   BookingMode,
+  BookingStatus,
   ChatMessage,
   ChatThread,
   Coach,
@@ -22,6 +23,8 @@ import {
   WeekDay,
 } from '../types';
 import { GYMS } from '../data/seed';
+import { useSession } from './session';
+import { addBookingRemote, updateBookingStatusRemote } from '../lib/bookingsRepo';
 
 function uid() {
   return Math.random().toString(36).slice(2) + Date.now().toString(36);
@@ -48,22 +51,6 @@ const defaultCoachDraft: CoachDraft = {
   availability: emptyAvailability,
   published: false,
 };
-
-interface InboxEntry {
-  id: string;
-  fromName: string;
-  avatarGradient: string;
-  offer: string;
-  message: string;
-  ago: string;
-  decided: 'accepted' | 'declined' | null;
-}
-
-const seedInbox: InboxEntry[] = [
-  { id: 'q1', fromName: 'Thomas M.', avatarGradient: 'pinkViolet', offer: 'Suivi en ligne complet', message: 'Salut ! Je débute et j’aimerais un accompagnement sur la prise de masse. Dispo en télétravail la journée.', ago: 'il y a 2h', decided: null },
-  { id: 'q2', fromName: 'Sarah B.', avatarGradient: 'blueMint', offer: 'Séance en présentiel', message: 'Bonjour, objectif HYROX en novembre. Une séance d’essai possible cette semaine ?', ago: 'il y a 5h', decided: null },
-  { id: 'q3', fromName: 'Karim D.', avatarGradient: 'coralPink', offer: 'Appel découverte', message: 'Merci pour l’appel, on démarre lundi 💪', ago: 'hier', decided: 'accepted' },
-];
 
 interface Filters {
   categories: GymCategory[];
@@ -123,6 +110,10 @@ interface AppState {
     slot?: string | null;
     message?: string;
   }) => Booking;
+  // Merges bookings fetched from Supabase into the local list on sign-in
+  // (see the effect in app/_layout.tsx) — restores history on a fresh
+  // device/reinstall without duplicating anything already there.
+  hydrateBookings: (remote: Booking[]) => void;
 
   reviews: Review[];
   addReview: (input: { bookingId: string; targetType: TargetType; targetId: string; stars: number; criteria: Record<string, number>; tags: string[]; comment: string }) => void;
@@ -148,8 +139,14 @@ interface AppState {
   coachPlan: 'gratuit' | 'actif';
   activateCoachPlan: () => void;
 
-  inbox: InboxEntry[];
-  decideInbox: (id: string, decision: 'accepted' | 'declined') => void;
+  // Real bookings sent TO the signed-in coach (target_type='coach',
+  // target_id=their own user id) — fetched in app/(coach)/_layout.tsx so
+  // both the tab badge and the "Demandes reçues" screen share one copy.
+  // Never persisted locally: always refetched, since it belongs to
+  // whichever account is currently signed in as a coach.
+  incomingBookings: Booking[];
+  setIncomingBookings: (bookings: Booking[]) => void;
+  respondToBooking: (bookingId: string, status: BookingStatus) => void;
 
   // Self-service gym back-office (free tier): edits a claimed gym's owner
   // makes are stored as a per-gym override on top of the seed data,
@@ -192,9 +189,10 @@ export const useApp = create<AppState>()(
 
       bookings: [],
       addBooking: (input) => {
+        const sessionUser = useSession.getState().user;
         const booking: Booking = {
           id: uid(),
-          userId: 'me',
+          userId: sessionUser?.id ?? 'me',
           targetType: input.targetType,
           targetId: input.targetId,
           targetName: input.targetName,
@@ -217,8 +215,16 @@ export const useApp = create<AppState>()(
           read: false,
         };
         set((s) => ({ bookings: [booking, ...s.bookings], notifications: [notif, ...s.notifications] }));
+        addBookingRemote(booking, sessionUser?.name ?? 'Un pratiquant');
         return booking;
       },
+      hydrateBookings: (remote) =>
+        set((s) => {
+          const localIds = new Set(s.bookings.map((b) => b.id));
+          const merged = [...s.bookings, ...remote.filter((b) => !localIds.has(b.id))];
+          merged.sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1));
+          return { bookings: merged };
+        }),
 
       reports: [],
       addReport: (input) => {
@@ -335,8 +341,12 @@ export const useApp = create<AppState>()(
       coachPlan: 'gratuit',
       activateCoachPlan: () => set({ coachPlan: 'actif' }),
 
-      inbox: seedInbox,
-      decideInbox: (id, decision) => set((s) => ({ inbox: s.inbox.map((i) => (i.id === id ? { ...i, decided: decision } : i)) })),
+      incomingBookings: [],
+      setIncomingBookings: (bookings) => set({ incomingBookings: bookings }),
+      respondToBooking: (bookingId, status) => {
+        set((s) => ({ incomingBookings: s.incomingBookings.map((b) => (b.id === bookingId ? { ...b, status } : b)) }));
+        updateBookingStatusRemote(bookingId, status);
+      },
 
       gymOverrides: {},
       updateGymOverride: (gymId, partial) =>
@@ -386,7 +396,6 @@ export const useApp = create<AppState>()(
         threads: s.threads,
         coachDraft: s.coachDraft,
         coachPlan: s.coachPlan,
-        inbox: s.inbox,
         gymOverrides: s.gymOverrides,
         claimedGymIds: s.claimedGymIds,
       }),

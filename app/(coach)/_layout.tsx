@@ -1,13 +1,26 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Tabs, router } from 'expo-router';
 import { colors } from '../../src/theme';
 import { IconCard, IconInbox, IconStar, IconBack } from '../../src/components/ui/icons';
 import { useSession } from '../../src/store/session';
 import { useApp } from '../../src/store/app';
+import { fetchIncomingCoachBookings } from '../../src/lib/bookingsRepo';
 
 export default function CoachTabsLayout() {
   const backToMember = useSession((s) => s.backToMember);
-  const newRequests = useApp((s) => s.inbox.filter((i) => !i.decided).length);
+  const userId = useSession((s) => s.user?.id);
+  const setIncomingBookings = useApp((s) => s.setIncomingBookings);
+  const newRequests = useApp((s) => s.incomingBookings.filter((b) => b.status === 'en_attente').length);
+
+  // Refetched every time the coach opens their space (not just at app
+  // boot), so a request that came in while they were on the member side
+  // shows up without needing a full app restart.
+  useEffect(() => {
+    if (!userId) return;
+    fetchIncomingCoachBookings(userId).then((bookings) => {
+      if (bookings) setIncomingBookings(bookings);
+    });
+  }, [userId, setIncomingBookings]);
 
   return (
     <Tabs

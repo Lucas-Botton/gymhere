@@ -137,11 +137,17 @@ alter table public.coaches drop constraint if exists coaches_user_id_key;
 alter table public.coaches add constraint coaches_user_id_key unique (user_id);
 
 -- ========== BOOKINGS (demandes) ==========
+-- id is text, not the usual uuid default: the app always generates its own
+-- client-side id (uid() in store/app.ts) so a booking can be inserted
+-- optimistically with the same id it already has locally, no round-trip
+-- needed to read back a server-generated one — same convention as gyms.id.
 create table if not exists public.bookings (
-  id uuid primary key default uuid_generate_v4(),
+  id text primary key,
   user_id uuid not null references public.users(id) on delete cascade,
   target_type text not null check (target_type in ('gym','coach')),
   target_id text not null,
+  target_name text not null default '', -- denormalized: gyms/coaches have no single public read policy the requester's peer could join through
+  from_name text not null default '', -- denormalized: lets the target (coach/salle) show who's asking without a cross-user users-table read
   kind text not null check (kind in ('essai','inscription','contact','appel','formule')),
   mode text not null check (mode in ('slot','request')),
   date date,
@@ -151,20 +157,37 @@ create table if not exists public.bookings (
   created_at timestamptz not null default now()
 );
 create index if not exists bookings_user_id_idx on public.bookings(user_id);
+create index if not exists bookings_target_idx on public.bookings(target_type, target_id);
 
 -- ========== REVIEWS ==========
 create table if not exists public.reviews (
-  id uuid primary key default uuid_generate_v4(),
+  id text primary key,
   user_id uuid not null references public.users(id) on delete cascade,
   target_type text not null check (target_type in ('gym','coach')),
   target_id text not null,
-  booking_id uuid not null references public.bookings(id) on delete cascade unique,
+  booking_id text not null references public.bookings(id) on delete cascade unique,
   note integer not null check (note between 1 and 5),
   criteres jsonb not null default '{}',
   tags text[] not null default '{}',
   commentaire text default '',
   created_at timestamptz not null default now()
 );
+
+-- Defensive migration for a database created before bookings.id/reviews.id
+-- switched from an auto-generated uuid to an app-supplied text id (see
+-- comment above bookings' table definition) — no-op on a fresh install
+-- where the columns are already text. The FK has to be dropped and
+-- recreated around the type change since Postgres refuses to retype a
+-- column referenced by a foreign key.
+alter table public.reviews drop constraint if exists reviews_booking_id_fkey;
+alter table public.bookings alter column id drop default;
+alter table public.bookings alter column id type text using id::text;
+alter table public.reviews alter column id drop default;
+alter table public.reviews alter column id type text using id::text;
+alter table public.reviews alter column booking_id type text using booking_id::text;
+alter table public.reviews add constraint reviews_booking_id_fkey foreign key (booking_id) references public.bookings(id) on delete cascade;
+alter table public.bookings add column if not exists target_name text not null default '';
+alter table public.bookings add column if not exists from_name text not null default '';
 
 -- ========== REPORTS (signalement d'une fiche salle/coach) ==========
 create table if not exists public.reports (
@@ -317,6 +340,31 @@ create policy "coach_availability owner write" on public.coach_availability for 
 -- Bookings : l'utilisateur voit/crée ses propres demandes ; le coach/la salle ciblé(e) peut lire
 drop policy if exists "bookings owner all" on public.bookings;
 create policy "bookings owner all" on public.bookings for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+-- Le coach ciblé (target_id = son propre user_id, cf. la convention "l'id
+-- public d'un coach = son user_id") peut lire sa demande et faire évoluer
+-- son statut (accepter/refuser) sans pouvoir toucher au reste de la ligne.
+drop policy if exists "bookings target coach read" on public.bookings;
+create policy "bookings target coach read" on public.bookings for select using (
+  target_type = 'coach' and target_id = auth.uid()::text
+);
+drop policy if exists "bookings target coach update status" on public.bookings;
+create policy "bookings target coach update status" on public.bookings for update using (
+  target_type = 'coach' and target_id = auth.uid()::text
+) with check (
+  target_type = 'coach' and target_id = auth.uid()::text
+);
+-- Même chose côté salle, via un lookup sur gyms.owner_id (target_id est
+-- l'id de la salle, pas un user_id).
+drop policy if exists "bookings target gym read" on public.bookings;
+create policy "bookings target gym read" on public.bookings for select using (
+  target_type = 'gym' and exists (select 1 from public.gyms g where g.id = target_id and g.owner_id = auth.uid())
+);
+drop policy if exists "bookings target gym update status" on public.bookings;
+create policy "bookings target gym update status" on public.bookings for update using (
+  target_type = 'gym' and exists (select 1 from public.gyms g where g.id = target_id and g.owner_id = auth.uid())
+) with check (
+  target_type = 'gym' and exists (select 1 from public.gyms g where g.id = target_id and g.owner_id = auth.uid())
+);
 
 -- Reviews : l'auteur peut créer/lire les siens (au delà de la lecture publique déjà ouverte)
 drop policy if exists "reviews owner insert" on public.reviews;

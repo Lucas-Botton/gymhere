@@ -6,10 +6,37 @@ import Text from '../../src/components/ui/Text';
 import { Avatar } from '../../src/components/ui/primitives';
 import { colors, radius, shadow, spacing } from '../../src/theme';
 import { useApp } from '../../src/store/app';
+import { Booking } from '../../src/types';
+
+const AVATAR_GRADIENTS = ['pinkViolet', 'blueMint', 'coralPink'];
+
+function kindLabel(kind: Booking['kind']) {
+  switch (kind) {
+    case 'essai':
+      return 'Séance d’essai';
+    case 'inscription':
+      return 'Demande d’inscription';
+    case 'contact':
+      return 'Prise de contact';
+    case 'appel':
+      return 'Appel découverte';
+    case 'formule':
+      return 'Formule';
+  }
+}
+
+function timeAgo(iso: string) {
+  const diffMs = Date.now() - new Date(iso).getTime();
+  const days = Math.floor(diffMs / 86400000);
+  if (days >= 1) return `il y a ${days}j`;
+  const hours = Math.floor(diffMs / 3600000);
+  if (hours >= 1) return `il y a ${hours}h`;
+  return 'à l’instant';
+}
 
 export default function Demandes() {
-  const inbox = useApp((s) => s.inbox);
-  const decide = useApp((s) => s.decideInbox);
+  const bookings = useApp((s) => s.incomingBookings);
+  const respond = useApp((s) => s.respondToBooking);
 
   return (
     <View style={{ flex: 1, backgroundColor: '#fff' }}>
@@ -19,36 +46,40 @@ export default function Demandes() {
         </Text>
       </SafeAreaView>
       <FlatList
-        data={inbox}
-        keyExtractor={(i) => i.id}
+        data={bookings}
+        keyExtractor={(b) => b.id}
         contentContainerStyle={{ padding: spacing.lg }}
-        renderItem={({ item }) => {
-          const status = item.decided === 'accepted' ? 'Accepté' : item.decided === 'declined' ? 'Refusé' : 'Nouveau';
+        renderItem={({ item, index }) => {
+          const fromName = item.fromName || 'Un pratiquant';
+          const decided = item.status === 'accepte' || item.status === 'confirme' ? 'accepted' : item.status === 'refuse' ? 'declined' : null;
+          const status = decided === 'accepted' ? 'Accepté' : decided === 'declined' ? 'Refusé' : 'Nouveau';
           return (
             <View style={[styles.card, shadow.soft]}>
               <View style={{ flexDirection: 'row' }}>
-                <Avatar gradient={item.avatarGradient} size={44} initial={item.fromName[0]} />
+                <Avatar gradient={AVATAR_GRADIENTS[index % AVATAR_GRADIENTS.length]} size={44} initial={fromName[0]} />
                 <View style={{ flex: 1, marginLeft: spacing.md }}>
                   <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                     <Text weight="black" style={{ fontSize: 14.5 }}>
-                      {item.fromName}
+                      {fromName}
                     </Text>
                     <Text weight="bold" color={colors.textLight} style={{ fontSize: 11 }}>
-                      {item.ago}
+                      {timeAgo(item.createdAt)}
                     </Text>
                   </View>
                   <Text weight="extrabold" color={colors.pink} style={{ fontSize: 12, marginTop: 2 }}>
-                    {item.offer}
+                    {kindLabel(item.kind)}
                   </Text>
                 </View>
               </View>
-              <Text weight="semibold" color={colors.textMuted} style={{ fontSize: 12.5, marginTop: spacing.sm, lineHeight: 18 }}>
-                {item.message}
-              </Text>
+              {item.message ? (
+                <Text weight="semibold" color={colors.textMuted} style={{ fontSize: 12.5, marginTop: spacing.sm, lineHeight: 18 }}>
+                  {item.message}
+                </Text>
+              ) : null}
               <View style={{ flexDirection: 'row', gap: spacing.sm, marginTop: spacing.md }}>
-                {item.decided ? (
-                  <View style={[styles.statusPill, item.decided === 'accepted' ? styles.pillGreen : styles.pillGray]}>
-                    <Text weight="extrabold" color={item.decided === 'accepted' ? colors.successDeep : colors.textMuted} style={{ fontSize: 12 }}>
+                {decided ? (
+                  <View style={[styles.statusPill, decided === 'accepted' ? styles.pillGreen : styles.pillGray]}>
+                    <Text weight="extrabold" color={decided === 'accepted' ? colors.successDeep : colors.textMuted} style={{ fontSize: 12 }}>
                       {status}
                     </Text>
                   </View>
@@ -56,8 +87,8 @@ export default function Demandes() {
                   <>
                     <Pressable
                       onPress={() => {
-                        decide(item.id, 'accepted');
-                        router.push({ pathname: '/coach-chat/[id]', params: { id: item.id, name: item.fromName, avatar: item.avatarGradient } });
+                        respond(item.id, 'accepte');
+                        router.push({ pathname: '/coach-chat/[id]', params: { id: item.id, name: fromName, avatar: AVATAR_GRADIENTS[index % AVATAR_GRADIENTS.length] } });
                       }}
                       style={styles.acceptBtn}
                     >
@@ -65,7 +96,7 @@ export default function Demandes() {
                         Accepter & répondre
                       </Text>
                     </Pressable>
-                    <Pressable onPress={() => decide(item.id, 'declined')} style={styles.declineBtn}>
+                    <Pressable onPress={() => respond(item.id, 'refuse')} style={styles.declineBtn}>
                       <Text weight="extrabold" color={colors.textMuted} style={{ fontSize: 12.5 }}>
                         Refuser
                       </Text>
