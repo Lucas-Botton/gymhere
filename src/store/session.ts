@@ -34,6 +34,11 @@ interface SessionState {
   login: (profile?: Partial<UserProfile>) => void;
   logout: () => void;
   setAvatarUrl: (uri: string) => void;
+  // Overlays locally-entered profile fields (e.g. the name/phone typed
+  // into coach-signup) on top of whatever syncFromSupabase derived from
+  // the auth session — a real e-mail OTP session has no name/phone of its
+  // own to give back.
+  updateProfile: (partial: Partial<UserProfile>) => void;
   becomeCoach: () => void;
   backToMember: () => void;
   claimGym: (gymId: string) => void;
@@ -91,6 +96,7 @@ export const useSession = create<SessionState>()(
         set({ loggedIn: false, user: null, isCoach: false, role: null });
       },
       setAvatarUrl: (uri) => set((s) => (s.user ? { user: { ...s.user, avatarUrl: uri } } : s)),
+      updateProfile: (partial) => set((s) => (s.user ? { user: { ...s.user, ...partial } } : s)),
 
       becomeCoach: () => set({ isCoach: true, role: 'coach', loggedIn: true }),
       backToMember: () => set({ role: 'member' }),
