@@ -30,6 +30,7 @@ import { fetchPublishedCoaches, fetchMyCoachDraft } from '../src/lib/coachesRepo
 import { fetchMyBookings } from '../src/lib/bookingsRepo';
 import { fetchReviews } from '../src/lib/reviewsRepo';
 import { ensureUserProfile } from '../src/lib/usersRepo';
+import { fetchFavorites } from '../src/lib/favoritesRepo';
 import { useSession } from '../src/store/session';
 import { useApp } from '../src/store/app';
 
@@ -124,6 +125,15 @@ export default function RootLayout() {
     if (!userId) return;
     fetchMyBookings(userId).then((remote) => {
       if (remote) useApp.getState().hydrateBookings(remote);
+    });
+  }, [userId]);
+
+  // Restores this account's favorites on a fresh device/reinstall — set
+  // union with whatever's already local, never removes anything.
+  useEffect(() => {
+    if (!userId) return;
+    fetchFavorites(userId).then((remote) => {
+      if (remote) useApp.getState().hydrateFavorites(remote.gymIds, remote.coachIds);
     });
   }, [userId]);
 

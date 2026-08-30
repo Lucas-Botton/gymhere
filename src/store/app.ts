@@ -27,6 +27,8 @@ import { useSession } from './session';
 import { addBookingRemote, updateBookingStatusRemote } from '../lib/bookingsRepo';
 import { addReviewRemote } from '../lib/reviewsRepo';
 import { sendMessageRemote } from '../lib/messagesRepo';
+import { toggleFavoriteRemote } from '../lib/favoritesRepo';
+import { addReportRemote } from '../lib/reportsRepo';
 
 function uid() {
   return Math.random().toString(36).slice(2) + Date.now().toString(36);
@@ -96,6 +98,9 @@ interface AppState {
   favCoaches: string[];
   toggleFavGym: (id: string) => void;
   toggleFavCoach: (id: string) => void;
+  // Merges favorites fetched from Supabase into the local lists on
+  // sign-in — set union, never removes anything already there.
+  hydrateFavorites: (gymIds: string[], coachIds: string[]) => void;
 
   filters: Filters;
   setFilters: (partial: Partial<Filters>) => void;
@@ -196,10 +201,23 @@ export const useApp = create<AppState>()(
 
       favGyms: [],
       favCoaches: [],
-      toggleFavGym: (id) =>
-        set((s) => ({ favGyms: s.favGyms.includes(id) ? s.favGyms.filter((x) => x !== id) : [...s.favGyms, id] })),
-      toggleFavCoach: (id) =>
-        set((s) => ({ favCoaches: s.favCoaches.includes(id) ? s.favCoaches.filter((x) => x !== id) : [...s.favCoaches, id] })),
+      toggleFavGym: (id) => {
+        const userId = useSession.getState().user?.id;
+        const wasFav = get().favGyms.includes(id);
+        set((s) => ({ favGyms: wasFav ? s.favGyms.filter((x) => x !== id) : [...s.favGyms, id] }));
+        if (userId) toggleFavoriteRemote(userId, 'gym', id, !wasFav);
+      },
+      toggleFavCoach: (id) => {
+        const userId = useSession.getState().user?.id;
+        const wasFav = get().favCoaches.includes(id);
+        set((s) => ({ favCoaches: wasFav ? s.favCoaches.filter((x) => x !== id) : [...s.favCoaches, id] }));
+        if (userId) toggleFavoriteRemote(userId, 'coach', id, !wasFav);
+      },
+      hydrateFavorites: (gymIds, coachIds) =>
+        set((s) => ({
+          favGyms: Array.from(new Set([...s.favGyms, ...gymIds])),
+          favCoaches: Array.from(new Set([...s.favCoaches, ...coachIds])),
+        })),
 
       filters: defaultFilters,
       setFilters: (partial) => set((s) => ({ filters: { ...s.filters, ...partial } })),
@@ -260,6 +278,8 @@ export const useApp = create<AppState>()(
           createdAt: new Date().toISOString(),
         };
         set((s) => ({ reports: [report, ...s.reports] }));
+        const userId = useSession.getState().user?.id;
+        if (userId) addReportRemote(report, userId);
         return report;
       },
 
