@@ -116,6 +116,10 @@ interface AppState {
   // (see the effect in app/_layout.tsx) — restores history on a fresh
   // device/reinstall without duplicating anything already there.
   hydrateBookings: (remote: Booking[]) => void;
+  // Member-initiated cancellation of their own booking — local update +
+  // best-effort remote write, allowed by the same "bookings owner all" RLS
+  // policy that lets the requester create/read/update their own rows.
+  cancelBooking: (bookingId: string) => void;
 
   // Public: every review, from every account — see fetchReviews() in
   // lib/reviewsRepo.ts, fetched once at boot in app/_layout.tsx and merged
@@ -239,6 +243,10 @@ export const useApp = create<AppState>()(
           merged.sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1));
           return { bookings: merged };
         }),
+      cancelBooking: (bookingId) => {
+        set((s) => ({ bookings: s.bookings.map((b) => (b.id === bookingId ? { ...b, status: 'annule' } : b)) }));
+        updateBookingStatusRemote(bookingId, 'annule');
+      },
 
       reports: [],
       addReport: (input) => {

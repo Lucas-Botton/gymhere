@@ -81,12 +81,13 @@ export function VerifiedPill({ verified }: { verified: boolean }) {
   );
 }
 
-export function StatusPill({ status }: { status: 'confirme' | 'en_attente' | 'accepte' | 'refuse' }) {
+export function StatusPill({ status }: { status: 'confirme' | 'en_attente' | 'accepte' | 'refuse' | 'annule' }) {
   const map = {
     confirme: { label: 'Confirmé', bg: colors.successBg, color: colors.successDeep },
     accepte: { label: 'Accepté', bg: colors.successBg, color: colors.successDeep },
     en_attente: { label: 'En attente', bg: colors.warningBg, color: colors.warning },
     refuse: { label: 'Refusé', bg: colors.dangerBg, color: colors.danger },
+    annule: { label: 'Annulé', bg: colors.bgTint, color: colors.textMuted },
   } as const;
   const v = map[status];
   return (

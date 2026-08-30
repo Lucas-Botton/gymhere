@@ -153,7 +153,7 @@ create table if not exists public.bookings (
   date date,
   slot text,
   message text default '',
-  statut text not null default 'en_attente' check (statut in ('en_attente','confirme','accepte','refuse')),
+  statut text not null default 'en_attente' check (statut in ('en_attente','confirme','accepte','refuse','annule')),
   created_at timestamptz not null default now()
 );
 create index if not exists bookings_user_id_idx on public.bookings(user_id);
@@ -188,6 +188,12 @@ alter table public.reviews alter column booking_id type text using booking_id::t
 alter table public.reviews add constraint reviews_booking_id_fkey foreign key (booking_id) references public.bookings(id) on delete cascade;
 alter table public.bookings add column if not exists target_name text not null default '';
 alter table public.bookings add column if not exists from_name text not null default '';
+-- 'annule' (member-initiated cancellation) added after the check constraint
+-- above was first written — same drop/re-add pattern as the other check
+-- constraint fixes in this file, both names covered since Postgres
+-- auto-names differ between a fresh create and this already-created table.
+alter table public.bookings drop constraint if exists bookings_statut_check;
+alter table public.bookings add constraint bookings_statut_check check (statut in ('en_attente','confirme','accepte','refuse','annule'));
 
 -- ========== REPORTS (signalement d'une fiche salle/coach) ==========
 create table if not exists public.reports (

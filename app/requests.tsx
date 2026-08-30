@@ -5,6 +5,7 @@ import { router } from 'expo-router';
 import Text from '../src/components/ui/Text';
 import Button from '../src/components/ui/Button';
 import ScreenHeader from '../src/components/ui/ScreenHeader';
+import BottomSheet from '../src/components/ui/BottomSheet';
 import { StatusPill } from '../src/components/ui/primitives';
 import ReviewSheet from '../src/components/booking/ReviewSheet';
 import { colors, radius, shadow, spacing } from '../src/theme';
@@ -15,9 +16,11 @@ import { useMyCoachProfile, useAllCoaches, findCoachAlso } from '../src/lib/coac
 export default function Requests() {
   const bookings = useApp((s) => s.bookings);
   const reviews = useApp((s) => s.reviews);
+  const cancelBooking = useApp((s) => s.cancelBooking);
   const myCoachProfile = useMyCoachProfile();
   const allCoaches = useAllCoaches();
   const [reviewBooking, setReviewBooking] = useState<Booking | null>(null);
+  const [cancelTarget, setCancelTarget] = useState<Booking | null>(null);
 
   const reviewedIds = new Set(reviews.map((r) => r.bookingId));
 
@@ -31,6 +34,7 @@ export default function Requests() {
         renderItem={({ item }) => {
           const reviewed = reviewedIds.has(item.id);
           const canReview = (item.status === 'confirme' || item.status === 'accepte') && !reviewed;
+          const canCancel = item.status === 'en_attente' || item.status === 'confirme' || item.status === 'accepte';
           return (
             <View style={[styles.card, shadow.soft]}>
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
@@ -70,6 +74,13 @@ export default function Requests() {
                     Avis publié ✓
                   </Text>
                 ) : null}
+                {canCancel ? (
+                  <Pressable onPress={() => setCancelTarget(item)} style={styles.actionBtn}>
+                    <Text weight="extrabold" color={colors.danger} style={{ fontSize: 12.5 }}>
+                      Annuler
+                    </Text>
+                  </Pressable>
+                ) : null}
               </View>
             </View>
           );
@@ -88,6 +99,24 @@ export default function Requests() {
         }
       />
       <ReviewSheet booking={reviewBooking} onClose={() => setReviewBooking(null)} />
+
+      <BottomSheet visible={!!cancelTarget} onClose={() => setCancelTarget(null)} title="Annuler cette demande ?">
+        <View style={{ paddingHorizontal: spacing.xl, paddingBottom: spacing.xl }}>
+          <Text weight="semibold" color={colors.textMuted} style={{ fontSize: 13.5, marginBottom: spacing.lg }}>
+            {cancelTarget?.targetName} sera prévenu·e que tu annules.
+          </Text>
+          <Button
+            label="Confirmer l’annulation"
+            variant="dark"
+            onPress={() => {
+              if (cancelTarget) cancelBooking(cancelTarget.id);
+              setCancelTarget(null);
+            }}
+          />
+          <View style={{ height: spacing.sm }} />
+          <Button label="Retour" variant="ghost" onPress={() => setCancelTarget(null)} />
+        </View>
+      </BottomSheet>
     </View>
   );
 }

@@ -4,7 +4,7 @@ export type Role = 'member' | 'coach';
 
 export type BookingKind = 'essai' | 'inscription' | 'contact' | 'appel' | 'formule';
 export type BookingMode = 'slot' | 'request';
-export type BookingStatus = 'en_attente' | 'confirme' | 'accepte' | 'refuse';
+export type BookingStatus = 'en_attente' | 'confirme' | 'accepte' | 'refuse' | 'annule';
 export type TargetType = 'gym' | 'coach';
 export type ReportReason = 'horaires' | 'tarifs' | 'coordonnees' | 'indisponible' | 'autre';
 export type FormuleMode = 'Présentiel' | 'Visio' | 'En ligne';
