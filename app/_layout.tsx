@@ -29,6 +29,7 @@ import { fetchGyms } from '../src/lib/gymsRepo';
 import { fetchPublishedCoaches, fetchMyCoachDraft } from '../src/lib/coachesRepo';
 import { fetchMyBookings } from '../src/lib/bookingsRepo';
 import { fetchReviews } from '../src/lib/reviewsRepo';
+import { ensureUserProfile } from '../src/lib/usersRepo';
 import { useSession } from '../src/store/session';
 import { useApp } from '../src/store/app';
 
@@ -62,8 +63,17 @@ export default function RootLayout() {
   useEffect(() => {
     if (!isSupabaseConfigured || !supabase) return;
     const sync = useSession.getState().syncFromSupabase;
-    supabase.auth.getSession().then(({ data }) => sync(data.session?.user ?? null));
-    const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => sync(session?.user ?? null));
+    // Every table this app writes to (coaches, bookings, reviews,
+    // messages, gyms.owner_id...) has a foreign key into public.users —
+    // Supabase Auth never creates that row on its own, only auth.users,
+    // so every remote write would otherwise fail silently. Fired
+    // best-effort right alongside the local session sync.
+    const syncUser = (user: { id: string; email?: string | null } | null) => {
+      sync(user);
+      if (user) ensureUserProfile(user.id, user.email?.split('@')[0] ?? 'Toi', user.email ?? '');
+    };
+    supabase.auth.getSession().then(({ data }) => syncUser(data.session?.user ?? null));
+    const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => syncUser(session?.user ?? null));
     return () => sub.subscription.unsubscribe();
   }, []);
 
