@@ -184,6 +184,7 @@ export default function MaSalle() {
           <Button label="Enregistrer" onPress={save} style={{ marginTop: spacing.xl }} />
 
           <SectionTitle>Aller plus loin</SectionTitle>
+          <SectionRow label="Demandes reçues" sub="Séances d’essai, inscriptions, prises de contact" onPress={() => router.push('/gym-demandes')} />
           <SectionRow label="Mes formules" sub={`${gym.formulas.length} formule${gym.formulas.length !== 1 ? 's' : ''}`} onPress={() => setFormulasOpen(true)} />
           <SectionRow
             label="Mon équipement"
